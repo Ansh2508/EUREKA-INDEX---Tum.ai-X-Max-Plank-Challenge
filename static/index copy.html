@@ -213,11 +213,6 @@
       </form>
     </div>
 
-    <div id="data">
-
-    </div>
-
-    </div>
     <div class="results-container" id="results">
       <!-- Results will be populated here -->
     </div>
@@ -248,10 +243,6 @@
         return value.toFixed(2);
       }
       return value;
-    }
-
-    function renderText(text){
-      document.getElementById("data").textContent = text;
     }
 
     function renderResults(data) {
@@ -383,8 +374,7 @@
       results.classList.add('show');
 
       try {
-        const response = await fetch('/analyze', {
-        //const response = await fetch('/related-works-all', {
+        const response = await fetch('http://127.0.0.1:8000/analyze', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -392,13 +382,11 @@
           body: JSON.stringify({ title, abstract })
         });
 
-        console.log(response)
         if (!response.ok) {
           throw new Error(`Server error: ${response.status}`);
         }
 
         const data = await response.json();
-        renderText(JSON.stringify(data))
         renderResults(data);
       } catch (err) {
         results.innerHTML = `<div class="error">❌ Error: ${err.message}</div>`;

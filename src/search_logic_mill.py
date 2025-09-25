@@ -62,7 +62,7 @@ def search_logic_mill(
             id, score, index, title, url, PatspecterEmbedding
     """
     if indices is None:
-        indices = ["patents", "publications"]
+        indices =["publications"] #["patents", "publications"]
 
     variables = {
         "model": model,
@@ -105,16 +105,57 @@ def search_logic_mill(
 
     return documents  # ✅ Return list of dicts
 
-
 def get_ids_and_urls(title: str, abstract: str, model: str = "patspecter", amount: int = 25, indices: list = None, debug: bool = False):
     """
-    Wrapper around search_logic_mill to return only document IDs and URLs.
+    Wrapper around search_logic_mill to return only document IDs and API URLs.
+    
+    Ensures each URL ends with the document's ID.
     
     Returns:
-        list of dicts: Each dict contains 'id' and 'url' only.
+        list of dicts: Each dict contains 'id', 'url' (API endpoint), and 'title'.
     """
     documents = search_logic_mill(title, abstract, model, amount, indices, debug)
-    return [{"id": doc["id"], "url": doc["url"]} for doc in documents]
+    result = []
+    for doc in documents:
+        # Always construct the API URL using the id
+        api_url = f"https://api.openalex.org/works/{doc['id']}"
+        result.append({
+            "id": doc["id"],
+            "url": api_url,
+            "title": doc["title"]
+        })
+    return result
+
+
+def get_related_works(title: str, abstract: str, model: str = "patspecter", amount: int = 25, indices: list = None, debug: bool = False):
+    """
+    Wrapper around search_logic_mill to return only document IDs and API URLs.
+    
+    Ensures each URL ends with the document's ID.
+    
+    Returns:
+        list of dicts: Each dict contains 'id', 'url' (API endpoint), and 'title'.
+    """
+    documents = search_logic_mill(title, abstract, model, amount, indices, debug)
+    result = []
+    for doc in documents:
+        # Always construct the API URL using the id
+        api_url = f"https://api.openalex.org/works/{doc['id']}"
+        result.append(api_url)
+    return result
+
+
+
+
+# def get_ids_and_urls(title: str, abstract: str, model: str = "patspecter", amount: int = 25, indices: list = None, debug: bool = False):
+#     """
+#     Wrapper around search_logic_mill to return only document IDs and URLs.
+    
+#     Returns:
+#         list of dicts: Each dict contains 'id' and 'url' only.
+#     """
+#     documents = search_logic_mill(title, abstract, model, amount, indices, debug)
+#     return [{"id": doc["id"], "url": doc["url"],"title":doc["title"]} for doc in documents]
 
 
 # # Example usage
