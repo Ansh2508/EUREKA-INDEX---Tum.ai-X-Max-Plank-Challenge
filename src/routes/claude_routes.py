@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
-from src.claude import get_claude_response
+from llms.claude import get_claude_response
 import os
 
 router = APIRouter()
