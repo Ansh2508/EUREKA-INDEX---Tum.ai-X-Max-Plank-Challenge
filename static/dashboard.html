@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Patent Intelligence Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2em; }
+        h1 { color: #2c3e50; }
+        .section { margin-bottom: 2em; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1em; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background: #f4f4f4; }
+        .btn { padding: 8px 16px; background: #3498db; color: #fff; border: none; cursor: pointer; }
+        .btn:disabled { background: #aaa; }
+    </style>
+</head>
+<body>
+    <h1>Patent Intelligence Dashboard</h1>
+    <div class="section">
+        <h2>Upload Data</h2>
+        <input type="file" id="dataFile" accept=".json">
+        <button class="btn" onclick="analyzeData()">Analyze</button>
+    </div>
+    <div class="section" id="results"></div>
+    <script>
+        function analyzeData() {
+            const fileInput = document.getElementById('dataFile');
+            if (!fileInput.files.length) {
+                alert('Please select a JSON file with publication and patent data.');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                let payload;
+                try {
+                    payload = JSON.parse(e.target.result);
+                } catch (err) {
+                    alert('Invalid JSON file.');
+                    return;
+                }
+                fetch('/results/intelligence_analysis', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                })
+                .then(res => res.json())
+                .then(showResults)
+                .catch(err => alert('Error: ' + err));
+            };
+            reader.readAsText(fileInput.files[0]);
+        }
+        function showResults(data) {
+            let html = '';
+            html += '<h2>Key Players</h2>';
+            html += '<table><tr><th>Author</th><th>Publications</th></tr>' +
+                data.top_authors.map(a => `<tr><td>${a[0]}</td><td>${a[1]}</td></tr>`).join('') + '</table>';
+            html += '<table><tr><th>Institution</th><th>Publications</th></tr>' +
+                data.top_institutions.map(i => `<tr><td>${i[0]}</td><td>${i[1]}</td></tr>`).join('') + '</table>';
+            html += '<h2>Emerging Trends</h2>';
+            html += '<table><tr><th>Topic</th><th>Count</th></tr>' +
+                Object.entries(data.topic_counts).map(([t,c]) => `<tr><td>${t}</td><td>${c}</td></tr>`).join('') + '</table>';
+            html += '<h3>Underexplored Topics</h3>' + data.underexplored_topics.join(', ');
+            html += '<h2>Research-Patent Matches</h2>';
+            html += '<table><tr><th>Publication</th><th>Patent</th></tr>' +
+                data.research_patent_matches.map(m => `<tr><td>${m[0]}</td><td>${m[1]}</td></tr>`).join('') + '</table>';
+            html += '<h2>Priority Opportunities</h2>';
+            html += '<table><tr><th>Publication</th><th>Topic</th><th>Citations</th></tr>' +
+                data.priority_opportunities.map(o => `<tr><td>${o[0]}</td><td>${o[1]}</td><td>${o[2]}</td></tr>`).join('') + '</table>';
+            document.getElementById('results').innerHTML = html;
+        }
+    </script>
+</body>
+</html>
