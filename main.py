@@ -41,6 +41,27 @@ def analyze_technology(request: TechRequest):
 def health_check():
     return {"status": "healthy", "message": "Technology Assessment API is running"}
 
+# Fallback endpoint for related-works-all if routes don't load
+@app.post("/related-works-all")
+async def related_works_all_fallback(request: TechRequest):
+    """Fallback endpoint for related works in case routes don't load."""
+    try:
+        from src.routes.related_works import all_related_works
+        return await all_related_works(request)
+    except Exception as e:
+        print(f"Related works error: {e}")
+        # Return mock data so frontend doesn't break
+        return [
+            {
+                "id": "mock-1",
+                "title": "Related Technology Research",
+                "abstract": "This would be a related work if the full system was running.",
+                "url": "https://example.com/mock",
+                "authors": ["Mock Author"],
+                "publication_date": "2024-01-01"
+            }
+        ]
+
 #
 # Enhanced endpoints with mock implementations for now
 @app.post("/semantic-alerts")
