@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semantic Patent Alerts Dashboard</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .dashboard-header {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .dashboard-header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .dashboard-header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .dashboard-nav {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .nav-tab {
+            padding: 12px 24px;
+            background: white;
+            border: 2px solid #dee2e6;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .nav-tab.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .nav-tab:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+        
+        .dashboard-content {
+            padding: 30px;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .analysis-form {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        input, textarea, select {
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .result-card {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: transform 0.2s ease;
+        }
+        
+        .result-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .card-icon {
+            font-size: 2em;
+            margin-right: 15px;
+        }
+        
+        .card-title {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f3f4;
+        }
+        
+        .metric-row:last-child {
+            border-bottom: none;
+        }
+        
+        .metric-label {
+            font-weight: 500;
+            color: #666;
+        }
+        
+        .metric-value {
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 20px;
+        }
+        
+        .score-high { background: #d4edda; color: #155724; }
+        .score-medium { background: #fff3cd; color: #856404; }
+        .score-low { background: #f8d7da; color: #721c24; }
+        
+        .alert-item {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .alert-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        .alert-meta {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .alert-score {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #f5c6cb;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-tabs {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1>🚀 Semantic Patent Alerts Dashboard</h1>
+            <p>AI-Powered Patent Intelligence & Technology Transfer</p>
+        </div>
+        
+        <div class="dashboard-nav">
+            <div class="nav-tabs">
+                <div class="nav-tab active" onclick="switchTab('comprehensive')">📊 Comprehensive Analysis</div>
+                <div class="nav-tab" onclick="switchTab('alerts')">🔔 Semantic Alerts</div>
+                <div class="nav-tab" onclick="switchTab('competitors')">🏢 Competitors & Collaborators</div>
+                <div class="nav-tab" onclick="switchTab('licensing')">💼 Licensing Opportunities</div>
+                <div class="nav-tab" onclick="switchTab('novelty')">🔬 Novelty Assessment</div>
+            </div>
+        </div>
+        
+        <div class="dashboard-content">
+            <!-- Comprehensive Analysis Tab -->
+            <div id="comprehensive" class="tab-content active">
+                <div class="analysis-form">
+                    <h2>🔍 Comprehensive Technology Analysis</h2>
+                    <p>Analyze your research for patents, competitors, licensing opportunities, and novelty assessment.</p>
+                    
+                    <form id="comprehensiveForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="comp-title">Research Title</label>
+                                <input type="text" id="comp-title" placeholder="Enter your research title">
+                            </div>
+                            <div class="form-group">
+                                <label for="comp-domain">Research Domain</label>
+                                <input type="text" id="comp-domain" placeholder="e.g., Quantum Computing, Biotechnology">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label for="comp-abstract">Research Abstract</label>
+                            <textarea id="comp-abstract" rows="6" placeholder="Enter detailed research abstract"></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn">🚀 Run Comprehensive Analysis</button>
+                    </form>
+                </div>
+                
+                <div id="comprehensive-results"></div>
+            </div>
+            
+            <!-- Semantic Alerts Tab -->
+            <div id="alerts" class="tab-content">
+                <div class="analysis-form">
+                    <h2>🔔 Semantic Patent Alerts</h2>
+                    <p>Detect patents semantically similar to your research using AI embeddings.</p>
+                    
+                    <form id="alertsForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="alert-title">Research Title</label>
+                                <input type="text" id="alert-title" placeholder="Enter research title">
+                            </div>
+                            <div class="form-group">
+                                <label for="alert-threshold">Similarity Threshold</label>
+                                <select id="alert-threshold">
+                                    <option value="0.9">Very High (0.9)</option>
+                                    <option value="0.8">High (0.8)</option>
+                                    <option value="0.75" selected>Medium (0.75)</option>
+                                    <option value="0.6">Low (0.6)</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label for="alert-abstract">Research Abstract</label>
+                            <textarea id="alert-abstract" rows="5" placeholder="Enter research abstract"></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn">🔍 Find Similar Patents</button>
+                    </form>
+                </div>
+                
+                <div id="alerts-results"></div>
+            </div>
+            
+            <!-- Competitors & Collaborators Tab -->
+            <div id="competitors" class="tab-content">
+                <div class="analysis-form">
+                    <h2>🏢 Competitor & Collaborator Discovery</h2>
+                    <p>Identify top authors, inventors, and institutions in your research domain.</p>
+                    
+                    <form id="competitorsForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="comp-research-title">Research Title</label>
+                                <input type="text" id="comp-research-title" placeholder="Enter research title">
+                            </div>
+                            <div class="form-group">
+                                <label for="comp-focus-domain">Focus Domain (Optional)</label>
+                                <input type="text" id="comp-focus-domain" placeholder="Specific research focus">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label for="comp-research-abstract">Research Abstract</label>
+                            <textarea id="comp-research-abstract" rows="5" placeholder="Enter research abstract"></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn">🔍 Discover Key Players</button>
+                    </form>
+                </div>
+                
+                <div id="competitors-results"></div>
+            </div>
+            
+            <!-- Licensing Opportunities Tab -->
+            <div id="licensing" class="tab-content">
+                <div class="analysis-form">
+                    <h2>💼 Licensing Opportunity Mapping</h2>
+                    <p>Flag entities that may need licenses from your research group.</p>
+                    
+                    <form id="licensingForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="lic-research-group">Your Research Group</label>
+                                <input type="text" id="lic-research-group" placeholder="Enter your institution/group name">
+                            </div>
+                            <div class="form-group">
+                                <label for="lic-research-domain">Research Domain</label>
+                                <input type="text" id="lic-research-domain" placeholder="Primary research domain">
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn">💰 Find Licensing Opportunities</button>
+                    </form>
+                </div>
+                
+                <div id="licensing-results"></div>
+            </div>
+            
+            <!-- Novelty Assessment Tab -->
+            <div id="novelty" class="tab-content">
+                <div class="analysis-form">
+                    <h2>🔬 Automated Novelty Assessment</h2>
+                    <p>Compare your research against existing patents and publications for novelty analysis.</p>
+                    
+                    <form id="noveltyForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="nov-title">Research Title</label>
+                                <input type="text" id="nov-title" placeholder="Enter research title">
+                            </div>
+                            <div class="form-group"></div>
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label for="nov-abstract">Research Abstract</label>
+                            <textarea id="nov-abstract" rows="5" placeholder="Enter research abstract"></textarea>
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label for="nov-claims">Patent Claims (Optional)</label>
+                            <textarea id="nov-claims" rows="4" placeholder="Enter patent claims, one per line"></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn">⚡ Assess Novelty</button>
+                    </form>
+                </div>
+                
+                <div id="novelty-results"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentTab = 'comprehensive';
+        
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all nav tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            currentTab = tabName;
+        }
+        
+        // Comprehensive Analysis
+        document.getElementById('comprehensiveForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const title = document.getElementById('comp-title').value;
+            const abstract = document.getElementById('comp-abstract').value;
+            
+            if (!title || !abstract) {
+                alert('Please fill in both title and abstract');
+                return;
+            }
+            
+            showLoading('comprehensive-results');
+            
+            try {
+                const response = await fetch('/comprehensive-analysis', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, abstract })
+                });
+                
+                const data = await response.json();
+                displayComprehensiveResults(data);
+            } catch (error) {
+                showError('comprehensive-results', error.message);
+            }
+        });
+        
+        // Semantic Alerts
+        document.getElementById('alertsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const title = document.getElementById('alert-title').value;
+            const abstract = document.getElementById('alert-abstract').value;
+            const threshold = parseFloat(document.getElementById('alert-threshold').value);
+            
+            if (!title || !abstract) {
+                alert('Please fill in both title and abstract');
+                return;
+            }
+            
+            showLoading('alerts-results');
+            
+            try {
+                const response = await fetch('/semantic-alerts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title: title,
+                        abstract: abstract
+                    })
+                });
+                
+                const data = await response.json();
+                displayAlertsResults(data);
+            } catch (error) {
+                showError('alerts-results', error.message);
+            }
+        });
+        
+        // Competitor Discovery
+        document.getElementById('competitorsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const title = document.getElementById('comp-research-title').value;
+            const abstract = document.getElementById('comp-research-abstract').value;
+            const domain = document.getElementById('comp-focus-domain').value;
+            
+            if (!title || !abstract) {
+                alert('Please fill in both title and abstract');
+                return;
+            }
+            
+            showLoading('competitors-results');
+            
+            try {
+                const response = await fetch('/competitor-discovery', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title: title,
+                        abstract: abstract
+                    })
+                });
+                
+                const data = await response.json();
+                displayCompetitorResults(data);
+            } catch (error) {
+                showError('competitors-results', error.message);
+            }
+        });
+        
+        // Licensing Opportunities
+        document.getElementById('licensingForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const group = document.getElementById('lic-research-group').value;
+            const domain = document.getElementById('lic-research-domain').value;
+            
+            if (!group || !domain) {
+                alert('Please fill in both research group and domain');
+                return;
+            }
+            
+            showLoading('licensing-results');
+            
+            try {
+                const response = await fetch('/licensing-opportunities', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title: domain,
+                        abstract: `Research in ${domain} by ${group}`
+                    })
+                });
+                
+                const data = await response.json();
+                displayLicensingResults(data);
+            } catch (error) {
+                showError('licensing-results', error.message);
+            }
+        });
+        
+        // Novelty Assessment
+        document.getElementById('noveltyForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const title = document.getElementById('nov-title').value;
+            const abstract = document.getElementById('nov-abstract').value;
+            const claimsText = document.getElementById('nov-claims').value;
+            
+            if (!title || !abstract) {
+                alert('Please fill in both title and abstract');
+                return;
+            }
+            
+            showLoading('novelty-results');
+            
+            try {
+                const response = await fetch('/novelty-assessment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title: title,
+                        abstract: abstract
+                    })
+                });
+                
+                const data = await response.json();
+                displayNoveltyResults(data);
+            } catch (error) {
+                showError('novelty-results', error.message);
+            }
+        });
+        
+        // Display Functions
+        function showLoading(containerId) {
+            document.getElementById(containerId).innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Analyzing data...</p>
+                </div>
+            `;
+        }
+        
+        function showError(containerId, message) {
+            document.getElementById(containerId).innerHTML = `
+                <div class="error">
+                    <h3>❌ Error</h3>
+                    <p>${message}</p>
+                </div>
+            `;
+        }
+        
+        function displayComprehensiveResults(data) {
+            const container = document.getElementById('comprehensive-results');
+            const basicAnalysis = data.basic_analysis;
+            const overall = basicAnalysis.overall_assessment;
+            
+            container.innerHTML = `
+                <div class="results-grid">
+                    <div class="result-card">
+                        <div class="card-header">
+                            <span class="card-icon">📊</span>
+                            <span class="card-title">Overall Assessment</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Market Potential Score</span>
+                            <span class="metric-value score-${getScoreClass(overall.market_potential_score)}">${overall.market_potential_score}</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Investment Recommendation</span>
+                            <span class="metric-value">${overall.investment_recommendation}</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Risk Level</span>
+                            <span class="metric-value">${overall.risk_level}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="result-card">
+                        <div class="card-header">
+                            <span class="card-icon">🔔</span>
+                            <span class="card-title">Semantic Alerts</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Similar Patents Found</span>
+                            <span class="metric-value">${data.semantic_alerts.count}</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">High Priority Alerts</span>
+                            <span class="metric-value">${data.semantic_alerts.top_alerts.filter(a => a.similarity_score > 0.8).length}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="result-card">
+                        <div class="card-header">
+                            <span class="card-icon">🏢</span>
+                            <span class="card-title">Competitive Landscape</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Top Authors</span>
+                            <span class="metric-value">${data.key_players.top_authors?.length || 0}</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Top Institutions</span>
+                            <span class="metric-value">${data.key_players.top_institutions?.length || 0}</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Collaboration Clusters</span>
+                            <span class="metric-value">${data.key_players.collaboration_clusters?.length || 0}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="result-card">
+                        <div class="card-header">
+                            <span class="card-icon">💼</span>
+                            <span class="card-title">Licensing Opportunities</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Total Opportunities</span>
+                            <span class="metric-value">${data.licensing_opportunities.count}</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">High-Value Opportunities</span>
+                            <span class="metric-value">${data.licensing_opportunities.top_opportunities.filter(o => o.relevance_score > 0.8).length}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="result-card" style="margin-top: 20px;">
+                    <div class="card-header">
+                        <span class="card-icon">📋</span>
+                        <span class="card-title">Executive Summary</span>
+                    </div>
+                    <p><strong>Market Potential:</strong> ${data.executive_summary.market_potential}/10</p>
+                    <p><strong>Competitive Activity:</strong> ${data.executive_summary.competitive_landscape} key players identified</p>
+                    <p><strong>Licensing Potential:</strong> ${data.executive_summary.licensing_potential} opportunities found</p>
+                    <p><strong>Patent Alerts:</strong> ${data.executive_summary.novelty_indicators} similar patents detected</p>
+                </div>
+            `;
+        }
+        
+        function displayAlertsResults(data) {
+            const container = document.getElementById('alerts-results');
+            
+            let html = `
+                <div class="result-card">
+                    <div class="card-header">
+                        <span class="card-icon">🔔</span>
+                        <span class="card-title">Semantic Patent Alerts</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Total Alerts</span>
+                        <span class="metric-value">${data.alert_count}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Similarity Threshold</span>
+                        <span class="metric-value">${data.threshold_used || 0.75}</span>
+                    </div>
+                </div>
+            `;
+            
+            if (data.alerts && data.alerts.length > 0) {
+                html += `
+                    <div class="result-card">
+                        <div class="card-header">
+                            <span class="card-icon">📄</span>
+                            <span class="card-title">Similar Patents Found</span>
+                        </div>
+                `;
+                
+                data.alerts.forEach(alert => {
+                    html += `
+                        <div class="alert-item">
+                            <div class="alert-title">${alert.title}</div>
+                            <div class="alert-meta">
+                                ${alert.document_type} • ${alert.publication_date} • ${alert.authors?.join(', ') || alert.institutions?.join(', ') || 'Unknown'}
+                            </div>
+                            <div class="alert-score">Similarity: ${(alert.similarity_score * 100).toFixed(1)}%</div>
+                            <p style="margin-top: 10px; font-size: 0.9em;">${alert.abstract?.substring(0, 200) || 'No abstract available'}...</p>
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+            }
+            
+            container.innerHTML = html;
+        }
+        
+        function displayCompetitorResults(data) {
+            const container = document.getElementById('competitors-results');
+            
+            let html = `
+                <div class="results-grid">
+                    <div class="result-card">
+                        <div class="card-header">
+                            <span class="card-icon">👥</span>
+                            <span class="card-title">Top Authors</span>
+                        </div>
+            `;
+            
+            if (data.key_players.top_authors && data.key_players.top_authors.length > 0) {
+                data.key_players.top_authors.forEach(author => {
+                    html += `
+                        <div class="metric-row">
+                            <span class="metric-label">${author.name}</span>
+                            <span class="metric-value">${author.publication_count + author.patent_count} docs</span>
+                        </div>
+                    `;
+                });
+            } else {
+                html += '<p>No authors found</p>';
+            }
+            
+            html += `
+                    </div>
+                    <div class="result-card">
+                        <div class="card-header">
+                            <span class="card-icon">🏢</span>
+                            <span class="card-title">Top Institutions</span>
+                        </div>
+            `;
+            
+            if (data.key_players.top_institutions && data.key_players.top_institutions.length > 0) {
+                data.key_players.top_institutions.forEach(inst => {
+                    html += `
+                        <div class="metric-row">
+                            <span class="metric-label">${inst.name}</span>
+                            <span class="metric-value">${inst.publication_count + inst.patent_count} docs</span>
+                        </div>
+                    `;
+                });
+            } else {
+                html += '<p>No institutions found</p>';
+            }
+            
+            html += `
+                    </div>
+                    <div class="result-card">
+                        <div class="card-header">
+                            <span class="card-icon">🔗</span>
+                            <span class="card-title">Collaboration Clusters</span>
+                        </div>
+            `;
+            
+            if (data.key_players.collaboration_clusters && data.key_players.collaboration_clusters.length > 0) {
+                data.key_players.collaboration_clusters.forEach(cluster => {
+                    html += `
+                        <div class="alert-item">
+                            <div class="alert-title">Cluster ${cluster.cluster_id}</div>
+                            <div class="alert-meta">${cluster.size} researchers • ${cluster.internal_connections || 0} connections</div>
+                            <p><strong>Key Topics:</strong> ${cluster.key_topics.join(', ')}</p>
+                        </div>
+                    `;
+                });
+            } else {
+                html += '<p>No collaboration clusters found</p>';
+            }
+            
+            html += '</div></div>';
+            container.innerHTML = html;
+        }
+        
+        function displayLicensingResults(data) {
+            const container = document.getElementById('licensing-results');
+            
+            let html = `
+                <div class="result-card">
+                    <div class="card-header">
+                        <span class="card-icon">💼</span>
+                        <span class="card-title">Licensing Opportunities Summary</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Total Opportunities</span>
+                        <span class="metric-value">${data.opportunity_count}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">High-Value Opportunities</span>
+                        <span class="metric-value">${data.summary.high_value_opportunities}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Licensing Out</span>
+                        <span class="metric-value">${data.summary.licensing_out_opportunities}</span>
+                    </div>
+                </div>
+            `;
+            
+            if (data.opportunities && data.opportunities.length > 0) {
+                html += `
+                    <div class="result-card">
+                        <div class="card-header">
+                            <span class="card-icon">🎯</span>
+                            <span class="card-title">Top Licensing Opportunities</span>
+                        </div>
+                `;
+                
+                data.opportunities.forEach(opp => {
+                    html += `
+                        <div class="alert-item">
+                            <div class="alert-title">${opp.entity_name}</div>
+                            <div class="alert-meta">${opp.entity_type} • ${opp.opportunity_type}</div>
+                            <div class="alert-score">Relevance: ${(opp.relevance_score * 100).toFixed(1)}%</div>
+                            <p><strong>Estimated Value:</strong> ${opp.estimated_value || 'TBD'}</p>
+                            ${opp.technology_gaps && opp.technology_gaps.length > 0 ? `<p><strong>Technology Gaps:</strong> ${opp.technology_gaps.join(', ')}</p>` : ''}
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+            }
+            
+            container.innerHTML = html;
+        }
+        
+        function displayNoveltyResults(data) {
+            const container = document.getElementById('novelty-results');
+            const assessment = data.assessment;
+            
+            let html = `
+                <div class="results-grid">
+                    <div class="result-card">
+                        <div class="card-header">
+                            <span class="card-icon">🔬</span>
+                            <span class="card-title">Novelty Assessment</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Novelty Score</span>
+                            <span class="metric-value score-${getScoreClass(assessment.overall_novelty_score)}">${(assessment.overall_novelty_score * 100).toFixed(1)}%</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Novelty Category</span>
+                            <span class="metric-value">${assessment.novelty_category}</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Patentability</span>
+                            <span class="metric-value">${assessment.patentability_indicators.patentability_likelihood}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="result-card">
+                        <div class="card-header">
+                            <span class="card-icon">📊</span>
+                            <span class="card-title">Prior Art Analysis</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Similar Patents</span>
+                            <span class="metric-value">${assessment.prior_art_analysis.total_similar_patents}</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Similar Publications</span>
+                            <span class="metric-value">${assessment.prior_art_analysis.total_similar_publications}</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Prior Art Density</span>
+                            <span class="metric-value">${assessment.prior_art_analysis.prior_art_density}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="result-card">
+                    <div class="card-header">
+                        <span class="card-icon">💡</span>
+                        <span class="card-title">Recommendations</span>
+                    </div>
+                    <ul style="margin: 15px 0; padding-left: 20px;">
+            `;
+            
+            assessment.recommendations.forEach(rec => {
+                html += `<li style="margin-bottom: 10px;">${rec}</li>`;
+            });
+            
+            html += `
+                    </ul>
+                </div>
+            `;
+            
+            if (assessment.key_differences && assessment.key_differences.length > 0) {
+                html += `
+                    <div class="result-card">
+                        <div class="card-header">
+                            <span class="card-icon">🔍</span>
+                            <span class="card-title">Key Differences</span>
+                        </div>
+                        <ul style="margin: 15px 0; padding-left: 20px;">
+                `;
+                
+                assessment.key_differences.forEach(diff => {
+                    html += `<li style="margin-bottom: 10px;">${diff}</li>`;
+                });
+                
+                html += `
+                        </ul>
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = html;
+        }
+        
+        function getScoreClass(score) {
+            if (score >= 7 || score >= 0.7) return 'high';
+            if (score >= 4 || score >= 0.4) return 'medium';
+            return 'low';
+        }
+    </script>
+</body>
+</html> 
