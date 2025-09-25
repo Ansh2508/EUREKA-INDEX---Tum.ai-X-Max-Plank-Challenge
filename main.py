@@ -3,12 +3,17 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from src.analysis import analyze_research_potential
+from src.routes import claude_routes
 import os
 
 app = FastAPI(title="Technology Assessment API")
 
 # Serve the static folder
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# Include Claude router under /claude
+app.include_router(claude_routes.router, prefix="/claude", tags=["Claude"])
+
 
 class TechRequest(BaseModel):
     title: str

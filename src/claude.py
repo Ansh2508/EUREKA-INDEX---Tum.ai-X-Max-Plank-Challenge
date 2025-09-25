@@ -38,6 +38,26 @@ def get_claude_response(prompt: str, model: str = "claude-sonnet-4-20250514", ma
     # The API response structure may vary; usually it's in 'completion' field
     return data.get("completion") or data.get("response") or ""
 
+
+@app.post("/claude")
+def ask_claude(request: ClaudeRequest):
+    """
+    Dedicated endpoint to ask Claude.
+    """
+    try:
+        response = get_claude_response(request.prompt)
+    except Exception as e:
+        response = f"Claude API error: {str(e)}"
+    return {"response": response}
+
+@app.get("/claude")
+def claude_page():
+    """
+    Serve Claude HTML page.
+    """
+    return FileResponse(os.path.join("static", "claude.html"))
+
+
 # Example usage
 if __name__ == "__main__":
     resp = get_claude_response("Hello, world")
