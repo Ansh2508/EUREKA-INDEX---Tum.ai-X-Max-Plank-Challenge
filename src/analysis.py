@@ -1,7 +1,7 @@
 import json
-from search_logic_mill import search_logic_mill
+from src.search_logic_mill import search_logic_mill
 
-from utils import (
+from src.utils import (
     count_recent,
     citation_velocity,
     temporal_gap,

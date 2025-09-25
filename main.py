@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
-from analysis import analyze_research_potential
+from src.analysis import analyze_research_potential
 import os
 
 app = FastAPI(title="Technology Assessment API")
