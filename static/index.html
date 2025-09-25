@@ -224,6 +224,39 @@
   </div>
 
   <script>
+    // Global configuration
+    let appConfig = { debug: false, production: true }; // Default to production mode
+    
+    // Fetch configuration from backend
+    async function loadConfig() {
+      try {
+        const response = await fetch('/config');
+        if (response.ok) {
+          appConfig = await response.json();
+        }
+      } catch (err) {
+        // If config fails, assume production mode
+        console.warn('Failed to load config, assuming production mode');
+      }
+    }
+    
+    // Debug logging function
+    function debugLog(...args) {
+      if (appConfig.debug) {
+        console.log('[DEBUG]', ...args);
+      }
+    }
+    
+    // Error logging (always shown)
+    function errorLog(...args) {
+      console.error('[ERROR]', ...args);
+    }
+    
+    // Info logging (always shown)
+    function infoLog(...args) {
+      console.info('[INFO]', ...args);
+    }
+    
     const form = document.getElementById('techForm');
     const results = document.getElementById('results');
 
@@ -392,12 +425,14 @@
           body: JSON.stringify({ title, abstract })
         });
 
-        console.log(response)
+        debugLog('Analyze API response:', response);
         if (!response.ok) {
+          errorLog('Analyze API error:', response.status);
           throw new Error(`Server error: ${response.status}`);
         }
 
         const data = await response.json();
+        debugLog('Analyze API data:', data);
         renderResults(data);
       } catch (err) {
         results.innerHTML = `<div class="error">❌ Error: ${err.message}</div>`;
@@ -416,8 +451,9 @@
           body: JSON.stringify({ title, abstract })
         });
 
-        console.log(response)
+        debugLog('Related works API response:', response);
         if (!response.ok) {
+          errorLog('Related works API error:', response.status);
           throw new Error(`Server error: ${response.status}`);
         }
 
@@ -432,11 +468,26 @@
     });
   
 
-    // Auto-load sample data for demo
-    document.addEventListener('DOMContentLoaded', function() {
-     // setTimeout(() => {
-       // window.loadSampleData();
-      //}, 1000);
+    // Initialize app
+    document.addEventListener('DOMContentLoaded', async function() {
+      // Load configuration first
+      await loadConfig();
+      
+      // Add environment indicator if in debug mode
+      if (appConfig.debug) {
+        const indicator = document.createElement('div');
+        indicator.style.cssText = `
+          position: fixed; top: 0; right: 0; 
+          background: #ff6b6b; color: white; 
+          padding: 5px 10px; font-size: 12px; 
+          z-index: 9999; border-radius: 0 0 0 5px;
+        `;
+        indicator.textContent = `DEBUG MODE (${appConfig.environment})`;
+        document.body.appendChild(indicator);
+        
+        infoLog('App initialized in debug mode');
+        debugLog('App config:', appConfig);
+      }
     });
   </script>
 </body>

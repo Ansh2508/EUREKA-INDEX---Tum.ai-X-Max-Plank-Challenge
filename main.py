@@ -19,12 +19,27 @@ try:
     from src.agents.enhanced_novelty import EnhancedNoveltyAssessment
     AGENTS_AVAILABLE = True
 except ImportError as e:
-    print(f"Warning: Enhanced agents not available: {e}")
+    # Will be handled after environment setup
+    IMPORT_ERROR_MESSAGE = str(e)
     AGENTS_AVAILABLE = False
 
 load_dotenv()
 
-app = FastAPI(title="Semantic Patent Alerts API")
+# Environment configuration
+NODE_ENV = os.getenv("NODE_ENV", "development").lower()
+IS_PRODUCTION = NODE_ENV == "production"
+DEBUG_MODE = not IS_PRODUCTION
+
+# Handle import errors based on environment
+if not AGENTS_AVAILABLE and DEBUG_MODE and 'IMPORT_ERROR_MESSAGE' in globals():
+    print(f"Warning: Enhanced agents not available: {IMPORT_ERROR_MESSAGE}")
+
+app = FastAPI(
+    title="Semantic Patent Alerts API",
+    debug=DEBUG_MODE,
+    docs_url=None if IS_PRODUCTION else "/docs",
+    redoc_url=None if IS_PRODUCTION else "/redoc"
+)
 
 # Import routes with error handling for deployment
 try:
@@ -32,14 +47,16 @@ try:
     app.include_router(claude_routes.router, prefix="/claude", tags=["Claude"])
     app.include_router(llm_routes.router, prefix="/llm")
 except ImportError as e:
-    print(f"Warning: Could not import some routes: {e}")
+    if DEBUG_MODE:
+        print(f"Warning: Could not import some routes: {e}")
 
 try:
     from src.routes import openalex, related_works
     app.include_router(openalex.router, prefix="/openalex")
     app.include_router(related_works.router)
 except ImportError as e:
-    print(f"Warning: Could not import additional routes: {e}")
+    if DEBUG_MODE:
+        print(f"Warning: Could not import additional routes: {e}")
 
 # Serve the static folder
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -97,6 +114,19 @@ def analyze_technology(request: TechRequest):
 def health_check():
     return {"status": "healthy", "message": "Technology Assessment API is running"}
 
+@app.get("/config")
+def get_config():
+    """Get frontend configuration based on environment."""
+    return {
+        "environment": NODE_ENV,
+        "debug": DEBUG_MODE,
+        "production": IS_PRODUCTION,
+        "features": {
+            "enhanced_agents": AGENTS_AVAILABLE,
+            "api_docs": not IS_PRODUCTION
+        }
+    }
+
 # Fallback endpoint for related-works-all if routes don't load
 @app.post("/related-works-all")
 async def related_works_all_fallback(request: TechRequest):
@@ -105,7 +135,8 @@ async def related_works_all_fallback(request: TechRequest):
         from src.routes.related_works import all_related_works
         return await all_related_works(request)
     except Exception as e:
-        print(f"Related works error: {e}")
+        if DEBUG_MODE:
+            print(f"Related works error: {e}")
         # Return mock data so frontend doesn't break
         return [
             {

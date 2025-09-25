@@ -9,3 +9,6 @@ startCommand = "pip install -r requirements-minimal.txt && uvicorn main:app --ho
 healthcheckPath = "/health"
 healthcheckTimeout = 300
 restartPolicyType = "on_failure"
+
+[deploy.env]
+NODE_ENV = "production"
