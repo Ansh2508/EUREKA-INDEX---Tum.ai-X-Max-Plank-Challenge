@@ -14,11 +14,18 @@ GROQ_API_KEY=your_groq_api_key_here
 - **Groq**: https://console.groq.com/keys
 - **Anthropic**: https://console.anthropic.com/settings/keys
 
-## Deployment Kommando:
+## Deployment:
 
+Railway sollte automatisch das Deployment mit `railway.toml` konfigurieren.
+
+**Start-Kommando:**
 ```bash
 uvicorn main:app --host 0.0.0.0 --port $PORT
 ```
+
+**Health Check:**
+- Endpoint: `/health`
+- Timeout: 100s
 
 ## Dependencies:
 
