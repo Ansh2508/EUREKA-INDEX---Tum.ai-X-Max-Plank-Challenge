@@ -5,6 +5,12 @@ from pydantic import BaseModel
 from src.analysis import analyze_research_potential
 from src.routes import claude_routes
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
+# TOKEN = os.getenv("LOGIC_MILL_API_TOKEN")
+# ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
+
 
 app = FastAPI(title="Technology Assessment API")
 
