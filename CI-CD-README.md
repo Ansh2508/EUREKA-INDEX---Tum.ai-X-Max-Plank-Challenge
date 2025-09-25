@@ -1,122 +1,55 @@
-# CI/CD Pipeline Documentation
+# Einfache CI/CD für Hackathon
 
 ## 🚀 Überblick
 
-Unsere CI/CD Pipeline verhindert, dass fehlerhafter Code deployed wird und stellt sicher, dass alle Änderungen getestet sind.
+Minimale Pipeline die nur das Nötigste prüft - perfekt für schnelle Hackathon-Entwicklung!
 
-## 📋 Pipeline-Stufen
+## ✅ Was wird geprüft:
 
-### 1. **Pull Request Checks** (`.github/workflows/pr-check.yml`)
-Läuft bei jedem Pull Request:
-- ✅ Syntax-Validation
-- ✅ Import-Tests  
-- ✅ Basic API-Tests
-- ✅ Automatischer PR-Kommentar mit Ergebnissen
+### Automatisch bei jedem Push/PR:
+- ✅ **Import Check**: Kann die App gestartet werden?
+- ✅ **Syntax Check**: Ist der Code syntaktisch korrekt?
+- ✅ **Basic Health Check**: Funktioniert der Health-Endpoint?
 
-### 2. **Vollständige CI/CD** (`.github/workflows/ci-cd.yml`)
-Läuft bei Push auf `main` und `develop`:
-
-**Test-Phase:**
-- ✅ Multi-Python-Version Testing (3.11, 3.12)
-- ✅ Dependency-Caching für schnellere Builds
-- ✅ Flake8 Linting
-- ✅ Import-Validation
-- ✅ Unit Tests mit pytest
-- ✅ API Endpoint Tests
-
-**Security-Phase:**
-- ✅ Dependency-Vulnerability Checks mit `safety`
-- ✅ Code Security Scanning mit `bandit`
-- ✅ Security-Report Generation
-
-**Deployment-Check-Phase:**
-- ✅ Railway Deployment Simulation
-- ✅ Application Startup Test
-- ✅ Health Check Validation
-- ✅ Integration Tests
-- ✅ Deployment Summary Report
+### Das war's! 🎯
 
 ## 🛠️ Lokale Entwicklung
 
-### Vor dem Commit testen:
+### Schneller Check vor Commit:
 ```bash
-python run_tests.py
+python quick_check.py
 ```
 
-### Mit pytest (wenn installiert):
-```bash
-pip install pytest pytest-asyncio httpx
-python -m pytest tests/ -v
-```
-
-### Einzelne Tests:
-```bash
-python -m pytest tests/test_api.py::test_health_check -v
-```
-
-## 📁 Test-Struktur
-
-```
-tests/
-├── __init__.py
-├── test_api.py          # API Endpoint Tests
-└── test_integration.py  # Integration Tests
-```
-
-## 🔒 Deployment Protection
-
-**Railway deployed nur wenn:**
-1. ✅ Alle Tests bestehen
-2. ✅ Security Checks erfolgreich
-3. ✅ Application startet korrekt
-4. ✅ Health Check funktioniert
-
-## 🚨 Was passiert bei Fehlern?
-
-- **Test Failures**: Deployment wird blockiert
-- **Security Issues**: Builds schlagen fehl
-- **Lint Errors**: Warnings, aber kein Build-Stopp
-- **Import Errors**: Sofortiger Build-Stopp
-
-## 📊 Status Badges
-
-Nach dem ersten Commit kannst du folgende Badges in die README einfügen:
-
-```markdown
-![CI/CD](https://github.com/USERNAME/REPO/workflows/CI%2FCD%20Pipeline/badge.svg)
-![PR Checks](https://github.com/USERNAME/REPO/workflows/Pull%20Request%20Checks/badge.svg)
-```
-
-## 🔧 Konfiguration
-
-### Python-Versionen ändern:
-```yaml
-# .github/workflows/ci-cd.yml
-strategy:
-  matrix:
-    python-version: [3.11, 3.12]  # Füge/entferne Versionen
-```
-
-### Tests hinzufügen:
-1. Neue Datei in `tests/` erstellen
-2. Funktionen mit `test_` Prefix
-3. Pipeline läuft automatisch
-
-### Dependencies aktualisieren:
-- Bearbeite `requirements-minimal.txt`
-- Pipeline testet automatisch neue Abhängigkeiten
-
-## 🎯 Best Practices
-
-1. **Kleine, häufige Commits** statt große Änderungen
-2. **Pull Requests verwenden** für Code Review
-3. **Tests schreiben** vor neuen Features
-4. **Lokale Tests** vor Push laufen lassen
-5. **Security Warnungen** ernst nehmen
+Das dauert nur 2 Sekunden und prüft:
+- ✅ main_simple.py kann importiert werden
+- ✅ FastAPI app kann erstellt werden
 
 ## 🚀 Deployment Flow
 
 ```
-Developer → Push → GitHub Actions → Tests Pass → Railway Deploy ✅
-         ↘ Push → GitHub Actions → Tests Fail → Deployment Blocked ❌
+Push → GitHub prüft basics → Railway deployed automatisch ✅
 ```
+
+Kein komplizierter Test-Marathon - nur das Minimum um Crashes zu verhindern.
+
+## ⚡ Warum so einfach?
+
+- **Hackathon-Speed**: Keine Zeit für komplexe Tests
+- **Crash-Prevention**: Verhindert nur die schlimmsten Fehler
+- **Fast Feedback**: < 2 Minuten statt 10+ Minuten
+- **Easy Debug**: Weniger kann schiefgehen
+
+## 🔧 Bei Problemen
+
+1. **Import Error**: Prüfe Syntax in main_simple.py
+2. **Deployment Fail**: Schaue GitHub Actions Log
+3. **Railway Error**: Checke requirements-minimal.txt
+
+## 🎯 Perfekt für:
+
+- ✅ Hackathons
+- ✅ Rapid Prototyping  
+- ✅ MVP Development
+- ✅ Quick Demos
+
+**Weniger Pipeline, mehr Produktivität!** 🚀
