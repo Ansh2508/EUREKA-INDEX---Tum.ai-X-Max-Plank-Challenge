@@ -43,8 +43,7 @@ app = FastAPI(
 
 # Import routes with error handling for deployment
 try:
-    from src.routes import claude_routes, llm_routes
-    app.include_router(claude_routes.router, prefix="/claude", tags=["Claude"])
+    from src.routes import llm_routes
     app.include_router(llm_routes.router, prefix="/llm")
 except ImportError as e:
     if DEBUG_MODE:
