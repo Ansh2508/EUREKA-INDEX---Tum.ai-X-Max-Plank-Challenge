@@ -3,7 +3,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from src.analysis import analyze_research_potential
-from src.routes import claude_routes
+from src.routes import claude_routes,llm_routes
 import os
 from dotenv import load_dotenv
 
@@ -20,6 +20,8 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 # Include Claude router under /claude
 app.include_router(claude_routes.router, prefix="/claude", tags=["Claude"])
 
+# Include Claude router under /claude
+app.include_router(llm_routes.router, prefix="/llm")
 
 class TechRequest(BaseModel):
     title: str

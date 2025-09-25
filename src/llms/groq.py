@@ -10,7 +10,8 @@ if not API_KEY:
 
 GROQ_API_URL = "https://api.groq.com/openai/v1/responses"
 
-def get_groq_response(prompt: str, model: str = "openai/gpt-oss-20b") -> str:
+#  = "openai/gpt-oss-20b")
+def get_groq_response(prompt: str, model: str = "llama-3.3-70b-versatile") -> str:
     headers = {
         "Authorization": f"Bearer {API_KEY}",
         "Content-Type": "application/json"
@@ -22,10 +23,15 @@ def get_groq_response(prompt: str, model: str = "openai/gpt-oss-20b") -> str:
     response = requests.post(GROQ_API_URL, headers=headers, json=payload)
     response.raise_for_status()  # Raise an exception for HTTP errors
     data = response.json()
-    # The response format may differ, but usually the output is in data["output_text"] or similar
-    # Adjust according to actual API response
-    if "output" in data and len(data["output"]) > 0:
-        return data["output"][0]["content"][0]["text"]
+
+    # Look for the first message output
+    for item in data.get("output", []):
+        if item.get("type") == "message":
+            content_list = item.get("content", [])
+            if content_list:
+                return content_list[0].get("text", "")
+    
+    # Fallback
     return str(data)
 
 def main():
