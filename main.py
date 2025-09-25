@@ -3,7 +3,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from src.analysis import analyze_research_potential
-from src.routes import claude_routes,llm_routes,openalex,logic_mill
+from src.routes import claude_routes,llm_routes,openalex, related_works
 import os
 from dotenv import load_dotenv
 
@@ -26,7 +26,7 @@ app.include_router(llm_routes.router, prefix="/llm")
 
 app.include_router(openalex.router, prefix="/openalex")
 
-app.include_router(logic_mill.router, prefix="/logic_mill")
+app.include_router(related_works.router)
 
 
 

@@ -383,30 +383,6 @@
       results.classList.add('show');
 
       try {
-        const response = await fetch('/analyze', {
-        //const response = await fetch('/related-works-all', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ title, abstract })
-        });
-
-        console.log(response)
-        if (!response.ok) {
-          throw new Error(`Server error: ${response.status}`);
-        }
-
-        const data = await response.json();
-        renderResults(data);
-      } catch (err) {
-        results.innerHTML = `<div class="error">❌ Error: ${err.message}</div>`;
-        results.classList.add('show');
-      }
-
-
-
-      try {
         const response = await fetch('/related-works-all', {
         //const response = await fetch('/related-works-all', {
           method: 'POST',
@@ -423,13 +399,13 @@
 
         const data = await response.json();
         renderText(JSON.stringify(data))
-    
+        renderResults(data);
       } catch (err) {
         results.innerHTML = `<div class="error">❌ Error: ${err.message}</div>`;
         results.classList.add('show');
       }
-
     });
+
   
 
     // Auto-load sample data for demo

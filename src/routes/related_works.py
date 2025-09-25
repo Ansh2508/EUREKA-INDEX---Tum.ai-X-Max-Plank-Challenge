@@ -42,7 +42,7 @@ async def all_related_works(req: WorkRequest):
     Returns full OpenAlex data for each related work.
     Accepts JSON body: {"title": "...", "abstract": "...", "amount": 25}
     """
-    related_works = get_related_works(req.title, req.abstract, amount=10)
+    related_works = get_related_works(req.title, req.abstract, amount=5)
     
     related_works_data = []
     for work in related_works:
