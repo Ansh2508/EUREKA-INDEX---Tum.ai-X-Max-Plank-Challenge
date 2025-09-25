@@ -9,7 +9,7 @@ router = APIRouter()
 class ClaudeRequest(BaseModel):
     prompt: str
 
-@router.post("/claude")
+@router.post("/")
 def ask_claude(request: ClaudeRequest):
     """
     Dedicated endpoint to ask Claude.
@@ -20,7 +20,7 @@ def ask_claude(request: ClaudeRequest):
         response = f"Claude API error: {str(e)}"
     return {"response": response}
 
-@router.get("/claude")
+@router.get("/")
 def claude_page():
     """
     Serve Claude HTML page.
