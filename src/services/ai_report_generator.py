@@ -10,11 +10,16 @@ class AIReportGenerator:
     """Generate comprehensive AI-powered reports using Claude and web search"""
     
     def __init__(self):
-        self.api_key = os.getenv("ANTHROPIC_API_KEY")
-        if not self.api_key:
-            raise ValueError("ANTHROPIC_API_KEY not set in environment")
+        self.primary_api_key = os.getenv("ANTHROPIC_API_KEY")
+        self.backup_api_key = os.getenv("ANTHROPIC_BACKUP_API_KEY")
+        
+        if not self.primary_api_key and not self.backup_api_key:
+            raise ValueError("Neither ANTHROPIC_API_KEY nor ANTHROPIC_BACKUP_API_KEY is set in environment")
             
-        self.client = anthropic.Anthropic(api_key=self.api_key)
+        # Start with primary key
+        self.current_api_key = self.primary_api_key if self.primary_api_key else self.backup_api_key
+        self.client = anthropic.Anthropic(api_key=self.current_api_key)
+        self.using_backup = False
         
         # Use Claude Opus 4.1 for advanced analysis
         self.model = "claude-opus-4-1"
@@ -140,8 +145,39 @@ Please conduct web searches first, then generate the comprehensive report incorp
             return response.content[0].text
             
         except Exception as e:
-            # Fallback to regular Claude without web search if web search fails
+            error_msg = str(e).lower()
+            
+            # Check if it's a credit/billing related error and try backup key
+            if ("credit" in error_msg or "billing" in error_msg or "quota" in error_msg or 
+                "insufficient" in error_msg or "limit" in error_msg) and not self.using_backup and self.backup_api_key:
+                
+                print(f"Primary API key failed due to credits/quota: {e}")
+                print("Switching to backup API key...")
+                
+                try:
+                    return await self._retry_with_backup_key(analysis_data, title, abstract)
+                except Exception as backup_error:
+                    return await self._generate_report_fallback(analysis_data, title, abstract, 
+                                                               f"Both API keys failed. Primary: {str(e)}, Backup: {str(backup_error)}")
+            
+            # For other errors, try fallback
             return await self._generate_report_fallback(analysis_data, title, abstract, str(e))
+    
+    async def _retry_with_backup_key(
+        self, 
+        analysis_data: Dict[str, Any], 
+        title: str, 
+        abstract: str
+    ) -> str:
+        """Retry report generation with backup API key"""
+        
+        # Switch to backup key
+        self.current_api_key = self.backup_api_key
+        self.client = anthropic.Anthropic(api_key=self.current_api_key)
+        self.using_backup = True
+        
+        # Retry the same request with backup key
+        return await self._generate_report_with_claude_web_search(analysis_data, title, abstract)
     
     async def _generate_report_fallback(
         self, 

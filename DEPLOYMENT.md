@@ -3,9 +3,12 @@
 ## API Keys Required
 
 ### Essential APIs
-- **ANTHROPIC_API_KEY**: https://console.anthropic.com/
+- **ANTHROPIC_API_KEY**: https://console.anthropic.com/ (Primary Claude API key)
 - **GROQ_API_KEY**: https://console.groq.com/keys
 - **LOGIC_MILL_API_TOKEN**: https://logic-mill.net
+
+### Backup/Fallback APIs
+- **ANTHROPIC_BACKUP_API_KEY**: https://console.anthropic.com/ (Backup Claude API key - optional but recommended)
 
 ### Optional APIs (for enhanced features)
 - None required - all web search handled by Claude Opus 4.1
@@ -17,16 +20,16 @@ Set these in Railway dashboard under Variables:
 
 ```
 NODE_ENV=production
-ANTHROPIC_API_KEY=your_anthropic_api_key_here
+ANTHROPIC_API_KEY=your_primary_anthropic_key_here
+ANTHROPIC_BACKUP_API_KEY=your_backup_anthropic_key_here  # Optional but recommended
 GROQ_API_KEY=your_groq_api_key_here
 LOGIC_MILL_API_TOKEN=your_logic_mill_token_here
-# BING_SEARCH_API_KEY no longer needed - Claude Opus 4.1 handles web search
 ```
 
 ### Health Check Configuration
 - **Path**: `/health`
 - **Timeout**: 300 seconds
-- **Start Command**: `pip install -r requirements-minimal.txt && uvicorn main:app --host 0.0.0.0 --port $PORT`
+- **Start Command**: `uvicorn main:app --host 0.0.0.0 --port $PORT`
 
 ## Features
 
@@ -39,6 +42,7 @@ LOGIC_MILL_API_TOKEN=your_logic_mill_token_here
 ### AI-Powered Reports (NEW!)
 - **Claude Opus 4.1** integration for comprehensive technology transfer reports
 - **Anthropic web search** for current market information via Claude's built-in web search
+- **Automatic API key fallback** - switches to backup key if primary fails due to credits/quota
 - Real-time market trend analysis with up-to-date information
 - Professional-grade reports for researchers and TT offices
 
