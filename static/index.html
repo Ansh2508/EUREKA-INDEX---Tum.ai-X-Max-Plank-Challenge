@@ -1084,6 +1084,7 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="security.js"></script>
   <script>
     // Global configuration
     let appConfig = { debug: false, production: true }; // Default to production mode
@@ -1562,9 +1563,10 @@
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      const title = document.getElementById('title').value;
-      const abstract = document.getElementById('abstract').value;
-      const submitButton = e.target.querySelector('.submit-button');
+      try {
+        const title = SecurityUtils.validateInput(document.getElementById('title').value, 500);
+        const abstract = SecurityUtils.validateInput(document.getElementById('abstract').value, 5000);
+        const submitButton = e.target.querySelector('.submit-button');
 
       // Add loading state to button
       submitButton.disabled = true;
@@ -1580,7 +1582,7 @@
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ title, abstract })
+          body: SecurityUtils.safeJSONStringify({ title, abstract })
         });
 
         debugLog('Analyze API response:', response);
@@ -1607,12 +1609,16 @@
         // Automatically generate AI report after assessment
         await generateAIReport({ title, abstract });
       } catch (err) {
-        results.innerHTML = `<div class="error">❌ Error: ${err.message}</div>`;
+        SecurityUtils.setInnerHTMLSafe(results, `<div class="error">❌ Error: ${SecurityUtils.escapeHtml(err.message)}</div>`);
         results.classList.add('show');
       } finally {
         // Remove loading state from button
         submitButton.disabled = false;
         submitButton.classList.remove('loading');
+      }
+      } catch (validationError) {
+        SecurityUtils.setInnerHTMLSafe(results, `<div class="error">❌ Validation Error: ${SecurityUtils.escapeHtml(validationError.message)}</div>`);
+        results.classList.add('show');
       }
 
 
@@ -1641,7 +1647,7 @@
         }
     
       } catch (err) {
-        results.innerHTML = `<div class="error">❌ Error: ${err.message}</div>`;
+        SecurityUtils.setInnerHTMLSafe(results, `<div class="error">❌ Error: ${SecurityUtils.escapeHtml(err.message)}</div>`);
         results.classList.add('show');
       }
 
