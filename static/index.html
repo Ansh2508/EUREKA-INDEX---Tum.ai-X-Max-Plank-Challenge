@@ -293,6 +293,47 @@
       const technology = data.technology_assessment;
       const commercial = data.commercial_indicators;
 
+      // In production mode, show only the main recommendation
+      if (appConfig.production && !appConfig.debug) {
+        results.innerHTML = `
+          <h2>📊 Assessment Results</h2>
+          
+          <div class="recommendation ${getRecommendationClass(overall.investment_recommendation)}">
+            ${overall.investment_recommendation}
+          </div>
+          
+          <div class="assessment-grid">
+            <div class="assessment-card">
+              <div class="card-title">
+                <span class="icon">📈</span>
+                Overall Assessment
+              </div>
+              <div class="card-content">
+                <div class="metric">
+                  <span class="metric-label">Market Potential Score</span>
+                  <span class="metric-value ${getScoreClass(overall.market_potential_score)}">${formatMetricValue('score', overall.market_potential_score)}</span>
+                </div>
+                <div class="metric">
+                  <span class="metric-label">Investment Recommendation</span>
+                  <span class="metric-value">${overall.investment_recommendation}</span>
+                </div>
+                <div class="metric">
+                  <span class="metric-label">Risk Level</span>
+                  <span class="metric-value">${overall.risk_level}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div style="text-align: center; margin-top: 20px; padding: 20px; background: #f8f9fa; border-radius: 10px;">
+            <p><strong>🔬 Professional Analysis Available</strong></p>
+            <p>For detailed technical metrics and comprehensive analysis, please contact our technology transfer team.</p>
+          </div>
+        `;
+        return;
+      }
+
+      // Development mode - show detailed analysis
       results.innerHTML = `
         <h2>📊 Assessment Results</h2>
         
@@ -458,7 +499,11 @@
         }
 
         const data = await response.json();
-        renderText(JSON.stringify(data))
+        
+        // Only show raw JSON data in development mode
+        if (appConfig.debug && !appConfig.production) {
+          renderText(JSON.stringify(data, null, 2));
+        }
     
       } catch (err) {
         results.innerHTML = `<div class="error">❌ Error: ${err.message}</div>`;
