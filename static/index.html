@@ -1408,9 +1408,7 @@
       const abstract = document.getElementById('abstract').value;
       generateAIReport({ title, abstract });
       
-      // Generate licensing analysis
-      console.log('🚀 Starte zusätzliche Analysen...');
-      generateLicensingAnalysis(title, abstract);
+      // Analysis complete - no additional sections after AI report
     }
 
     async function generateAIReport(analysisData) {
@@ -1860,43 +1858,7 @@ Error: ${data.error || 'None'}`;
       }
     }
 
-    // Licensing Analysis Function
-    async function generateLicensingAnalysis(title, abstract) {
-      try {
-        const response = await fetch('/licensing-opportunities', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            focal_research_group: "Max Planck Institute",
-            research_domain: title,
-            patent_portfolio: [],
-            publication_portfolio: []
-          })
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          
-          // Debug-Ausgabe für Licensing Analysis
-          console.log('💼 Licensing Opportunities Analysis:');
-          console.log(`🎯 Total Opportunities: ${data.opportunity_count || 0}`);
-          console.log(`💰 High-Value Opportunities: ${data.summary?.high_value_opportunities || 0}`);
-          console.log(`📤 Licensing Out: ${data.summary?.licensing_out_opportunities || 0}`);
-          
-          if (data.note && data.note.includes('fallback')) {
-            console.log('⚠️ Licensing Analysis: Fallback-Daten verwendet');
-          } else {
-            console.log('✅ Licensing Analysis: Echte Daten verwendet');
-          }
-          
-          displayLicensingResults(data);
-        }
-      } catch (err) {
-        console.error('Licensing analysis failed:', err);
-      }
-    }
+    // Note: Licensing analysis removed - analysis ends with AI report
 
     // Display Key Players Results (integrated from analysis)
     function displayKeyPlayersResults(keyPlayersData) {
@@ -2168,78 +2130,7 @@ Error: ${data.error || 'None'}`;
       `;
     }
 
-    // Display Licensing Results
-    function displayLicensingResults(data) {
-      let licensingContainer = document.getElementById('licensing-container');
-      if (!licensingContainer) {
-        licensingContainer = document.createElement('div');
-        licensingContainer.id = 'licensing-container';
-        results.parentNode.appendChild(licensingContainer);
-      }
-
-      const opportunities = data.opportunities || [];
-
-      licensingContainer.innerHTML = `
-        <div class="results-container show" style="margin-top: 30px;">
-          <h2>💼 Licensing Opportunities</h2>
-          
-          <div class="assessment-card">
-            <div class="card-title">
-              <span class="icon">🤝</span>
-              Potential Licensing Partners
-            </div>
-            <div class="card-content">
-              <div class="licensing-summary">
-                <div class="metric">
-                  <span class="metric-label">Total Opportunities</span>
-                  <span class="metric-value">${data.opportunity_count || 0}</span>
-                </div>
-                <div class="metric">
-                  <span class="metric-label">High-Value Opportunities</span>
-                  <span class="metric-value">${data.summary?.high_value_opportunities || 0}</span>
-                </div>
-                <div class="metric">
-                  <span class="metric-label">Licensing Out</span>
-                  <span class="metric-value">${data.summary?.licensing_out_opportunities || 0}</span>
-                </div>
-              </div>
-              
-              <div class="competitor-table" style="margin-top: 20px;">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Entity Name</th>
-                      <th>Type</th>
-                      <th>Opportunity Type</th>
-                      <th>Relevance Score</th>
-                      <th>Estimated Value</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    ${opportunities.slice(0, 10).map(opp => `
-                      <tr>
-                        <td><strong>${opp.entity_name || 'N/A'}</strong></td>
-                        <td>${opp.entity_type || 'Company'}</td>
-                        <td>${opp.opportunity_type || 'licensing_out'}</td>
-                        <td>${((opp.relevance_score || 0.75) * 100).toFixed(1)}%</td>
-                        <td>${opp.estimated_value || 'Medium'}</td>
-                      </tr>
-                    `).join('')}
-                    ${opportunities.length === 0 ? `
-                      <tr>
-                        <td colspan="5" style="text-align: center; color: #666;">
-                          <em>No specific licensing opportunities identified yet. This analysis improves with more patent data.</em>
-                        </td>
-                      </tr>
-                    ` : ''}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-    }
+    // Note: Licensing results display removed - analysis ends with AI report
 
     // Initialize app
     document.addEventListener('DOMContentLoaded', async function() {
