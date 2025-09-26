@@ -245,6 +245,22 @@ def estimate_market_size(abstract, title):
             "last_updated": "2025-09-26",
             "confidence": 0.70
         },
+        
+        # MAJOR MISSING MARKETS - ELECTRONICS & DEFENSE
+        "electronics": {
+            "tam_2025": 6080,  # NEW - MASSIVE $6.08T electronics market (largest sector!)
+            "cagr": 0.03,      # 3% CAGR (mature but enormous market)
+            "keywords": ["electronics", "electronic device", "electronic system", "consumer electronics", "electronic component", "circuit board", "PCB", "electronic equipment", "display", "LCD", "OLED", "LED", "electronic control", "electronic interface", "electronic module", "transistor", "capacitor", "resistor", "diode", "electronic circuit", "analog", "digital electronics", "power electronics", "RF electronics", "microelectronics"],
+            "last_updated": "2025-09-26",
+            "confidence": 0.95
+        },
+        "defense_tech": {
+            "tam_2025": 520,   # NEW - Defense technology market
+            "cagr": 0.085,     # 8.5% CAGR (strong government spending)
+            "keywords": ["defense", "military", "defense technology", "military technology", "radar", "surveillance", "defense system", "military electronics", "weapons system", "missile", "defense equipment", "military hardware", "tactical", "strategic", "reconnaissance", "electronic warfare", "signal intelligence", "military communication", "armored", "ballistic", "anti-aircraft", "naval defense", "air defense", "homeland security", "military aerospace", "defense contractor"],
+            "last_updated": "2025-09-26",
+            "confidence": 0.88
+        },
         "other": {
             "tam_2025": 35,   # Default fallback
             "cagr": 0.06,     # 6% CAGR
