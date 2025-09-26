@@ -687,9 +687,7 @@ def extract_real_patent_details_from_logic_mill(patents):
                 'title': patent_title,
                 'patent_number': patent_number,
                 'url': patent_url,
-                'score': patent.get('score', 0),
-                'year': patent.get('year', 'Unknown'),
-                'citations': patent.get('citations', 0)
+                'score': patent.get('score', 0)
             }
             patent_details.append(patent_detail)
         

@@ -2085,7 +2085,6 @@ Error: ${data.error || 'None'}`;
                         ${patent.url ? `<a href="${patent.url}" target="_blank" class="patent-url-link" title="Open patent document">🔗</a>` : ''}
                       </div>
                       <div class="patent-title">${patent.title.length > 60 ? patent.title.substring(0, 60) + '...' : patent.title}</div>
-                      <div class="patent-year">Year: ${patent.year || 'Unknown'} | Citations: ${patent.citations || 0}</div>
                       <div class="patent-score">Relevance: ${(patent.score * 100).toFixed(1)}%</div>
                       ${patent.url ? `<div class="patent-url"><a href="${patent.url}" target="_blank" title="View full patent document">📄 View Patent</a></div>` : ''}
                     </div>
