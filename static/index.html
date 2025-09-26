@@ -3,35 +3,133 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tech Assessment Dashboard</title>
+  <title>AI Technology Transfer Assessment | Patent Intelligence Platform</title>
   <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    * {
       margin: 0;
-      padding: 20px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
       min-height: 100vh;
+      color: #334155;
+      line-height: 1.6;
     }
     
     .container {
       max-width: 1200px;
       margin: 0 auto;
+      padding: 0 20px;
     }
     
-    h1 {
+    /* Hero Section */
+    .hero-section {
+      text-align: center;
+      padding: 60px 0 40px 0;
+      color: white;
+    }
+    
+    .hero-title {
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 700;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #60a5fa, #a78bfa, #f472b6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: none;
+    }
+    
+    .hero-subtitle {
+      font-size: 1.3rem;
+      color: #cbd5e1;
+      margin-bottom: 15px;
+      font-weight: 400;
+    }
+    
+    .hero-description {
+      font-size: 1.1rem;
+      color: #94a3b8;
+      max-width: 700px;
+      margin: 0 auto 30px auto;
+      line-height: 1.7;
+    }
+    
+    .hero-features {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-top: 25px;
+      flex-wrap: wrap;
+    }
+    
+    .hero-feature {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #e2e8f0;
+      font-size: 0.95rem;
+    }
+    
+    .hero-feature-icon {
+      font-size: 1.2rem;
+    }
+    
+    @media (max-width: 768px) {
+      .hero-features {
+        flex-direction: column;
+        gap: 15px;
+      }
+      
+      .hero-title {
+        font-size: 2.5rem;
+      }
+      
+      .hero-subtitle {
+        font-size: 1.1rem;
+      }
+    }
+    
+    /* Analysis Form */
+    .analysis-section {
+      margin: 40px 0;
+    }
+    
+    .section-title {
       text-align: center;
       color: white;
+      font-size: 2rem;
+      font-weight: 600;
+      margin-bottom: 15px;
+    }
+    
+    .section-subtitle {
+      text-align: center;
+      color: #94a3b8;
+      font-size: 1.1rem;
       margin-bottom: 30px;
-      font-size: 2.5em;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
     }
     
     .form-container {
-      background: white;
-      border-radius: 15px;
-      padding: 30px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1), 0 0 0 1px rgba(255,255,255,0.1);
       margin-bottom: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    @media (max-width: 768px) {
+      .form-container {
+        padding: 25px;
+        margin: 0 10px 30px 10px;
+      }
     }
     
     .form-group {
@@ -41,52 +139,121 @@
     label {
       display: block;
       font-weight: 600;
-      margin-bottom: 8px;
-      color: #333;
+      margin-bottom: 10px;
+      color: #1e293b;
+      font-size: 1rem;
     }
     
     input[type="text"], textarea {
       width: 100%;
-      padding: 12px;
+      padding: 16px;
       font-size: 16px;
-      border: 2px solid #ddd;
-      border-radius: 8px;
-      transition: border-color 0.3s ease;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      transition: all 0.3s ease;
       box-sizing: border-box;
+      background: #ffffff;
+      font-family: inherit;
     }
     
     input[type="text"]:focus, textarea:focus {
       outline: none;
-      border-color: #667eea;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      transform: translateY(-1px);
     }
     
-    button {
-      background: linear-gradient(45deg, #667eea, #764ba2);
+    textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+    
+    .submit-button {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
       color: white;
-      padding: 15px 30px;
+      padding: 18px 40px;
       font-size: 18px;
       font-weight: 600;
       border: none;
-      border-radius: 8px;
+      border-radius: 12px;
       cursor: pointer;
-      transition: transform 0.2s ease;
+      transition: all 0.3s ease;
       width: 100%;
+      position: relative;
+      overflow: hidden;
     }
     
-    button:hover {
+    .submit-button:hover {
       transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
     }
     
+    .submit-button:active {
+      transform: translateY(0);
+    }
+    
+    .submit-button:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    /* Loading state for button */
+    .submit-button.loading {
+      color: transparent;
+    }
+    
+    .submit-button.loading::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 20px;
+      height: 20px;
+      margin: -10px 0 0 -10px;
+      border: 2px solid #ffffff;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Results Section */
     .results-container {
       display: none;
-      background: white;
-      border-radius: 15px;
-      padding: 30px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1), 0 0 0 1px rgba(255,255,255,0.1);
+      margin-top: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      animation: slideIn 0.5s ease-out;
     }
     
     .results-container.show {
       display: block;
+    }
+    
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .results-container {
+        padding: 25px;
+        margin: 30px 10px 0 10px;
+      }
     }
     
     .assessment-grid {
@@ -295,22 +462,58 @@
 </head>
 <body>
   <div class="container">
-    <h1>🚀 Technology Assessment Dashboard</h1>
-
-    <div class="form-container">
-      <form id="techForm">
-        <div class="form-group">
-          <label for="title">Technology Title</label>
-          <input type="text" id="title" name="title" placeholder="Enter technology title" required>
+    <!-- Hero Section -->
+    <div class="hero-section">
+      <h1 class="hero-title">🚀 AI Technology Transfer Assessment</h1>
+      <h2 class="hero-subtitle">Patent Intelligence Platform for Researchers</h2>
+      <p class="hero-description">
+        Evaluate the commercial potential and market readiness of your research innovations using advanced AI analysis, 
+        patent intelligence, and real-time market data. Get comprehensive technology transfer assessments in minutes.
+      </p>
+      <div class="hero-features">
+        <div class="hero-feature">
+          <span class="hero-feature-icon">🔬</span>
+          <span>Technology Readiness Analysis</span>
         </div>
-
-        <div class="form-group">
-          <label for="abstract">Technology Abstract</label>
-          <textarea id="abstract" name="abstract" rows="6" placeholder="Enter detailed technology abstract" required></textarea>
+        <div class="hero-feature">
+          <span class="hero-feature-icon">📊</span>
+          <span>Market Gap Detection</span>
         </div>
+        <div class="hero-feature">
+          <span class="hero-feature-icon">🤖</span>
+          <span>AI-Powered Reports</span>
+        </div>
+        <div class="hero-feature">
+          <span class="hero-feature-icon">⚡</span>
+          <span>Real-time Intelligence</span>
+        </div>
+      </div>
+    </div>
 
-        <button type="submit">🔍 Analyze Technology</button>
-      </form>
+    <!-- Analysis Section -->
+    <div class="analysis-section">
+      <h2 class="section-title">🔍 Start Your Technology Assessment</h2>
+      <p class="section-subtitle">
+        Enter your research title and abstract below to receive a comprehensive analysis of its commercial potential
+      </p>
+      
+      <div class="form-container">
+        <form id="techForm">
+          <div class="form-group">
+            <label for="title">Technology Title</label>
+            <input type="text" id="title" name="title" placeholder="e.g. Novel Quantum Computing Algorithm for Drug Discovery" required>
+          </div>
+
+          <div class="form-group">
+            <label for="abstract">Technology Abstract</label>
+            <textarea id="abstract" name="abstract" rows="6" placeholder="Provide a detailed description of your technology, including methodology, key innovations, potential applications, and current development status..." required></textarea>
+          </div>
+
+          <button type="submit" class="submit-button">
+            <span>🔍 Analyze Technology Potential</span>
+          </button>
+        </form>
+      </div>
     </div>
 
     <div id="data">
@@ -607,8 +810,13 @@
 
       const title = document.getElementById('title').value;
       const abstract = document.getElementById('abstract').value;
+      const submitButton = e.target.querySelector('.submit-button');
 
-      results.innerHTML = '<div class="loading">🔄 Analyzing technology...</div>';
+      // Add loading state to button
+      submitButton.disabled = true;
+      submitButton.classList.add('loading');
+
+      results.innerHTML = '<div class="loading">🔄 Analyzing technology potential...</div>';
       results.classList.add('show');
 
       try {
@@ -636,6 +844,10 @@
       } catch (err) {
         results.innerHTML = `<div class="error">❌ Error: ${err.message}</div>`;
         results.classList.add('show');
+      } finally {
+        // Remove loading state from button
+        submitButton.disabled = false;
+        submitButton.classList.remove('loading');
       }
 
 
