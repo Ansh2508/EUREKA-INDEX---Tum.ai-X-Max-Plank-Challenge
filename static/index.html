@@ -40,7 +40,7 @@
     body.light-theme .hero-feature,
     body.light-theme .section-title,
     body.light-theme .section-subtitle {
-      color: #475569;
+      color: #1f2937;
     }
     
     body.light-theme .form-container,
@@ -468,6 +468,7 @@
       padding: 4px 12px;
       border-radius: 20px;
       background: #e9ecef;
+      color: #1f2937;
     }
     
     /* Dark mode metric values */
@@ -510,7 +511,7 @@
     .loading {
       text-align: center;
       padding: 40px;
-      color: #666;
+      color: #1f2937;
       font-size: 1.2em;
     }
     
@@ -721,7 +722,7 @@
     .score-label {
       min-width: 140px;
       font-weight: 500;
-      color: #374151;
+      color: #f1f5f9;
     }
     
     body.light-theme .score-label {
@@ -732,7 +733,7 @@
       min-width: 40px;
       text-align: right;
       font-weight: 600;
-      color: #374151;
+      color: #f1f5f9;
     }
     
     body.light-theme .score-value {
@@ -2249,7 +2250,7 @@ Error: ${data.error || 'None'}`;
                           <td>${(author.collaboration_score * 100).toFixed(1)}%</td>
                         </tr>
                       `).join('')}
-                      ${authors.length === 0 ? '<tr><td colspan="4" style="text-align: center; color: #666;">Keine Autoren in diesem Forschungsbereich gefunden</td></tr>' : ''}
+                      ${authors.length === 0 ? '<tr><td colspan="4" style="text-align: center; color: #1f2937;">Keine Autoren in diesem Forschungsbereich gefunden</td></tr>' : ''}
                     </tbody>
                   </table>
                 </div>
@@ -2350,7 +2351,7 @@ Error: ${data.error || 'None'}`;
                           <td>${inst.collaboration_score || 0}</td>
                         </tr>
                       `).join('')}
-                      ${institutions.length === 0 ? '<tr><td colspan="4" style="text-align: center; color: #666;">Keine Institutionen in diesem Forschungsbereich gefunden</td></tr>' : ''}
+                      ${institutions.length === 0 ? '<tr><td colspan="4" style="text-align: center; color: #1f2937;">Keine Institutionen in diesem Forschungsbereich gefunden</td></tr>' : ''}
                     </tbody>
                   </table>
                 </div>
@@ -2398,7 +2399,7 @@ Error: ${data.error || 'None'}`;
       competitorContainer.innerHTML = `
         <div class="results-container show" style="margin-top: 30px;">
           <h2>🏢 Extended Competitor & Collaborator Analysis</h2>
-          <p style="color: #666; margin-bottom: 20px;">
+          <p style="color: #1f2937; margin-bottom: 20px;">
             📊 <strong>Zusätzliche Analyse</strong> aus erweiterten Datenquellen
           </p>
           
