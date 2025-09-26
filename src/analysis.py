@@ -247,12 +247,12 @@ def estimate_market_size(abstract, title):
         },
         
         # MAJOR MISSING MARKETS - ELECTRONICS & DEFENSE
-        "electronics": {
-            "tam_2025": 6080,  # NEW - MASSIVE $6.08T electronics market (largest sector!)
-            "cagr": 0.03,      # 3% CAGR (mature but enormous market)
-            "keywords": ["electronics", "electronic device", "electronic system", "consumer electronics", "electronic component", "circuit board", "PCB", "electronic equipment", "display", "LCD", "OLED", "LED", "electronic control", "electronic interface", "electronic module", "transistor", "capacitor", "resistor", "diode", "electronic circuit", "analog", "digital electronics", "power electronics", "RF electronics", "microelectronics"],
+        "quantum_materials": {
+            "tam_2025": 85,    # NEW - Quantum materials research (Max Planck focus)
+            "cagr": 0.22,      # 22% CAGR (emerging field)
+            "keywords": ["quantum materials", "quantum matter", "topological materials", "quantum spin", "quantum phase", "superconducting materials", "quantum dots", "quantum wells", "quantum wires", "quantum heterostructures", "quantum confinement", "quantum coherence", "quantum entanglement", "quantum criticality", "quantum magnetism", "quantum optics materials", "quantum photonics", "quantum sensors", "quantum metrology"],
             "last_updated": "2025-09-26",
-            "confidence": 0.95
+            "confidence": 0.75
         },
         "defense_tech": {
             "tam_2025": 520,   # NEW - Defense technology market
@@ -263,26 +263,26 @@ def estimate_market_size(abstract, title):
         },
         
         # ADDITIONAL MAJOR INDUSTRIES - CONSTRUCTION, FOOD, TEXTILES
-        "construction": {
-            "tam_2025": 15000,  # NEW - MASSIVE $15T construction market (largest sector ever!)
-            "cagr": 0.11,       # 11% CAGR (strong infrastructure growth)
-            "keywords": ["construction", "building", "infrastructure", "concrete", "steel construction", "building materials", "structural engineering", "architecture", "civil engineering", "smart buildings", "building technology", "construction equipment", "building automation", "building systems", "construction methods", "prefabrication", "modular construction", "green building", "sustainable construction", "building management", "facility management", "urban planning", "real estate development"],
+        "neuroscience": {
+            "tam_2025": 180,    # NEW - Neuroscience research (Max Planck focus)
+            "cagr": 0.15,       # 15% CAGR (rapidly growing field)
+            "keywords": ["neuroscience", "neurobiology", "brain research", "neural networks", "neuroplasticity", "neuroimaging", "neurotechnology", "brain-computer interface", "neural engineering", "cognitive neuroscience", "computational neuroscience", "systems neuroscience", "molecular neuroscience", "developmental neuroscience", "behavioral neuroscience", "neuropharmacology", "neurogenetics", "neuroprosthetics", "neural stimulation", "brain mapping", "connectomics"],
             "last_updated": "2025-09-26",
-            "confidence": 0.92
+            "confidence": 0.88
         },
-        "food_tech": {
-            "tam_2025": 4500,   # NEW - €4.1T = ~$4.5T food technology market
-            "cagr": 0.0147,     # 1.47% CAGR (stable essential sector)
-            "keywords": ["food technology", "food processing", "food science", "nutrition", "food safety", "food production", "food packaging", "food preservation", "food engineering", "food quality", "food manufacturing", "food additives", "food ingredients", "beverage technology", "dairy technology", "meat processing", "food automation", "food testing", "food analysis", "culinary technology", "food innovation", "functional foods", "nutraceuticals", "food biotechnology"],
+        "particle_physics": {
+            "tam_2025": 45,     # NEW - Particle physics research (Max Planck focus)
+            "cagr": 0.08,       # 8% CAGR (fundamental research)
+            "keywords": ["particle physics", "high energy physics", "accelerator physics", "detector technology", "particle accelerator", "collider", "elementary particles", "fundamental forces", "standard model", "beyond standard model", "dark matter", "dark energy", "neutrino physics", "quantum field theory", "lattice QCD", "particle detection", "calorimetry", "tracking detector", "muon detector", "neutrino detector"],
             "last_updated": "2025-09-26",
-            "confidence": 0.90
+            "confidence": 0.85
         },
-        "textile_tech": {
-            "tam_2025": 1140,   # NEW - $1.14T textile technology market
-            "cagr": 0.0435,     # 4.35% CAGR (moderate growth)
-            "keywords": ["textile", "fabric", "fiber", "textile technology", "smart textiles", "textile manufacturing", "textile engineering", "wearable technology", "fashion technology", "technical textiles", "textile materials", "textile processing", "dyeing", "printing", "weaving", "knitting", "nonwoven", "textile machinery", "textile chemistry", "textile design", "apparel technology", "clothing technology", "textile innovation", "sustainable textiles"],
+        "astrophysics": {
+            "tam_2025": 35,     # NEW - Astrophysics research (Max Planck focus)
+            "cagr": 0.12,       # 12% CAGR (space exploration boom)
+            "keywords": ["astrophysics", "astronomy", "cosmology", "stellar physics", "galactic astronomy", "extragalactic astronomy", "observational astronomy", "theoretical astrophysics", "computational astrophysics", "gravitational waves", "black holes", "neutron stars", "supernovae", "exoplanets", "planetary science", "solar physics", "space telescopes", "radio astronomy", "infrared astronomy", "X-ray astronomy", "gamma-ray astronomy"],
             "last_updated": "2025-09-26",
-            "confidence": 0.87
+            "confidence": 0.82
         },
         "other": {
             "tam_2025": 35,   # Default fallback
