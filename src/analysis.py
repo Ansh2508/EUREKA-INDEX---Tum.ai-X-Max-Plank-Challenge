@@ -75,16 +75,19 @@ def estimate_market_size(abstract, title):
         
         # Medium-value markets
         "fintech": {"tam": 120, "keywords": ["financial", "banking", "payment", "blockchain", "cryptocurrency", "fintech"]},
-        "cybersecurity": {"tam": 100, "keywords": ["security", "cybersecurity", "encryption", "authentication", "privacy"]},
+        "cybersecurity": {"tam": 200, "keywords": ["security", "cybersecurity", "encryption", "authentication", "privacy", "firewall", "intrusion detection", "malware", "vulnerability", "zero trust", "GDPR", "compliance", "penetration testing", "threat intelligence", "ransomware", "phishing", "endpoint security", "cloud security", "identity management", "blockchain security"]},
         "aerospace": {"tam": 90, "keywords": ["aerospace", "aviation", "satellite", "space", "aircraft", "drone"]},
         "telecom": {"tam": 80, "keywords": ["telecommunication", "5G", "network", "wireless", "communication"]},
         "manufacturing": {"tam": 70, "keywords": ["manufacturing", "industrial", "automation", "robotics", "factory"]},
+        "edtech": {"tam": 80, "keywords": ["education", "learning", "e-learning", "training", "educational technology", "online courses", "virtual classroom", "adaptive learning", "assessment", "student engagement"]},
+        "cleantech": {"tam": 180, "keywords": ["clean technology", "environmental", "sustainability", "carbon capture", "waste management", "water treatment", "green energy", "eco-friendly", "circular economy", "emission reduction"]},
+        "iot": {"tam": 100, "keywords": ["internet of things", "IoT", "connected devices", "smart home", "smart city", "sensors", "edge computing", "mesh network", "device connectivity", "remote monitoring"]},
         
         # Specialized markets
         "biotechnology": {"tam": 60, "keywords": ["biotechnology", "biotech", "genetic", "protein", "enzyme", "bio"]},
-        "materials": {"tam": 50, "keywords": ["material", "polymer", "composite", "nanotechnology", "coating"]},
+        "materials": {"tam": 120, "keywords": ["material", "polymer", "composite", "nanotechnology", "coating", "ceramic", "metal", "crystalline", "molecular", "surface treatment", "smart materials", "biomaterials", "graphene", "carbon fiber", "metamaterials", "thin films", "adhesives", "membranes", "catalysts", "semiconducting materials"]},
         "agriculture": {"tam": 40, "keywords": ["agriculture", "farming", "crop", "agricultural", "food production"]},
-        "consumer": {"tam": 30, "keywords": ["consumer", "retail", "e-commerce", "mobile app", "gaming"]},
+        "consumer": {"tam": 150, "keywords": ["consumer", "retail", "e-commerce", "mobile app", "gaming", "social media", "entertainment", "user experience", "platform", "digital content", "streaming", "marketplace", "subscription", "freemium", "monetization", "user engagement", "social network", "influencer"]},
         "other": {"tam": 20, "keywords": []}  # Default fallback
     }
     
@@ -239,7 +242,12 @@ def assess_regulatory_risk(abstract, title):
         "energy": {"risk": "Medium", "score": 5, "keywords": ["energy", "power", "grid", "renewable"]},
         "telecom": {"risk": "Medium", "score": 5, "keywords": ["telecommunication", "wireless", "spectrum"]},
         "software": {"risk": "Low-Medium", "score": 3, "keywords": ["software", "algorithm", "application", "platform"]},
-        "materials": {"risk": "Low", "score": 2, "keywords": ["material", "coating", "manufacturing"]},
+        "materials": {"risk": "Medium", "score": 4, "keywords": ["material", "coating", "manufacturing", "composite", "nanotechnology"]},
+        "edtech": {"risk": "Medium", "score": 4, "keywords": ["education", "learning", "student", "educational technology"]},
+        "cleantech": {"risk": "Medium-High", "score": 6, "keywords": ["environmental", "sustainability", "emission", "waste", "clean technology"]},
+        "iot": {"risk": "Medium", "score": 4, "keywords": ["IoT", "connected devices", "smart", "sensors"]},
+        "cybersecurity": {"risk": "High", "score": 7, "keywords": ["security", "cybersecurity", "encryption", "privacy", "compliance"]},
+        "consumer": {"risk": "Low-Medium", "score": 3, "keywords": ["consumer", "gaming", "social media", "mobile app", "entertainment"]},
         "other": {"risk": "Low", "score": 2, "keywords": []}
     }
     
@@ -282,7 +290,12 @@ def get_compliance_requirements(domain):
         "energy": "Grid compliance, Safety standards, Environmental permits",
         "telecom": "FCC approval, Spectrum licensing, Standards compliance",
         "software": "Data protection, Accessibility, Security standards",
-        "materials": "Safety testing, Environmental compliance",
+        "materials": "Safety testing, Environmental compliance, REACH compliance",
+        "edtech": "FERPA compliance, Student privacy, Accessibility standards",
+        "cleantech": "Environmental permits, EPA compliance, Carbon standards",
+        "iot": "FCC certification, Cybersecurity standards, Privacy regulations",
+        "cybersecurity": "Security certifications, SOC compliance, GDPR/CCPA",
+        "consumer": "Consumer protection, Privacy laws, Platform policies",
         "other": "Standard business regulations"
     }
     return requirements.get(domain, "Standard business regulations")
@@ -299,7 +312,12 @@ def get_approval_timeline(domain):
         "energy": "1-2 years",
         "telecom": "6-18 months",
         "software": "3-6 months",
-        "materials": "6-12 months",
+        "materials": "6-18 months",
+        "edtech": "6-12 months",
+        "cleantech": "1-3 years",
+        "iot": "6-12 months",
+        "cybersecurity": "3-9 months",
+        "consumer": "3-6 months",
         "other": "3-12 months"
     }
     return timelines.get(domain, "3-12 months")
@@ -368,12 +386,12 @@ def assess_technology_readiness_level(abstract, patents):
         1: ["basic principles", "fundamental research", "theoretical", "basic concept"],
         2: ["technology concept", "application formulated", "practical applications", "conceptual design"],
         3: ["proof of concept", "analytical", "experimental", "critical function", "feasibility study"],
-        4: ["laboratory", "component validation", "breadboard", "lab scale", "bench testing"],
-        5: ["component validation", "relevant environment", "pilot scale", "small scale production"],
-        6: ["system prototype", "relevant environment", "model demonstration", "pilot demonstration", "prototype testing", "clinical trials", "patients"],
-        7: ["system demonstration", "operational environment", "prototype", "pre-commercial", "field testing", "clinical validation", "patient study", "trial results"],
-        8: ["system complete", "commercial product", "market ready", "production ready", "commercial deployment", "first commercial", "planned commercial", "clinical approval"],
-        9: ["actual system", "proven commercial", "successful mission", "commercial success", "market deployment", "full commercial", "FDA approved"],
+        4: ["laboratory", "component validation", "breadboard", "lab scale", "bench testing", "alpha version", "internal testing", "code review"],
+        5: ["component validation", "relevant environment", "pilot scale", "small scale production", "beta version", "limited user testing", "integration testing"],
+        6: ["system prototype", "relevant environment", "model demonstration", "pilot demonstration", "prototype testing", "clinical trials", "patients", "beta release", "user feedback", "closed beta"],
+        7: ["system demonstration", "operational environment", "prototype", "pre-commercial", "field testing", "clinical validation", "patient study", "trial results", "public beta", "production testing", "scalability testing"],
+        8: ["system complete", "commercial product", "market ready", "production ready", "commercial deployment", "first commercial", "planned commercial", "clinical approval", "general availability", "production release", "commercial launch"],
+        9: ["actual system", "proven commercial", "successful mission", "commercial success", "market deployment", "full commercial", "FDA approved", "widespread adoption", "market leader", "proven scalability"],
     }
     
     # Additional commercial readiness indicators
