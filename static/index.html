@@ -176,6 +176,11 @@
       font-size: 1rem;
     }
     
+    /* Dark mode label styling */
+    body:not(.light-theme) label {
+      color: #f1f5f9;
+    }
+    
     input[type="text"], textarea {
       width: 100%;
       padding: 16px;
@@ -185,7 +190,28 @@
       transition: all 0.3s ease;
       box-sizing: border-box;
       background: #ffffff;
+      color: #1e293b;
       font-family: inherit;
+    }
+    
+    /* Dark mode input styling */
+    body:not(.light-theme) input[type="text"], 
+    body:not(.light-theme) textarea {
+      background: #1e293b;
+      border-color: #475569;
+      color: #f1f5f9;
+    }
+    
+    body:not(.light-theme) input[type="text"]:focus, 
+    body:not(.light-theme) textarea:focus {
+      border-color: #60a5fa;
+      background: #1e293b;
+      color: #f1f5f9;
+    }
+    
+    body:not(.light-theme) input[type="text"]::placeholder, 
+    body:not(.light-theme) textarea::placeholder {
+      color: #94a3b8;
     }
     
     input[type="text"]:focus, textarea:focus {
@@ -658,7 +684,7 @@
   <div class="container">
     <!-- Hero Section -->
     <div class="hero-section">
-      <h1 class="hero-title">🚀 AI Technology Transfer Assessment</h1>
+      <h1 class="hero-title">AI Technology Transfer Assessment</h1>
       <h2 class="hero-subtitle">Patent Intelligence Platform for Researchers</h2>
       <p class="hero-description">
         Evaluate the commercial potential and market readiness of your research innovations using advanced AI analysis, 
@@ -704,7 +730,7 @@
           </div>
 
           <button type="submit" class="submit-button">
-            <span>🔍 Analyze Technology Potential</span>
+            <span>Analyze Technology Potential</span>
           </button>
         </form>
       </div>
