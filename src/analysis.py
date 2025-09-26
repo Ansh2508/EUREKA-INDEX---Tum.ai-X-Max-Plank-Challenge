@@ -659,133 +659,195 @@ def assess_technology_readiness_level(abstract, patents):
     }
 
 
-def extract_key_players(patents, publications):
-    """Extract key players (authors, institutions) from patents and publications data."""
-    authors = defaultdict(lambda: {
-        'publications': 0, 
-        'patents': 0, 
-        'collaborations': set(),
-        'institutions': set()
-    })
-    
-    institutions = defaultdict(lambda: {
-        'publications': 0, 
-        'patents': 0, 
-        'authors': set()
-    })
-    
-    # Process publications
-    for pub in publications:
-        # Handle different data structures from Logic Mill API
-        pub_authors = []
-        pub_institutions = []
+def extract_key_players_from_openalex(publications):
+    """Extract key players from OpenAlex publications using their IDs."""
+    try:
+        import requests
+        import time
         
-        # Extract authors from different possible formats
-        if 'authors' in pub and isinstance(pub['authors'], list):
-            pub_authors = [auth.get('display_name', auth) if isinstance(auth, dict) else str(auth) 
-                          for auth in pub['authors'] if auth]
-        elif 'authorships' in pub:
-            pub_authors = [auth.get('author', {}).get('display_name', '') 
-                          for auth in pub.get('authorships', []) if auth.get('author')]
+        authors = defaultdict(lambda: {
+            'publications': 0, 
+            'patents': 0, 
+            'collaborations': set(),
+            'institutions': set()
+        })
         
-        # Extract institutions
-        if 'institutions' in pub and isinstance(pub['institutions'], list):
-            pub_institutions = [inst.get('display_name', inst) if isinstance(inst, dict) else str(inst)
-                               for inst in pub['institutions'] if inst]
-        elif 'authorships' in pub:
-            for auth in pub.get('authorships', []):
-                for inst in auth.get('institutions', []):
-                    if inst.get('display_name'):
-                        pub_institutions.append(inst['display_name'])
+        institutions = defaultdict(lambda: {
+            'publications': 0, 
+            'patents': 0, 
+            'authors': set()
+        })
         
-        # Count publications for authors
-        for author in pub_authors:
-            if author and author.strip():
-                authors[author]['publications'] += 1
-                authors[author]['institutions'].update(pub_institutions)
-                # Track collaborations
-                for other_author in pub_authors:
-                    if other_author != author and other_author.strip():
-                        authors[author]['collaborations'].add(other_author)
+        # Extract OpenAlex work IDs from publications
+        openalex_ids = []
+        for pub in publications:
+            if pub.get('url') and 'openalex.org' in pub.get('url', ''):
+                openalex_ids.append(pub['url'])
         
-        # Count publications for institutions
-        for institution in pub_institutions:
-            if institution and institution.strip():
-                institutions[institution]['publications'] += 1
-                institutions[institution]['authors'].update(pub_authors)
+        print(f"[DEBUG] Found {len(openalex_ids)} OpenAlex publications to fetch metadata for")
+        
+        # Fetch detailed metadata from OpenAlex API
+        for i, work_url in enumerate(openalex_ids[:10]):  # Limit to first 10 for performance
+            try:
+                # Extract work ID from URL
+                work_id = work_url.split('/')[-1]
+                
+                # Fetch from OpenAlex API
+                response = requests.get(f"https://api.openalex.org/works/{work_id}")
+                if response.status_code == 200:
+                    work_data = response.json()
+                    
+                    # Extract authors
+                    for authorship in work_data.get('authorships', []):
+                        author = authorship.get('author', {})
+                        author_name = author.get('display_name', '')
+                        
+                        if author_name:
+                            authors[author_name]['publications'] += 1
+                            
+                            # Track institutions
+                            for inst in authorship.get('institutions', []):
+                                inst_name = inst.get('display_name', '')
+                                if inst_name:
+                                    authors[author_name]['institutions'].add(inst_name)
+                                    institutions[inst_name]['publications'] += 1
+                                    institutions[inst_name]['authors'].add(author_name)
+                            
+                            # Track collaborations
+                            for other_auth in work_data.get('authorships', []):
+                                other_name = other_auth.get('author', {}).get('display_name', '')
+                                if other_name != author_name and other_name:
+                                    authors[author_name]['collaborations'].add(other_name)
+                
+                # Rate limiting
+                time.sleep(0.1)
+                
+            except Exception as e:
+                print(f"[DEBUG] Error fetching OpenAlex data for {work_url}: {e}")
+                continue
+        
+        # Create top authors list
+        top_authors = []
+        for author_name, data in authors.items():
+            if data['publications'] >= 1:
+                collaboration_score = len(data['collaborations']) / max(1, data['publications'])
+                top_authors.append({
+                    'name': author_name,
+                    'publication_count': data['publications'],
+                    'patent_count': 0,  # No patent data from OpenAlex
+                    'collaboration_score': collaboration_score,
+                    'total_documents': data['publications']
+                })
+        
+        # Sort by total documents
+        top_authors.sort(key=lambda x: x['total_documents'], reverse=True)
+        
+        # Create top institutions list
+        top_institutions = []
+        for inst_name, data in institutions.items():
+            if data['publications'] >= 1:
+                top_institutions.append({
+                    'name': inst_name,
+                    'publication_count': data['publications'],
+                    'patent_count': 0,  # No patent data from OpenAlex
+                    'collaboration_score': len(data['authors']),
+                    'total_documents': data['publications']
+                })
+        
+        # Sort by total documents
+        top_institutions.sort(key=lambda x: x['total_documents'], reverse=True)
+        
+        return {
+            'top_authors': top_authors[:15],
+            'top_institutions': top_institutions[:15]
+        }
+        
+    except Exception as e:
+        print(f"[DEBUG] Error in extract_key_players_from_openalex: {e}")
+        return {
+            'top_authors': [],
+            'top_institutions': []
+        }
+
+
+def generate_licensing_partners(institutions, abstract, title):
+    """Generate potential licensing partners based on institutional analysis."""
+    licensing_partners = []
     
-    # Process patents
-    for patent in patents:
-        pat_authors = []
-        pat_institutions = []
-        
-        # Extract inventors/authors from patents
-        if 'inventors' in patent:
-            pat_authors = [inv.get('display_name', inv) if isinstance(inv, dict) else str(inv)
-                          for inv in patent['inventors'] if inv]
-        elif 'authors' in patent:
-            pat_authors = [auth.get('display_name', auth) if isinstance(auth, dict) else str(auth)
-                          for auth in patent['authors'] if auth]
-        
-        # Extract institutions from patents
-        if 'assignees' in patent:
-            pat_institutions = [ass.get('display_name', ass) if isinstance(ass, dict) else str(ass)
-                               for ass in patent['assignees'] if ass]
-        elif 'institutions' in patent:
-            pat_institutions = [inst.get('display_name', inst) if isinstance(inst, dict) else str(inst)
-                               for inst in patent['institutions'] if inst]
-        
-        # Count patents for authors/inventors
-        for author in pat_authors:
-            if author and author.strip():
-                authors[author]['patents'] += 1
-                authors[author]['institutions'].update(pat_institutions)
-                # Track collaborations
-                for other_author in pat_authors:
-                    if other_author != author and other_author.strip():
-                        authors[author]['collaborations'].add(other_author)
-        
-        # Count patents for institutions
-        for institution in pat_institutions:
-            if institution and institution.strip():
-                institutions[institution]['patents'] += 1
-                institutions[institution]['authors'].update(pat_authors)
+    # Keywords to identify industry vs academia
+    industry_keywords = ['corp', 'inc', 'ltd', 'company', 'technologies', 'systems', 'solutions', 'pharmaceuticals', 'biotech', 'microsoft', 'google', 'apple', 'ibm', 'intel', 'nvidia']
+    academic_keywords = ['university', 'college', 'institute', 'academy', 'school', 'research center']
     
-    # Create top authors list
-    top_authors = []
-    for author_name, data in authors.items():
-        if data['publications'] + data['patents'] >= 1:  # At least 1 document
-            collaboration_score = len(data['collaborations']) / max(1, data['publications'] + data['patents'])
-            top_authors.append({
-                'name': author_name,
-                'publication_count': data['publications'],
-                'patent_count': data['patents'],
-                'collaboration_score': collaboration_score,
-                'total_documents': data['publications'] + data['patents']
-            })
-    
-    # Sort by total documents
-    top_authors.sort(key=lambda x: x['total_documents'], reverse=True)
-    
-    # Create top institutions list
-    top_institutions = []
-    for inst_name, data in institutions.items():
-        if data['publications'] + data['patents'] >= 1:
-            top_institutions.append({
-                'name': inst_name,
-                'publication_count': data['publications'],
-                'patent_count': data['patents'],
-                'collaboration_score': len(data['authors']),  # Number of unique authors as collaboration metric
-                'total_documents': data['publications'] + data['patents']
-            })
-    
-    # Sort by total documents
-    top_institutions.sort(key=lambda x: x['total_documents'], reverse=True)
-    
-    return {
-        'top_authors': top_authors[:20],  # Top 20 authors
-        'top_institutions': top_institutions[:20]  # Top 20 institutions
+    # Technology domain keywords for licensing potential
+    tech_domains = {
+        'AI/ML': ['artificial intelligence', 'machine learning', 'neural network', 'deep learning'],
+        'Biotech': ['pharmaceutical', 'biotech', 'drug discovery', 'clinical', 'medical'],
+        'Energy': ['energy', 'solar', 'battery', 'renewable', 'power'],
+        'Quantum': ['quantum', 'qubit', 'superposition'],
+        'Cybersecurity': ['security', 'encryption', 'cryptography', 'cyber'],
+        'Materials': ['materials', 'nanotechnology', 'semiconductor', 'composite']
     }
+    
+    # Determine tech domain from abstract and title
+    text = f"{title} {abstract}".lower()
+    primary_domain = 'General Technology'
+    for domain, keywords in tech_domains.items():
+        if any(keyword in text for keyword in keywords):
+            primary_domain = domain
+            break
+    
+    # Analyze institutions for licensing potential
+    for inst in institutions[:10]:  # Top 10 institutions
+        inst_name = inst['name'].lower()
+        licensing_score = 0.5  # Base score
+        partner_type = 'Academic Partner'
+        
+        # Determine if industry or academic
+        if any(keyword in inst_name for keyword in industry_keywords):
+            partner_type = 'Industry Partner'
+            licensing_score += 0.3  # Industry partners have higher licensing potential
+        elif any(keyword in inst_name for keyword in academic_keywords):
+            partner_type = 'Academic Partner'
+            licensing_score += 0.1
+            
+        # Boost score based on publication count
+        if inst['publication_count'] >= 3:
+            licensing_score += 0.2
+        
+        # Create licensing partner entry
+        licensing_partners.append({
+            'name': inst['name'],
+            'partner_type': partner_type,
+            'licensing_score': min(1.0, licensing_score),
+            'publications': inst['publication_count'],
+            'primary_domain': primary_domain,
+            'collaboration_potential': 'High' if licensing_score > 0.7 else 'Medium' if licensing_score > 0.5 else 'Low'
+        })
+    
+    # Sort by licensing score
+    licensing_partners.sort(key=lambda x: x['licensing_score'], reverse=True)
+    
+    return licensing_partners[:8]  # Top 8 potential partners
+
+
+def extract_key_players(patents, publications):
+    """Extract key players using enhanced methods."""
+    # Try to get real data from OpenAlex for publications
+    key_players_data = extract_key_players_from_openalex(publications)
+    
+    # If we got real data, generate licensing partners
+    if key_players_data['top_institutions']:
+        # Pass abstract and title from calling context (will be added as parameters)
+        licensing_partners = generate_licensing_partners(
+            key_players_data['top_institutions'], 
+            "", 
+            ""
+        )
+        key_players_data['licensing_partners'] = licensing_partners
+    else:
+        key_players_data['licensing_partners'] = []
+    
+    return key_players_data
 
 
 def assess_market_need_gap(abstract, patents, publications):
@@ -868,6 +930,15 @@ def analyze_research_potential(title, abstract, debug=False):
 
     # Extract key players from the data
     key_players = extract_key_players(patents, publications)
+    
+    # Generate licensing partners with actual title and abstract
+    if key_players['top_institutions']:
+        licensing_partners = generate_licensing_partners(
+            key_players['top_institutions'], 
+            abstract, 
+            title
+        )
+        key_players['licensing_partners'] = licensing_partners
 
     # Enhanced scoring with new metrics
     base_score = (
