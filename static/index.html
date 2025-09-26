@@ -1743,107 +1743,330 @@ Error: ${data.error || 'None'}`;
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
       
-      // Set font
-      doc.setFont('helvetica');
+      // Color palette
+      const colors = {
+        primary: [41, 128, 185],     // Blue
+        secondary: [52, 152, 219],   // Light Blue
+        accent: [231, 76, 60],       // Red
+        success: [39, 174, 96],      // Green
+        warning: [243, 156, 18],     // Orange
+        dark: [44, 62, 80],          // Dark Blue
+        light: [236, 240, 241],      // Light Gray
+        text: [52, 73, 94]           // Dark Gray
+      };
       
-      // Header
-      doc.setFontSize(20);
+      // Add header background
+      doc.setFillColor(...colors.primary);
+      doc.rect(0, 0, 210, 60, 'F');
+      
+      // Add decorative stripe
+      doc.setFillColor(...colors.secondary);
+      doc.rect(0, 55, 210, 5, 'F');
+      
+      // Header text in white
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(24);
       doc.setFont('helvetica', 'bold');
-      doc.text('Technology Assessment Report', 20, 30);
+      doc.text('TECHNOLOGY ASSESSMENT REPORT', 20, 30);
       
-      doc.setFontSize(12);
-      doc.setFont('helvetica', 'normal');
-      doc.text('AI-Powered Patent Intelligence Analysis', 20, 40);
-      doc.text(`Generated: ${currentDate}`, 20, 50);
-      
-      // Technology Info
       doc.setFontSize(14);
-      doc.setFont('helvetica', 'bold');
-      doc.text('Technology:', 20, 70);
+      doc.setFont('helvetica', 'normal');
+      doc.text('AI-Powered Patent Intelligence Analysis', 20, 42);
+      doc.text(`Generated: ${currentDate}`, 20, 52);
       
-      doc.setFontSize(10);
+      // Reset text color
+      doc.setTextColor(...colors.text);
+      
+      // Technology Info Section with background
+      let yPosition = 75;
+      doc.setFillColor(...colors.light);
+      doc.rect(15, yPosition - 5, 180, 8, 'F');
+      
+      doc.setTextColor(...colors.dark);
+      doc.setFontSize(16);
+      doc.setFont('helvetica', 'bold');
+      doc.text('TECHNOLOGY OVERVIEW', 20, yPosition);
+      yPosition += 15;
+      
+      // Technology title with accent color
+      doc.setTextColor(...colors.primary);
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Technology:', 20, yPosition);
+      
+      doc.setTextColor(...colors.text);
+      doc.setFontSize(11);
       doc.setFont('helvetica', 'normal');
       const titleLines = doc.splitTextToSize(title, 170);
-      doc.text(titleLines, 20, 80);
+      doc.text(titleLines, 20, yPosition + 8);
+      yPosition += titleLines.length * 5 + 18;
       
+      // Abstract with accent color
+      doc.setTextColor(...colors.primary);
       doc.setFont('helvetica', 'bold');
-      doc.text('Abstract:', 20, 80 + (titleLines.length * 5) + 10);
+      doc.text('Abstract:', 20, yPosition);
       
+      doc.setTextColor(...colors.text);
       doc.setFont('helvetica', 'normal');
       const abstractLines = doc.splitTextToSize(abstract, 170);
-      doc.text(abstractLines, 20, 80 + (titleLines.length * 5) + 20);
+      doc.text(abstractLines, 20, yPosition + 8);
+      yPosition += abstractLines.length * 5 + 25;
       
-      let yPosition = 80 + (titleLines.length * 5) + 20 + (abstractLines.length * 5) + 20;
+      // Assessment Summary Section
+      doc.setFillColor(...colors.light);
+      doc.rect(15, yPosition - 5, 180, 8, 'F');
       
-      // Assessment Summary
-      doc.setFontSize(14);
+      doc.setTextColor(...colors.dark);
+      doc.setFontSize(16);
       doc.setFont('helvetica', 'bold');
-      doc.text('Assessment Summary', 20, yPosition);
+      doc.text('ASSESSMENT SUMMARY', 20, yPosition);
+      yPosition += 20;
       
+      // Recommendation with colored badge
+      const recommendation = data.overall_assessment.investment_recommendation;
+      const recommendationColor = recommendation.toLowerCase().includes('recommended') ? colors.success : 
+                                 recommendation.toLowerCase().includes('caution') ? colors.warning : colors.accent;
+      
+      doc.setFillColor(...recommendationColor);
+      doc.roundedRect(20, yPosition - 8, 80, 12, 2, 2, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`RECOMMENDATION: ${recommendation.toUpperCase()}`, 22, yPosition - 2);
+      yPosition += 20;
+      
+      // Market Potential Score with progress bar
+      const score = data.overall_assessment.market_potential_score;
+      doc.setTextColor(...colors.text);
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Market Potential Score:', 20, yPosition);
+      
+      // Progress bar background
+      doc.setFillColor(220, 220, 220);
+      doc.rect(135, yPosition - 6, 50, 8, 'F');
+      
+      // Progress bar fill
+      const fillWidth = (score / 10) * 50;
+      const barColor = score >= 7 ? colors.success : score >= 5 ? colors.warning : colors.accent;
+      doc.setFillColor(...barColor);
+      doc.rect(135, yPosition - 6, fillWidth, 8, 'F');
+      
+      // Score text
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`${score}/10`, 158, yPosition - 1);
+      yPosition += 20;
+      
+      // Risk Level with icon
+      doc.setTextColor(...colors.text);
       doc.setFontSize(12);
       doc.setFont('helvetica', 'normal');
-      yPosition += 15;
+      const riskLevel = data.overall_assessment.risk_level;
+      const riskColor = riskLevel.toLowerCase().includes('low') ? colors.success :
+                       riskLevel.toLowerCase().includes('medium') ? colors.warning : colors.accent;
       
-      // Recommendation
-      const recommendation = data.overall_assessment.investment_recommendation;
+      doc.text('Risk Level:', 20, yPosition);
+      doc.setTextColor(...riskColor);
       doc.setFont('helvetica', 'bold');
-      doc.text(`Recommendation: ${recommendation}`, 20, yPosition);
-      yPosition += 15;
+      doc.text(`● ${riskLevel}`, 70, yPosition);
+      yPosition += 25;
       
-      // Market Potential Score
-      const score = data.overall_assessment.market_potential_score;
-      doc.setFont('helvetica', 'normal');
-      doc.text(`Market Potential Score: ${score}/10`, 20, yPosition);
-      yPosition += 15;
+      // Key Metrics Section
+      doc.setFillColor(...colors.light);
+      doc.rect(15, yPosition - 5, 180, 8, 'F');
       
-      // Risk Level
-      doc.text(`Risk Level: ${data.overall_assessment.risk_level}`, 20, yPosition);
+      doc.setTextColor(...colors.dark);
+      doc.setFontSize(16);
+      doc.setFont('helvetica', 'bold');
+      doc.text('KEY METRICS', 20, yPosition);
       yPosition += 20;
       
-      // Key Metrics
-      doc.setFontSize(14);
-      doc.setFont('helvetica', 'bold');
-      doc.text('Key Metrics', 20, yPosition);
-      yPosition += 15;
+      // Market Analysis Card
+      doc.setFillColor(250, 250, 250);
+      doc.roundedRect(20, yPosition - 5, 170, 35, 2, 2, 'F');
+      doc.setDrawColor(...colors.primary);
+      doc.setLineWidth(0.5);
+      doc.roundedRect(20, yPosition - 5, 170, 35, 2, 2, 'S');
       
+      doc.setTextColor(...colors.primary);
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text('📊 Market Analysis', 25, yPosition + 5);
+      
+      doc.setTextColor(...colors.text);
       doc.setFontSize(10);
       doc.setFont('helvetica', 'normal');
-      
-      // Market Analysis
-      doc.setFont('helvetica', 'bold');
-      doc.text('Market Analysis:', 20, yPosition);
-      yPosition += 10;
-      doc.setFont('helvetica', 'normal');
-      doc.text(`• Gap Status: ${data.market_analysis.gap_status.replace(/_/g, ' ')}`, 25, yPosition);
-      yPosition += 8;
-      doc.text(`• Gap Score: ${data.market_analysis.gap_score}/10`, 25, yPosition);
-      yPosition += 8;
-      doc.text(`• Publication Momentum: ${data.market_analysis.publication_momentum}`, 25, yPosition);
       yPosition += 15;
-      
-      // Technology Assessment
-      doc.setFont('helvetica', 'bold');
-      doc.text('Technology Assessment:', 20, yPosition);
-      yPosition += 10;
-      doc.setFont('helvetica', 'normal');
-      doc.text(`• Technology Readiness Level: TRL ${data.technology_assessment.estimated_trl}`, 25, yPosition);
+      doc.text(`• Gap Status: ${data.market_analysis.gap_status.replace(/_/g, ' ')}`, 30, yPosition);
       yPosition += 8;
-      doc.text(`• Market Readiness: ${data.technology_assessment.market_readiness}`, 25, yPosition);
+      doc.text(`• Gap Score: ${data.market_analysis.gap_score}/10`, 30, yPosition);
       yPosition += 8;
-      doc.text(`• Time to Market: ${data.technology_assessment.time_to_market}`, 25, yPosition);
-      yPosition += 15;
-      
-      // Commercial Indicators
-      doc.setFont('helvetica', 'bold');
-      doc.text('Commercial Indicators:', 20, yPosition);
-      yPosition += 10;
-      doc.setFont('helvetica', 'normal');
-      doc.text(`• Citation Velocity: ${data.commercial_indicators.citation_velocity}`, 25, yPosition);
-      yPosition += 8;
-      doc.text(`• Commercial Ratio: ${formatMetricValue('ratio', data.commercial_indicators.commercial_ratio)}`, 25, yPosition);
-      yPosition += 8;
-      doc.text(`• Geographic Diversity: ${data.commercial_indicators.geographic_diversity}`, 25, yPosition);
+      doc.text(`• Publication Momentum: ${data.market_analysis.publication_momentum}`, 30, yPosition);
       yPosition += 20;
+      
+      // Technology Assessment Card
+      doc.setFillColor(250, 250, 250);
+      doc.roundedRect(20, yPosition - 5, 170, 30, 2, 2, 'F');
+      doc.setDrawColor(...colors.secondary);
+      doc.setLineWidth(0.5);
+      doc.roundedRect(20, yPosition - 5, 170, 30, 2, 2, 'S');
+      
+      doc.setTextColor(...colors.secondary);
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text('🔬 Technology Assessment', 25, yPosition + 5);
+      
+      doc.setTextColor(...colors.text);
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      yPosition += 15;
+      doc.text(`• Technology Readiness Level: TRL ${data.technology_assessment.estimated_trl}`, 30, yPosition);
+      yPosition += 8;
+      doc.text(`• Market Readiness: ${data.technology_assessment.market_readiness}`, 30, yPosition);
+      yPosition += 8;
+      doc.text(`• Time to Market: ${data.technology_assessment.time_to_market}`, 30, yPosition);
+      yPosition += 20;
+      
+      // Commercial Indicators Card
+      doc.setFillColor(250, 250, 250);
+      doc.roundedRect(20, yPosition - 5, 170, 30, 2, 2, 'F');
+      doc.setDrawColor(...colors.success);
+      doc.setLineWidth(0.5);
+      doc.roundedRect(20, yPosition - 5, 170, 30, 2, 2, 'S');
+      
+      doc.setTextColor(...colors.success);
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text('💼 Commercial Indicators', 25, yPosition + 5);
+      
+      doc.setTextColor(...colors.text);
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      yPosition += 15;
+      doc.text(`• Citation Velocity: ${data.commercial_indicators.citation_velocity}`, 30, yPosition);
+      yPosition += 8;
+      doc.text(`• Commercial Ratio: ${formatMetricValue('ratio', data.commercial_indicators.commercial_ratio)}`, 30, yPosition);
+      yPosition += 8;
+      doc.text(`• Geographic Diversity: ${data.commercial_indicators.geographic_diversity}`, 30, yPosition);
+      yPosition += 25;
+      
+      // Key Players Analysis
+      if (data.key_players && (data.key_players.top_authors.length > 0 || data.key_players.top_institutions.length > 0 || data.key_players.patent_details.length > 0)) {
+        // Check if we need a new page
+        if (yPosition > 200) {
+          doc.addPage();
+          yPosition = 20;
+          
+          // Add header for new page
+          doc.setFillColor(...colors.primary);
+          doc.rect(0, 0, 210, 20, 'F');
+          doc.setTextColor(255, 255, 255);
+          doc.setFontSize(12);
+          doc.setFont('helvetica', 'bold');
+          doc.text('TECHNOLOGY ASSESSMENT REPORT - CONTINUED', 20, 12);
+          yPosition = 35;
+        }
+        
+        // Key Players Section Header
+        doc.setFillColor(...colors.light);
+        doc.rect(15, yPosition - 5, 180, 8, 'F');
+        
+        doc.setTextColor(...colors.dark);
+        doc.setFontSize(16);
+        doc.setFont('helvetica', 'bold');
+        doc.text('KEY PLAYERS ANALYSIS', 20, yPosition);
+        yPosition += 20;
+        
+        // Top Authors Card
+        if (data.key_players.top_authors.length > 0) {
+          doc.setFillColor(250, 250, 250);
+          doc.roundedRect(20, yPosition - 5, 170, 35, 2, 2, 'F');
+          doc.setDrawColor(...colors.warning);
+          doc.setLineWidth(0.5);
+          doc.roundedRect(20, yPosition - 5, 170, 35, 2, 2, 'S');
+          
+          doc.setTextColor(...colors.warning);
+          doc.setFontSize(12);
+          doc.setFont('helvetica', 'bold');
+          doc.text('👥 Leading Researchers', 25, yPosition + 5);
+          
+          doc.setTextColor(...colors.text);
+          doc.setFontSize(9);
+          doc.setFont('helvetica', 'normal');
+          yPosition += 15;
+          
+          data.key_players.top_authors.slice(0, 3).forEach(author => {
+            if (yPosition > 270) {
+              doc.addPage();
+              yPosition = 20;
+            }
+            doc.text(`• ${author.name} (${author.publication_count} pubs)`, 30, yPosition);
+            yPosition += 7;
+          });
+          yPosition += 15;
+        }
+        
+        // Top Institutions
+        if (data.key_players.top_institutions.length > 0) {
+          doc.setFont('helvetica', 'bold');
+          doc.text('Key Institutions:', 20, yPosition);
+          yPosition += 10;
+          doc.setFont('helvetica', 'normal');
+          
+          data.key_players.top_institutions.slice(0, 5).forEach(institution => {
+            const instText = `• ${institution.name} (${institution.publication_count} publications)`;
+            if (yPosition > 270) {
+              doc.addPage();
+              yPosition = 20;
+            }
+            doc.text(instText, 25, yPosition);
+            yPosition += 8;
+          });
+          yPosition += 10;
+        }
+        
+        // Patent Analysis
+        if (data.key_players.patent_details && data.key_players.patent_details.length > 0) {
+          doc.setFont('helvetica', 'bold');
+          doc.text('Prior Art References:', 20, yPosition);
+          yPosition += 10;
+          doc.setFont('helvetica', 'normal');
+          
+          data.key_players.patent_details.slice(0, 5).forEach(patent => {
+            if (yPosition > 260) {
+              doc.addPage();
+              yPosition = 20;
+            }
+            doc.text(`• ${patent.patent_number}`, 25, yPosition);
+            yPosition += 6;
+            const titleLines = doc.splitTextToSize(patent.title, 160);
+            doc.text(titleLines, 27, yPosition);
+            yPosition += titleLines.length * 5 + 5;
+            doc.text(`  Relevance: ${(patent.score * 100).toFixed(1)}%`, 27, yPosition);
+            yPosition += 10;
+          });
+          yPosition += 10;
+        }
+        
+        // Research Landscape Summary
+        doc.setFont('helvetica', 'bold');
+        doc.text('Research Landscape Summary:', 20, yPosition);
+        yPosition += 10;
+        doc.setFont('helvetica', 'normal');
+        
+        const authorsCount = data.key_players.top_authors.length;
+        const institutionsCount = data.key_players.top_institutions.length;
+        const patentsCount = data.key_players.patent_details ? data.key_players.patent_details.length : 0;
+        
+        doc.text(`• Active Researchers: ${authorsCount} identified`, 25, yPosition);
+        yPosition += 8;
+        doc.text(`• Research Institutions: ${institutionsCount} identified`, 25, yPosition);
+        yPosition += 8;
+        doc.text(`• Prior Art Patents: ${patentsCount} relevant patents found`, 25, yPosition);
+        yPosition += 20;
+      }
       
       // AI Report
       if (aiReportContent && aiReportContent !== 'AI Report not yet generated') {
