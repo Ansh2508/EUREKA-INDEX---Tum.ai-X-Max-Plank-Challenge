@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <!-- Background circle -->
+  <circle cx="16" cy="16" r="15" fill="#2563eb" stroke="#1e40af" stroke-width="2"/>
+  
+  <!-- Eureka lightbulb icon -->
+  <g transform="translate(16,16)">
+    <!-- Lightbulb base -->
+    <ellipse cx="0" cy="3" rx="3" ry="6" fill="#fbbf24" stroke="#f59e0b" stroke-width="0.5"/>
+    
+    <!-- Lightbulb threads -->
+    <line x1="-2" y1="5" x2="2" y2="5" stroke="#f59e0b" stroke-width="0.5"/>
+    <line x1="-1.5" y1="6.5" x2="1.5" y2="6.5" stroke="#f59e0b" stroke-width="0.5"/>
+    
+    <!-- Light rays -->
+    <g stroke="#fde047" stroke-width="1" stroke-linecap="round">
+      <line x1="0" y1="-12" x2="0" y2="-9"/>
+      <line x1="8.5" y1="-8.5" x2="6" y2="-6"/>
+      <line x1="8.5" y1="8.5" x2="6" y2="6"/>
+      <line x1="-8.5" y1="-8.5" x2="-6" y2="-6"/>
+      <line x1="-8.5" y1="8.5" x2="-6" y2="6"/>
+      <line x1="12" y1="0" x2="9" y2="0"/>
+      <line x1="-12" y1="0" x2="-9" y2="0"/>
+    </g>
+    
+    <!-- Patent/document symbol -->
+    <rect x="-1" y="8" width="2" height="3" fill="#e5e7eb" stroke="#9ca3af" stroke-width="0.3"/>
+    <line x1="-0.5" y1="9" x2="0.5" y2="9" stroke="#6b7280" stroke-width="0.2"/>
+    <line x1="-0.5" y1="10" x2="0.5" y2="10" stroke="#6b7280" stroke-width="0.2"/>
+  </g>
+</svg>
