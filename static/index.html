@@ -1720,33 +1720,7 @@
 
 
 
-      try {
-        const response = await fetch('/related-works-all', {
-        //const response = await fetch('/related-works-all', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ title, abstract })
-        });
-
-        debugLog('Related works API response:', response);
-        if (!response.ok) {
-          errorLog('Related works API error:', response.status);
-          throw new Error(`Server error: ${response.status}`);
-        }
-
-        const data = await response.json();
-        
-        // Only show raw JSON data in development mode
-        if (appConfig.debug && !appConfig.production) {
-          renderText(JSON.stringify(data, null, 2));
-        }
-    
-      } catch (err) {
-        SecurityUtils.setInnerHTMLSafe(results, `<div class="error">❌ Error: ${SecurityUtils.escapeHtml(err.message)}</div>`);
-        results.classList.add('show');
-      }
+      // Related works call removed - not needed for main analysis flow
 
     });
   
