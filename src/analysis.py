@@ -261,6 +261,29 @@ def estimate_market_size(abstract, title):
             "last_updated": "2025-09-26",
             "confidence": 0.88
         },
+        
+        # ADDITIONAL MAJOR INDUSTRIES - CONSTRUCTION, FOOD, TEXTILES
+        "construction": {
+            "tam_2025": 15000,  # NEW - MASSIVE $15T construction market (largest sector ever!)
+            "cagr": 0.11,       # 11% CAGR (strong infrastructure growth)
+            "keywords": ["construction", "building", "infrastructure", "concrete", "steel construction", "building materials", "structural engineering", "architecture", "civil engineering", "smart buildings", "building technology", "construction equipment", "building automation", "building systems", "construction methods", "prefabrication", "modular construction", "green building", "sustainable construction", "building management", "facility management", "urban planning", "real estate development"],
+            "last_updated": "2025-09-26",
+            "confidence": 0.92
+        },
+        "food_tech": {
+            "tam_2025": 4500,   # NEW - €4.1T = ~$4.5T food technology market
+            "cagr": 0.0147,     # 1.47% CAGR (stable essential sector)
+            "keywords": ["food technology", "food processing", "food science", "nutrition", "food safety", "food production", "food packaging", "food preservation", "food engineering", "food quality", "food manufacturing", "food additives", "food ingredients", "beverage technology", "dairy technology", "meat processing", "food automation", "food testing", "food analysis", "culinary technology", "food innovation", "functional foods", "nutraceuticals", "food biotechnology"],
+            "last_updated": "2025-09-26",
+            "confidence": 0.90
+        },
+        "textile_tech": {
+            "tam_2025": 1140,   # NEW - $1.14T textile technology market
+            "cagr": 0.0435,     # 4.35% CAGR (moderate growth)
+            "keywords": ["textile", "fabric", "fiber", "textile technology", "smart textiles", "textile manufacturing", "textile engineering", "wearable technology", "fashion technology", "technical textiles", "textile materials", "textile processing", "dyeing", "printing", "weaving", "knitting", "nonwoven", "textile machinery", "textile chemistry", "textile design", "apparel technology", "clothing technology", "textile innovation", "sustainable textiles"],
+            "last_updated": "2025-09-26",
+            "confidence": 0.87
+        },
         "other": {
             "tam_2025": 35,   # Default fallback
             "cagr": 0.06,     # 6% CAGR
