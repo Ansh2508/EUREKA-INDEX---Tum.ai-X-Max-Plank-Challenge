@@ -10,7 +10,7 @@ if not API_KEY:
 
 client = anthropic.Anthropic(api_key=API_KEY)
 
-def get_claude_response(prompt: str, model: str = "claude-sonnet-4-20250514", max_tokens: int = 1024) -> str:
+def get_claude_response(prompt: str, model: str = "claude-opus-4-1", max_tokens: int = 1024) -> str:
     response = client.messages.create(
         model=model,
         max_tokens=max_tokens,

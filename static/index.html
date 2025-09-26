@@ -191,6 +191,35 @@
       border: 1px solid #f5c6cb;
       text-align: center;
     }
+    
+    .report-button {
+      background: linear-gradient(45deg, #28a745, #20c997) !important;
+      margin-top: 15px;
+    }
+    
+    .report-button:disabled {
+      background: #6c757d !important;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+    
+    .ai-report {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 25px;
+      margin-top: 30px;
+      white-space: pre-wrap;
+      line-height: 1.6;
+    }
+    
+    .ai-report h3 {
+      color: #495057;
+      margin-top: 25px;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #dee2e6;
+      padding-bottom: 5px;
+    }
   </style>
 </head>
 <body>
@@ -210,6 +239,7 @@
         </div>
 
         <button type="submit">🔍 Analyze Technology</button>
+        <button type="button" id="generateReport" class="report-button" disabled>🤖 Generate AI Report</button>
       </form>
     </div>
 
@@ -293,47 +323,7 @@
       const technology = data.technology_assessment;
       const commercial = data.commercial_indicators;
 
-      // In production mode, show only the main recommendation
-      if (appConfig.production && !appConfig.debug) {
-        results.innerHTML = `
-          <h2>📊 Assessment Results</h2>
-          
-          <div class="recommendation ${getRecommendationClass(overall.investment_recommendation)}">
-            ${overall.investment_recommendation}
-          </div>
-          
-          <div class="assessment-grid">
-            <div class="assessment-card">
-              <div class="card-title">
-                <span class="icon">📈</span>
-                Overall Assessment
-              </div>
-              <div class="card-content">
-                <div class="metric">
-                  <span class="metric-label">Market Potential Score</span>
-                  <span class="metric-value ${getScoreClass(overall.market_potential_score)}">${formatMetricValue('score', overall.market_potential_score)}</span>
-                </div>
-                <div class="metric">
-                  <span class="metric-label">Investment Recommendation</span>
-                  <span class="metric-value">${overall.investment_recommendation}</span>
-                </div>
-                <div class="metric">
-                  <span class="metric-label">Risk Level</span>
-                  <span class="metric-value">${overall.risk_level}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div style="text-align: center; margin-top: 20px; padding: 20px; background: #f8f9fa; border-radius: 10px;">
-            <p><strong>🔬 Professional Analysis Available</strong></p>
-            <p>For detailed technical metrics and comprehensive analysis, please contact our technology transfer team.</p>
-          </div>
-        `;
-        return;
-      }
-
-      // Development mode - show detailed analysis
+      // Show comprehensive analysis for researchers in both production and development
       results.innerHTML = `
         <h2>📊 Assessment Results</h2>
         
@@ -445,6 +435,89 @@
       `;
       
       results.classList.add('show');
+      
+      // Enable AI report button after successful analysis
+      const reportButton = document.getElementById('generateReport');
+      reportButton.disabled = false;
+      
+      // Store data for report generation
+      window.lastAnalysisData = { title: document.getElementById('title').value, abstract: document.getElementById('abstract').value };
+    }
+
+    async function generateAIReport() {
+      if (!window.lastAnalysisData) {
+        alert('Please run an analysis first!');
+        return;
+      }
+      
+      const reportButton = document.getElementById('generateReport');
+      const originalText = reportButton.textContent;
+      
+      reportButton.textContent = '🔄 Generating AI Report...';
+      reportButton.disabled = true;
+      
+      try {
+        const response = await fetch('/generate-ai-report', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(window.lastAnalysisData)
+        });
+
+        if (!response.ok) {
+          throw new Error(`Server error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        if (data.success) {
+          displayAIReport(data.report);
+        } else {
+          throw new Error(data.error || 'AI report generation failed');
+        }
+        
+      } catch (err) {
+        const reportContainer = document.getElementById('ai-report-container');
+        if (!reportContainer) {
+          const newContainer = document.createElement('div');
+          newContainer.id = 'ai-report-container';
+          results.parentNode.appendChild(newContainer);
+        }
+        
+        document.getElementById('ai-report-container').innerHTML = 
+          `<div class="error">❌ AI Report Error: ${err.message}</div>`;
+        
+      } finally {
+        reportButton.textContent = originalText;
+        reportButton.disabled = false;
+      }
+    }
+    
+    function displayAIReport(report) {
+      let reportContainer = document.getElementById('ai-report-container');
+      if (!reportContainer) {
+        reportContainer = document.createElement('div');
+        reportContainer.id = 'ai-report-container';
+        results.parentNode.appendChild(reportContainer);
+      }
+      
+      reportContainer.innerHTML = `
+        <div class="ai-report">
+          <h2>🤖 AI-Generated Technology Transfer Report</h2>
+          <div class="report-meta">
+            <p><strong>Generated:</strong> ${new Date().toLocaleString()}</p>
+            <p><strong>Technology:</strong> ${report.title}</p>
+            <p><strong>Methodology:</strong> ${report.methodology}</p>
+          </div>
+          <hr style="margin: 20px 0;">
+          <div class="report-content">
+            ${report.report_content.replace(/\n/g, '<br>')}
+          </div>
+        </div>
+      `;
+      
+      reportContainer.scrollIntoView({ behavior: 'smooth' });
     }
 
     form.addEventListener('submit', async (e) => {
@@ -532,6 +605,12 @@
         
         infoLog('App initialized in debug mode');
         debugLog('App config:', appConfig);
+      }
+      
+      // Connect AI report button
+      const reportButton = document.getElementById('generateReport');
+      if (reportButton) {
+        reportButton.addEventListener('click', generateAIReport);
       }
     });
   </script>

@@ -473,6 +473,35 @@ async def comprehensive_analysis(request: TechRequest):
 def read_index():
     return FileResponse(os.path.join("static", "index.html"))
 
+@app.post("/generate-ai-report")
+async def generate_ai_report(request: TechRequest):
+    """Generate comprehensive AI-powered report with current market data"""
+    try:
+        from src.services.ai_report_generator import AIReportGenerator
+        
+        # First get the basic analysis
+        analysis_data = analyze_research_potential(request.title, request.abstract, debug=False)
+        
+        # Generate AI report with current market information
+        report_generator = AIReportGenerator()
+        ai_report = await report_generator.generate_comprehensive_report(
+            analysis_data, request.title, request.abstract
+        )
+        
+        return {
+            "success": True,
+            "report": ai_report,
+            "analysis_data": analysis_data
+        }
+        
+    except Exception as e:
+        # Fallback response
+        return {
+            "success": False,
+            "error": str(e),
+            "fallback_message": "AI report generation temporarily unavailable. Please try again later."
+        }
+
 @app.get("/dashboard")
 def read_dashboard():
     return FileResponse(os.path.join("static", "enhanced_dashboard.html"))
