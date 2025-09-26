@@ -1043,15 +1043,23 @@
                 <span class="metric-value">${data.market_size_analysis.domain.replace(/_/g, ' ')}</span>
               </div>
               <div class="metric">
-                <span class="metric-label">TAM (Total Market)</span>
+                <span class="metric-label">TAM (${data.market_size_analysis.current_year})</span>
                 <span class="metric-value">$${data.market_size_analysis.tam_billion_usd}B</span>
               </div>
               <div class="metric">
-                <span class="metric-label">SAM (Serviceable Market)</span>
+                <span class="metric-label">CAGR</span>
+                <span class="metric-value">${data.market_size_analysis.cagr_percent}%</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">5Y TAM Projection</span>
+                <span class="metric-value">$${data.market_size_analysis.future_tam_5y}B</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">SAM (Serviceable)</span>
                 <span class="metric-value">$${data.market_size_analysis.sam_billion_usd}B</span>
               </div>
               <div class="metric">
-                <span class="metric-label">SOM (Obtainable Market)</span>
+                <span class="metric-label">SOM (Obtainable)</span>
                 <span class="metric-value">$${data.market_size_analysis.som_billion_usd}B</span>
               </div>
             </div>

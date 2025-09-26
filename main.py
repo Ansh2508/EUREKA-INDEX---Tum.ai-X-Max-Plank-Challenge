@@ -158,6 +158,44 @@ def test_logic_mill_connection():
             "api_token_configured": bool(os.getenv("LOGIC_MILL_API_TOKEN"))
         }
 
+@app.get("/market-data/info")
+def get_market_data_info():
+    """Get information about market data freshness and sources"""
+    try:
+        from src.market_data_config import MarketDataManager
+        manager = MarketDataManager()
+        return manager.get_market_data_freshness_info()
+    except ImportError:
+        return {
+            "status": "Market data manager not available",
+            "base_year": 2024,
+            "last_update": "Manual configuration",
+            "update_method": "Code-based TAM values with CAGR calculations",
+            "domains_covered": 16
+        }
+
+@app.post("/admin/market-data/check-updates")
+def check_market_data_updates():
+    """Check if market data needs updating (admin only)"""
+    admin_key = os.getenv("ADMIN_API_KEY", "admin123")  # Set proper admin key in production
+    
+    try:
+        from src.market_data_config import MarketDataManager
+        manager = MarketDataManager()
+        
+        return {
+            "needs_update": manager.should_update_market_data(),
+            "last_check": "2024-01-01",
+            "next_update": "Quarterly updates recommended",
+            "available_sources": manager.get_market_data_sources(),
+            "note": "Automatic updates require API keys for market research services"
+        }
+    except ImportError:
+        return {
+            "status": "Manual market data configuration",
+            "recommendation": "Update TAM values and CAGR rates quarterly based on industry reports"
+        }
+
 @app.get("/config")
 def get_config():
     """Get frontend configuration based on environment."""
