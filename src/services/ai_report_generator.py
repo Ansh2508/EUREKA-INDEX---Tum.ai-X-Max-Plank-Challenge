@@ -259,6 +259,15 @@ Commercial Indicators:
 - Commercial Ratio: {commercial.get('commercial_ratio', 'N/A')}
 - Average Family Size: {commercial.get('avg_family_size', 'N/A')}
 - Geographic Diversity: {commercial.get('geographic_diversity', 'N/A')}
+
+Novelty Assessment:
+- Overall Novelty Score: {data.get('novelty_assessment', {}).get('overall_novelty_score', 'N/A')}
+- Novelty Category: {data.get('novelty_assessment', {}).get('novelty_category', 'N/A')}
+- Patentability Likelihood: {data.get('novelty_assessment', {}).get('patentability_indicators', {}).get('patentability_likelihood', 'N/A')}
+- Freedom to Operate: {data.get('novelty_assessment', {}).get('patentability_indicators', {}).get('freedom_to_operate', 'N/A')}
+- Prior Art Density: {data.get('novelty_assessment', {}).get('prior_art_analysis', {}).get('prior_art_density', 'N/A')} documents
+- Key Differences: {', '.join(data.get('novelty_assessment', {}).get('key_differences', ['N/A']))}
+- TT Recommendations: {'; '.join(data.get('novelty_assessment', {}).get('recommendations', ['N/A']))}
 """
         except Exception as e:
             return f"Error formatting analysis data: {str(e)}"
