@@ -1253,7 +1253,7 @@ def analyze_research_potential(title, abstract, debug=False):
         + (comm_ratio * 10) * 0.10              # Reduced: commercial activity optional
         + (cit_velocity * 10) * 0.15            # Higher: innovation momentum important
         + competitive_landscape["landscape_score"] * 0.15  # Higher: competition shows field activity
-        + ip_strength["strength_score"] * 0.10  # Added: IP potential for researchers
+        + ip_strength["ip_strength_score"] * 0.10  # Added: IP potential for researchers
         + (5 if len(publications) > len(patents) else 2) * 0.05  # Bonus for research-heavy fields
     )
     score = round(max(0, min(10, base_score)), 2)
