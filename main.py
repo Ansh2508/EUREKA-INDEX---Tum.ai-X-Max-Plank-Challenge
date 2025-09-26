@@ -9,7 +9,7 @@ import os
 from dotenv import load_dotenv
 
 # Import existing modules
-from src.routes import claude_routes, llm_routes, openalex, related_works
+from src.routes import llm_routes, openalex, related_works
 
 # Import enhanced agents with error handling
 try:
