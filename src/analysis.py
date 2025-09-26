@@ -370,10 +370,10 @@ def assess_technology_readiness_level(abstract, patents):
         3: ["proof of concept", "analytical", "experimental", "critical function", "feasibility study"],
         4: ["laboratory", "component validation", "breadboard", "lab scale", "bench testing"],
         5: ["component validation", "relevant environment", "pilot scale", "small scale production"],
-        6: ["system prototype", "relevant environment", "model demonstration", "pilot demonstration", "prototype testing"],
-        7: ["system demonstration", "operational environment", "prototype", "pre-commercial", "field testing"],
-        8: ["system complete", "commercial product", "market ready", "production ready", "commercial deployment", "first commercial", "planned commercial"],
-        9: ["actual system", "proven commercial", "successful mission", "commercial success", "market deployment", "full commercial"],
+        6: ["system prototype", "relevant environment", "model demonstration", "pilot demonstration", "prototype testing", "clinical trials", "patients"],
+        7: ["system demonstration", "operational environment", "prototype", "pre-commercial", "field testing", "clinical validation", "patient study", "trial results"],
+        8: ["system complete", "commercial product", "market ready", "production ready", "commercial deployment", "first commercial", "planned commercial", "clinical approval"],
+        9: ["actual system", "proven commercial", "successful mission", "commercial success", "market deployment", "full commercial", "FDA approved"],
     }
     
     # Additional commercial readiness indicators
@@ -422,18 +422,22 @@ def assess_market_need_gap(abstract, patents, publications):
     pub_momentum = count_recent(publications, 2) / max(1, len(publications))
     patent_density = len(patents) / 100.0
 
-    need_keywords = ["problem", "challenge", "limitation", "bottleneck", "inefficient", "conventional", "legacy"]
-    solution_keywords = ["novel", "improved", "optimized", "efficient", "innovative", "unmatched", "superior", "enhanced", "next-generation", "transform", "enable greater"]
+    need_keywords = ["problem", "challenge", "limitation", "bottleneck", "inefficient", "conventional", "legacy", "invasive", "complex procedures", "recovery times", "complications", "risk"]
+    solution_keywords = ["novel", "improved", "optimized", "efficient", "innovative", "unmatched", "superior", "enhanced", "next-generation", "transform", "enable greater", "minimally invasive", "reduced", "success rates", "breakthrough", "autonomous", "accurate", "precise"]
 
     need_score = sum(1 for kw in need_keywords if kw in abstract.lower()) / len(need_keywords)
     solution_score = sum(1 for kw in solution_keywords if kw in abstract.lower()) / len(solution_keywords)
 
-    # Enhanced logic for commercial products
+    # Enhanced logic for commercial products and clinical validation
     commercial_terms = any(term in abstract.lower() for term in ["commercial product", "planned commercial", "first commercial", "market ready"])
+    clinical_terms = any(term in abstract.lower() for term in ["clinical trials", "patients", "success rate", "patient study", "clinical validation", "trial results"])
     
-    if commercial_terms and solution_score > 0.2:
+    # Strong clinical evidence boost
+    if clinical_terms and solution_score > 0.2:
         status, score = "CLEAR_MARKET_GAP_IDENTIFIED", 8.5
-    elif solution_score > 0.3 and (need_score > 0.1 or commercial_terms):
+    elif commercial_terms and solution_score > 0.2:
+        status, score = "CLEAR_MARKET_GAP_IDENTIFIED", 8.5
+    elif solution_score > 0.3 and (need_score > 0.1 or commercial_terms or clinical_terms):
         status, score = "POTENTIAL_MARKET_OPPORTUNITY", 7.0
     elif pub_momentum > 0.4 and patent_density < 0.3 and need_score > 0.2:
         status, score = "CLEAR_MARKET_GAP_IDENTIFIED", 8.5
