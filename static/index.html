@@ -630,6 +630,9 @@
         const data = await response.json();
         debugLog('Analyze API data:', data);
         renderResults(data);
+        
+        // Automatically generate AI report after assessment
+        await generateAIReport(title, abstract);
       } catch (err) {
         results.innerHTML = `<div class="error">❌ Error: ${err.message}</div>`;
         results.classList.add('show');
