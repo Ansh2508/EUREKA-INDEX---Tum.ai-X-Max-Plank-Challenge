@@ -1,5 +1,6 @@
 import json
 from src.search_logic_mill import search_logic_mill
+from collections import defaultdict, Counter
 
 from src.utils import (
     count_recent,
@@ -658,6 +659,135 @@ def assess_technology_readiness_level(abstract, patents):
     }
 
 
+def extract_key_players(patents, publications):
+    """Extract key players (authors, institutions) from patents and publications data."""
+    authors = defaultdict(lambda: {
+        'publications': 0, 
+        'patents': 0, 
+        'collaborations': set(),
+        'institutions': set()
+    })
+    
+    institutions = defaultdict(lambda: {
+        'publications': 0, 
+        'patents': 0, 
+        'authors': set()
+    })
+    
+    # Process publications
+    for pub in publications:
+        # Handle different data structures from Logic Mill API
+        pub_authors = []
+        pub_institutions = []
+        
+        # Extract authors from different possible formats
+        if 'authors' in pub and isinstance(pub['authors'], list):
+            pub_authors = [auth.get('display_name', auth) if isinstance(auth, dict) else str(auth) 
+                          for auth in pub['authors'] if auth]
+        elif 'authorships' in pub:
+            pub_authors = [auth.get('author', {}).get('display_name', '') 
+                          for auth in pub.get('authorships', []) if auth.get('author')]
+        
+        # Extract institutions
+        if 'institutions' in pub and isinstance(pub['institutions'], list):
+            pub_institutions = [inst.get('display_name', inst) if isinstance(inst, dict) else str(inst)
+                               for inst in pub['institutions'] if inst]
+        elif 'authorships' in pub:
+            for auth in pub.get('authorships', []):
+                for inst in auth.get('institutions', []):
+                    if inst.get('display_name'):
+                        pub_institutions.append(inst['display_name'])
+        
+        # Count publications for authors
+        for author in pub_authors:
+            if author and author.strip():
+                authors[author]['publications'] += 1
+                authors[author]['institutions'].update(pub_institutions)
+                # Track collaborations
+                for other_author in pub_authors:
+                    if other_author != author and other_author.strip():
+                        authors[author]['collaborations'].add(other_author)
+        
+        # Count publications for institutions
+        for institution in pub_institutions:
+            if institution and institution.strip():
+                institutions[institution]['publications'] += 1
+                institutions[institution]['authors'].update(pub_authors)
+    
+    # Process patents
+    for patent in patents:
+        pat_authors = []
+        pat_institutions = []
+        
+        # Extract inventors/authors from patents
+        if 'inventors' in patent:
+            pat_authors = [inv.get('display_name', inv) if isinstance(inv, dict) else str(inv)
+                          for inv in patent['inventors'] if inv]
+        elif 'authors' in patent:
+            pat_authors = [auth.get('display_name', auth) if isinstance(auth, dict) else str(auth)
+                          for auth in patent['authors'] if auth]
+        
+        # Extract institutions from patents
+        if 'assignees' in patent:
+            pat_institutions = [ass.get('display_name', ass) if isinstance(ass, dict) else str(ass)
+                               for ass in patent['assignees'] if ass]
+        elif 'institutions' in patent:
+            pat_institutions = [inst.get('display_name', inst) if isinstance(inst, dict) else str(inst)
+                               for inst in patent['institutions'] if inst]
+        
+        # Count patents for authors/inventors
+        for author in pat_authors:
+            if author and author.strip():
+                authors[author]['patents'] += 1
+                authors[author]['institutions'].update(pat_institutions)
+                # Track collaborations
+                for other_author in pat_authors:
+                    if other_author != author and other_author.strip():
+                        authors[author]['collaborations'].add(other_author)
+        
+        # Count patents for institutions
+        for institution in pat_institutions:
+            if institution and institution.strip():
+                institutions[institution]['patents'] += 1
+                institutions[institution]['authors'].update(pat_authors)
+    
+    # Create top authors list
+    top_authors = []
+    for author_name, data in authors.items():
+        if data['publications'] + data['patents'] >= 1:  # At least 1 document
+            collaboration_score = len(data['collaborations']) / max(1, data['publications'] + data['patents'])
+            top_authors.append({
+                'name': author_name,
+                'publication_count': data['publications'],
+                'patent_count': data['patents'],
+                'collaboration_score': collaboration_score,
+                'total_documents': data['publications'] + data['patents']
+            })
+    
+    # Sort by total documents
+    top_authors.sort(key=lambda x: x['total_documents'], reverse=True)
+    
+    # Create top institutions list
+    top_institutions = []
+    for inst_name, data in institutions.items():
+        if data['publications'] + data['patents'] >= 1:
+            top_institutions.append({
+                'name': inst_name,
+                'publication_count': data['publications'],
+                'patent_count': data['patents'],
+                'collaboration_score': len(data['authors']),  # Number of unique authors as collaboration metric
+                'total_documents': data['publications'] + data['patents']
+            })
+    
+    # Sort by total documents
+    top_institutions.sort(key=lambda x: x['total_documents'], reverse=True)
+    
+    return {
+        'top_authors': top_authors[:20],  # Top 20 authors
+        'top_institutions': top_institutions[:20]  # Top 20 institutions
+    }
+
+
 def assess_market_need_gap(abstract, patents, publications):
     """Detect market gap by comparing research vs patent activity."""
     pub_momentum = count_recent(publications, 2) / max(1, len(publications))
@@ -736,6 +866,9 @@ def analyze_research_potential(title, abstract, debug=False):
     regulatory_risk = assess_regulatory_risk(abstract, title)
     resource_requirements = assess_resource_requirements(abstract, trl_assessment["estimated_trl"])
 
+    # Extract key players from the data
+    key_players = extract_key_players(patents, publications)
+
     # Enhanced scoring with new metrics
     base_score = (
         market_gap["gap_score"] * 0.25
@@ -767,6 +900,7 @@ def analyze_research_potential(title, abstract, debug=False):
         "ip_strength_analysis": ip_strength,
         "regulatory_risk_analysis": regulatory_risk,
         "resource_requirements": resource_requirements,
+        "key_players": key_players,
         # Debug information
         "patents_found": len(patents),
         "publications_found": len(publications),

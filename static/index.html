@@ -1274,14 +1274,18 @@
         console.log('- Total documents:', data.total_documents);
       }
       
+      // Display key players if available in the analysis data
+      if (data.key_players) {
+        displayKeyPlayersResults(data.key_players);
+      }
+      
       // Automatically generate AI report after successful analysis
       const title = document.getElementById('title').value;
       const abstract = document.getElementById('abstract').value;
       generateAIReport({ title, abstract });
       
-      // Generate competitor and licensing analysis
+      // Generate licensing analysis
       console.log('🚀 Starte zusätzliche Analysen...');
-      generateCompetitorAnalysis(title, abstract);
       generateLicensingAnalysis(title, abstract);
     }
 
@@ -1770,7 +1774,103 @@ Error: ${data.error || 'None'}`;
       }
     }
 
-    // Display Competitor Results
+    // Display Key Players Results (integrated from analysis)
+    function displayKeyPlayersResults(keyPlayersData) {
+      let keyPlayersContainer = document.getElementById('key-players-container');
+      if (!keyPlayersContainer) {
+        keyPlayersContainer = document.createElement('div');
+        keyPlayersContainer.id = 'key-players-container';
+        
+        // Insert after the last assessment-grid (metrics) but before AI report
+        const assessmentGrids = document.querySelectorAll('.assessment-grid');
+        const lastAssessmentGrid = assessmentGrids[assessmentGrids.length - 1];
+        if (lastAssessmentGrid) {
+          lastAssessmentGrid.parentNode.insertBefore(keyPlayersContainer, lastAssessmentGrid.nextSibling);
+        } else {
+          results.appendChild(keyPlayersContainer);
+        }
+      }
+
+      const authors = keyPlayersData.top_authors || [];
+      const institutions = keyPlayersData.top_institutions || [];
+
+      keyPlayersContainer.innerHTML = `
+        <div class="results-container show" style="margin-top: 30px;">
+          <h2>🏢 Key Players Analysis</h2>
+          <p style="color: #666; margin-bottom: 20px;">
+            ✅ <strong>Echte Daten</strong> aus ${authors.length} Autoren und ${institutions.length} Institutionen
+          </p>
+          
+          <div class="assessment-grid" style="grid-template-columns: 1fr 1fr;">
+            <div class="assessment-card">
+              <div class="card-title">
+                <span class="icon">👨‍🔬</span>
+                Top Authors & Collaborators
+              </div>
+              <div class="card-content">
+                <div class="competitor-table">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Author Name</th>
+                        <th>Publications</th>
+                        <th>Patents</th>
+                        <th>Collaboration Score</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${authors.slice(0, 10).map(author => `
+                        <tr>
+                          <td><strong>${author.name}</strong></td>
+                          <td>${author.publication_count}</td>
+                          <td>${author.patent_count}</td>
+                          <td>${(author.collaboration_score * 100).toFixed(1)}%</td>
+                        </tr>
+                      `).join('')}
+                      ${authors.length === 0 ? '<tr><td colspan="4" style="text-align: center; color: #666;">Keine Autoren in diesem Forschungsbereich gefunden</td></tr>' : ''}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div class="assessment-card">
+              <div class="card-title">
+                <span class="icon">🏛️</span>
+                Top Institutions & Competitors
+              </div>
+              <div class="card-content">
+                <div class="competitor-table">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Institution</th>
+                        <th>Publications</th>
+                        <th>Patents</th>
+                        <th>Active Authors</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${institutions.slice(0, 10).map(inst => `
+                        <tr>
+                          <td><strong>${inst.name}</strong></td>
+                          <td>${inst.publication_count}</td>
+                          <td>${inst.patent_count}</td>
+                          <td>${inst.collaboration_score}</td>
+                        </tr>
+                      `).join('')}
+                      ${institutions.length === 0 ? '<tr><td colspan="4" style="text-align: center; color: #666;">Keine Institutionen in diesem Forschungsbereich gefunden</td></tr>' : ''}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Display Competitor Results (fallback for external API)
     function displayCompetitorResults(data) {
       let competitorContainer = document.getElementById('competitor-container');
       if (!competitorContainer) {
@@ -1784,13 +1884,16 @@ Error: ${data.error || 'None'}`;
 
       competitorContainer.innerHTML = `
         <div class="results-container show" style="margin-top: 30px;">
-          <h2>🏢 Competitor & Collaborator Analysis</h2>
+          <h2>🏢 Extended Competitor & Collaborator Analysis</h2>
+          <p style="color: #666; margin-bottom: 20px;">
+            📊 <strong>Zusätzliche Analyse</strong> aus erweiterten Datenquellen
+          </p>
           
           <div class="assessment-grid" style="grid-template-columns: 1fr 1fr;">
             <div class="assessment-card">
               <div class="card-title">
                 <span class="icon">👨‍🔬</span>
-                Top Authors
+                Extended Authors
               </div>
               <div class="card-content">
                 <div class="competitor-table">
@@ -1821,7 +1924,7 @@ Error: ${data.error || 'None'}`;
             <div class="assessment-card">
               <div class="card-title">
                 <span class="icon">🏛️</span>
-                Top Institutions
+                Extended Institutions
               </div>
               <div class="card-content">
                 <div class="competitor-table">
