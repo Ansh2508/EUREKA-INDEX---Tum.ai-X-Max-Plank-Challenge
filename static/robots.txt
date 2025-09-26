@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://eureka-index.com/sitemap.xml
+
+# Crawl-delay (be respectful)
+Crawl-delay: 1
+
+# Disallow sensitive areas (if any)
+Disallow: /debug/
+Disallow: /*.json$
+Disallow: /api/
+
+# Allow important pages
+Allow: /
+Allow: /favicon.ico
+Allow: /favicon.svg
+Allow: /manifest.json
