@@ -127,20 +127,27 @@ def get_time_to_market(trl):
 
 
 def get_investment_recommendation(score):
-    if score >= 8.0:
-        return "STRONG BUY - High potential, proceed with patent filing and commercialization"
-    elif score >= 6.0:
-        return "BUY - Good potential, conduct deeper due diligence"
-    elif score >= 4.0:
-        return "HOLD - Monitor development, reassess in 6-12 months"
-    return "PASS - Insufficient commercial potential at this time"
+    # Research-friendly recommendations for early lifecycle support
+    if score >= 7.0:
+        return "STRONG POTENTIAL - Excellent research with clear patenting opportunity"
+    elif score >= 5.0:
+        return "GOOD POTENTIAL - Consider patent protection and tech transfer support"
+    elif score >= 3.0:
+        return "EMERGING OPPORTUNITY - Monitor development, provide early guidance"
+    elif score >= 1.5:
+        return "EARLY STAGE - Valuable research, consider strategic publications"
+    return "FUNDAMENTAL RESEARCH - Focus on scientific publication and knowledge building"
 
 
 def get_risk_assessment(market_gap, trl_assessment):
-    gap_risk = "LOW" if market_gap['gap_status'] == "CLEAR_MARKET_GAP_IDENTIFIED" else "HIGH"
-    trl_risk = "LOW" if trl_assessment['estimated_trl'] >= 6 else "HIGH"
+    # Research-friendly risk assessment
+    gap_risk = "LOW" if market_gap['gap_status'] in ["CLEAR_MARKET_GAP_IDENTIFIED", "POTENTIAL_MARKET_OPPORTUNITY"] else "MEDIUM"
+    trl_risk = "LOW" if trl_assessment['estimated_trl'] >= 4 else "MEDIUM"  # Lower threshold for research
+    
     if gap_risk == "LOW" and trl_risk == "LOW":
-        return "LOW RISK - Clear market opportunity with mature technology"
-    elif gap_risk == "LOW" or trl_risk == "LOW":
-        return "MEDIUM RISK - One major risk factor identified"
-    return "HIGH RISK - Multiple risk factors present"
+        return "RESEARCH READY - Good research gap with feasible technology development"
+    elif gap_risk == "LOW":
+        return "PROMISING RESEARCH - Clear research opportunity, early technology stage"
+    elif trl_risk == "LOW":
+        return "MATURE TECHNOLOGY - Developed technology seeking application areas"
+    return "EXPLORATORY RESEARCH - Early stage research with learning potential"

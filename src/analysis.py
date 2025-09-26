@@ -1068,15 +1068,16 @@ def analyze_research_potential(title, abstract, debug=False):
         )
         key_players['licensing_partners'] = licensing_partners
 
-    # Enhanced scoring with new metrics
+    # Research-friendly scoring for early lifecycle support
+    # Emphasize research quality, novelty, and knowledge gaps over pure commercialization
     base_score = (
-        market_gap["gap_score"] * 0.25
-        + trl_assessment["estimated_trl"] * 0.20
-        + (comm_ratio * 10) * 0.15
-        + (cit_velocity * 10) * 0.10
-        + market_size["market_size_score"] * 0.15
-        + competitive_landscape["landscape_score"] * 0.10
-        + (10 - regulatory_risk["risk_score"]) * 0.05  # Lower risk = higher score
+        market_gap["gap_score"] * 0.30          # Higher weight: research gaps are valuable
+        + trl_assessment["estimated_trl"] * 0.15 # Reduced: early TRL shouldn't penalize
+        + (comm_ratio * 10) * 0.10              # Reduced: commercial activity optional
+        + (cit_velocity * 10) * 0.15            # Higher: innovation momentum important
+        + competitive_landscape["landscape_score"] * 0.15  # Higher: competition shows field activity
+        + ip_strength["strength_score"] * 0.10  # Added: IP potential for researchers
+        + (5 if len(publications) > len(patents) else 2) * 0.05  # Bonus for research-heavy fields
     )
     score = round(max(0, min(10, base_score)), 2)
 
