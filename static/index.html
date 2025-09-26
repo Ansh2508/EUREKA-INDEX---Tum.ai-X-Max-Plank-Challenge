@@ -388,9 +388,22 @@
     
     .assessment-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 20px;
       margin-top: 20px;
+    }
+    
+    @media (min-width: 1200px) {
+      .assessment-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .assessment-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
     }
     
     .assessment-card {
@@ -1014,6 +1027,131 @@
               <div class="metric">
                 <span class="metric-label">Geographic Diversity</span>
                 <span class="metric-value">${commercial.geographic_diversity}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="assessment-card">
+            <div class="card-title">
+              <span class="icon">💰</span>
+              Market Size Analysis
+            </div>
+            <div class="card-content">
+              <div class="metric">
+                <span class="metric-label">Market Domain</span>
+                <span class="metric-value">${data.market_size_analysis.domain.replace(/_/g, ' ')}</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">TAM (Total Market)</span>
+                <span class="metric-value">$${data.market_size_analysis.tam_billion_usd}B</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">SAM (Serviceable Market)</span>
+                <span class="metric-value">$${data.market_size_analysis.sam_billion_usd}B</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">SOM (Obtainable Market)</span>
+                <span class="metric-value">$${data.market_size_analysis.som_billion_usd}B</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="assessment-card">
+            <div class="card-title">
+              <span class="icon">⚔️</span>
+              Competitive Landscape
+            </div>
+            <div class="card-content">
+              <div class="metric">
+                <span class="metric-label">Competitive Intensity</span>
+                <span class="metric-value">${data.competitive_landscape.competitive_intensity}</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">Positioning</span>
+                <span class="metric-value">${data.competitive_landscape.competitive_positioning}</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">Landscape Score</span>
+                <span class="metric-value ${getScoreClass(data.competitive_landscape.landscape_score)}">${data.competitive_landscape.landscape_score}/10</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">Competing Documents</span>
+                <span class="metric-value">${data.competitive_landscape.total_competing_documents}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="assessment-card">
+            <div class="card-title">
+              <span class="icon">🔒</span>
+              IP Strength Analysis
+            </div>
+            <div class="card-content">
+              <div class="metric">
+                <span class="metric-label">Patent Count</span>
+                <span class="metric-value">${data.ip_strength_analysis.patent_count}</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">IP Strength Score</span>
+                <span class="metric-value ${getScoreClass(data.ip_strength_analysis.ip_strength_score)}">${data.ip_strength_analysis.ip_strength_score}/10</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">FTO Risk</span>
+                <span class="metric-value">${data.ip_strength_analysis.fto_risk}</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">IP Quality</span>
+                <span class="metric-value">${data.ip_strength_analysis.ip_quality}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="assessment-card">
+            <div class="card-title">
+              <span class="icon">⚖️</span>
+              Regulatory Risk
+            </div>
+            <div class="card-content">
+              <div class="metric">
+                <span class="metric-label">Regulatory Domain</span>
+                <span class="metric-value">${data.regulatory_risk_analysis.regulatory_domain}</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">Risk Level</span>
+                <span class="metric-value">${data.regulatory_risk_analysis.risk_level}</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">Approval Timeline</span>
+                <span class="metric-value">${data.regulatory_risk_analysis.estimated_approval_time}</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">Compliance Requirements</span>
+                <span class="metric-value" title="${data.regulatory_risk_analysis.compliance_requirements}">${data.regulatory_risk_analysis.compliance_requirements.substring(0, 30)}...</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="assessment-card">
+            <div class="card-title">
+              <span class="icon">🏗️</span>
+              Resource Requirements
+            </div>
+            <div class="card-content">
+              <div class="metric">
+                <span class="metric-label">Complexity Level</span>
+                <span class="metric-value">${data.resource_requirements.complexity_level}</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">Estimated Funding</span>
+                <span class="metric-value">${data.resource_requirements.estimated_funding}</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">Team Requirements</span>
+                <span class="metric-value">${data.resource_requirements.team_requirements}</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">Development Timeline</span>
+                <span class="metric-value">${data.resource_requirements.development_timeline}</span>
               </div>
             </div>
           </div>
