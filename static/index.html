@@ -996,7 +996,7 @@
             📄 Export JSON
           </button>
           <button class="export-button pdf" onclick="exportToPDF()">
-            📑 Export PDF
+            📄 Download Report
           </button>
           ${appConfig.debug ? '<button class="export-button" onclick="testLogicMill()" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">🔧 Test Logic Mill API</button>' : ''}
         </div>
@@ -1279,6 +1279,7 @@
       generateAIReport({ title, abstract });
       
       // Generate competitor and licensing analysis
+      console.log('🚀 Starte zusätzliche Analysen...');
       generateCompetitorAnalysis(title, abstract);
       generateLicensingAnalysis(title, abstract);
     }
@@ -1321,8 +1322,12 @@
         const data = await response.json();
         
         if (data.success) {
+          console.log('🤖 AI Report erfolgreich generiert');
+          console.log(`📄 Report-Titel: ${data.report.title}`);
+          console.log(`🔬 Methodologie: ${data.report.methodology}`);
           displayAIReport(data.report);
         } else {
+          console.log('❌ AI Report Generation fehlgeschlagen:', data.error);
           throw new Error(data.error || 'AI report generation failed');
         }
         
@@ -1408,6 +1413,17 @@
 
         const data = await response.json();
         debugLog('Analyze API data:', data);
+        
+        // Check if Logic Mill API was used successfully
+        if (data.logic_mill_api_used) {
+          console.log('✅ Logic Mill API erfolgreich verwendet!');
+          console.log(`📊 Gefundene Patente: ${data.patents_found || 0}`);
+          console.log(`📚 Gefundene Publikationen: ${data.publications_found || 0}`);
+          console.log(`📈 Gesamtdokumente: ${data.total_documents || 0}`);
+        } else {
+          console.log('⚠️ Logic Mill API nicht verwendet - Fallback-Daten aktiv');
+        }
+        
         renderResults(data);
         
         // Automatically generate AI report after assessment
@@ -1506,10 +1522,11 @@
     
     function exportToPDF() {
       if (!currentAnalysisData) {
-        alert('No analysis data available for export');
+        alert('Keine Analysedaten für den Export verfügbar');
         return;
       }
       
+      console.log('📄 Starte Report-Download...');
       generatePDFReport();
     }
     
@@ -1544,8 +1561,7 @@ Error: ${data.error || 'None'}`;
       const aiReportElement = document.querySelector('.ai-report-content');
       const aiReportContent = aiReportElement ? aiReportElement.innerText : 'AI Report not yet generated';
       
-      // Create a new window for PDF generation
-      const printWindow = window.open('', '_blank');
+      // Create HTML content for PDF
       const htmlContent = `
         <!DOCTYPE html>
         <html>
@@ -1839,16 +1855,24 @@ Error: ${data.error || 'None'}`;
         </html>
       `;
       
-      printWindow.document.write(htmlContent);
-      printWindow.document.close();
+      // Create a blob with the HTML content
+      const blob = new Blob([htmlContent], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
       
-      // Wait for content to load then trigger print
-      printWindow.onload = function() {
-        setTimeout(() => {
-          printWindow.print();
-          printWindow.close();
-        }, 500);
-      };
+      // Create a temporary link element for download
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `technology-assessment-${new Date().toISOString().split('T')[0]}.html`;
+      
+      // Append to body, click, and remove
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Clean up the URL object
+      URL.revokeObjectURL(url);
+      
+      console.log('📄 PDF Report heruntergeladen als HTML-Datei');
     }
 
     // Competitor Analysis Function
@@ -1868,6 +1892,19 @@ Error: ${data.error || 'None'}`;
 
         if (response.ok) {
           const data = await response.json();
+          
+          // Debug-Ausgabe für Competitor Analysis
+          console.log('🏢 Competitor & Collaborator Analysis:');
+          console.log(`👨‍🔬 Top Authors gefunden: ${data.key_players?.top_authors?.length || 0}`);
+          console.log(`🏛️ Top Institutions gefunden: ${data.key_players?.top_institutions?.length || 0}`);
+          console.log(`🔗 Collaboration Clusters: ${data.key_players?.collaboration_clusters?.length || 0}`);
+          
+          if (data.note && data.note.includes('fallback')) {
+            console.log('⚠️ Competitor Analysis: Fallback-Daten verwendet');
+          } else {
+            console.log('✅ Competitor Analysis: Echte Daten verwendet');
+          }
+          
           displayCompetitorResults(data);
         }
       } catch (err) {
@@ -1893,6 +1930,19 @@ Error: ${data.error || 'None'}`;
 
         if (response.ok) {
           const data = await response.json();
+          
+          // Debug-Ausgabe für Licensing Analysis
+          console.log('💼 Licensing Opportunities Analysis:');
+          console.log(`🎯 Total Opportunities: ${data.opportunity_count || 0}`);
+          console.log(`💰 High-Value Opportunities: ${data.summary?.high_value_opportunities || 0}`);
+          console.log(`📤 Licensing Out: ${data.summary?.licensing_out_opportunities || 0}`);
+          
+          if (data.note && data.note.includes('fallback')) {
+            console.log('⚠️ Licensing Analysis: Fallback-Daten verwendet');
+          } else {
+            console.log('✅ Licensing Analysis: Echte Daten verwendet');
+          }
+          
           displayLicensingResults(data);
         }
       } catch (err) {
