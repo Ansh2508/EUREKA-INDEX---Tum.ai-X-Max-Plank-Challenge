@@ -19,6 +19,38 @@
       min-height: 100vh;
       color: #334155;
       line-height: 1.6;
+      transition: all 0.3s ease;
+    }
+    
+    /* Light Theme */
+    body.light-theme {
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%);
+      color: #1e293b;
+    }
+    
+    body.light-theme .hero-title {
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    body.light-theme .hero-subtitle,
+    body.light-theme .hero-description,
+    body.light-theme .hero-feature,
+    body.light-theme .section-title,
+    body.light-theme .section-subtitle {
+      color: #475569;
+    }
+    
+    body.light-theme .form-container,
+    body.light-theme .results-container {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(226, 232, 240, 0.5);
+    }
+    
+    body.light-theme .ai-report {
+      background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%);
     }
     
     .container {
@@ -219,6 +251,56 @@
     
     @keyframes spin {
       to { transform: rotate(360deg); }
+    }
+    
+    /* Theme Toggle */
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 50px;
+      padding: 10px 15px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: white;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    
+    .theme-toggle:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-1px);
+    }
+    
+    body.light-theme .theme-toggle {
+      background: rgba(0, 0, 0, 0.1);
+      color: #1e293b;
+      border-color: rgba(0, 0, 0, 0.1);
+    }
+    
+    body.light-theme .theme-toggle:hover {
+      background: rgba(0, 0, 0, 0.15);
+    }
+    
+    .theme-icon {
+      font-size: 16px;
+      transition: transform 0.3s ease;
+    }
+    
+    @media (max-width: 768px) {
+      .theme-toggle {
+        top: 15px;
+        right: 15px;
+        padding: 8px 12px;
+        font-size: 12px;
+      }
     }
     
     /* Results Section */
@@ -458,9 +540,121 @@
       50% { opacity: 0.6; }
       100% { opacity: 1; }
     }
+    
+    /* Export Functions */
+    .export-controls {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    
+    .export-button {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .export-button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+    
+    .export-button.pdf {
+      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    }
+    
+    .export-button.pdf:hover {
+      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    }
+    
+    /* Data Visualization */
+    .chart-container {
+      margin: 20px 0;
+      padding: 20px;
+      background: rgba(248, 250, 252, 0.5);
+      border-radius: 12px;
+      border: 1px solid rgba(226, 232, 240, 0.3);
+    }
+    
+    body.light-theme .chart-container {
+      background: rgba(255, 255, 255, 0.8);
+    }
+    
+    .score-chart {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin: 10px 0;
+    }
+    
+    .score-bar {
+      flex: 1;
+      height: 24px;
+      background: #e2e8f0;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .score-fill {
+      height: 100%;
+      border-radius: 12px;
+      transition: width 0.8s ease;
+      position: relative;
+    }
+    
+    .score-fill.high {
+      background: linear-gradient(90deg, #10b981, #059669);
+    }
+    
+    .score-fill.medium {
+      background: linear-gradient(90deg, #f59e0b, #d97706);
+    }
+    
+    .score-fill.low {
+      background: linear-gradient(90deg, #ef4444, #dc2626);
+    }
+    
+    .score-label {
+      min-width: 140px;
+      font-weight: 500;
+      color: #374151;
+    }
+    
+    body.light-theme .score-label {
+      color: #1f2937;
+    }
+    
+    .score-value {
+      min-width: 40px;
+      text-align: right;
+      font-weight: 600;
+      color: #374151;
+    }
+    
+    body.light-theme .score-value {
+      color: #1f2937;
+    }
   </style>
 </head>
 <body>
+  <!-- Theme Toggle -->
+  <div class="theme-toggle" id="themeToggle">
+    <span class="theme-icon" id="themeIcon">🌙</span>
+    <span class="theme-text" id="themeText">Dark</span>
+  </div>
+  
   <div class="container">
     <!-- Hero Section -->
     <div class="hero-section">
@@ -529,6 +723,7 @@
   <script>
     // Global configuration
     let appConfig = { debug: false, production: true }; // Default to production mode
+    let currentAnalysisData = null; // Store current analysis for export
     
     // Fetch configuration from backend
     async function loadConfig() {
@@ -591,6 +786,9 @@
     }
 
     function renderResults(data) {
+      // Store data for export
+      currentAnalysisData = data;
+      
       const overall = data.overall_assessment;
       const market = data.market_analysis;
       const technology = data.technology_assessment;
@@ -602,6 +800,42 @@
         
         <div class="recommendation ${getRecommendationClass(overall.investment_recommendation)}">
           ${overall.investment_recommendation}
+        </div>
+        
+        <!-- Export Controls -->
+        <div class="export-controls">
+          <button class="export-button" onclick="exportToJSON()">
+            📄 Export JSON
+          </button>
+          <button class="export-button pdf" onclick="exportToPDF()">
+            📑 Export PDF
+          </button>
+        </div>
+        
+        <!-- Data Visualization -->
+        <div class="chart-container">
+          <h3>📈 Key Metrics Overview</h3>
+          <div class="score-chart">
+            <div class="score-label">Market Potential</div>
+            <div class="score-bar">
+              <div class="score-fill ${getScoreClass(overall.market_potential_score)}" style="width: ${(overall.market_potential_score / 10) * 100}%"></div>
+            </div>
+            <div class="score-value">${formatMetricValue('score', overall.market_potential_score)}/10</div>
+          </div>
+          <div class="score-chart">
+            <div class="score-label">Market Gap Score</div>
+            <div class="score-bar">
+              <div class="score-fill ${getScoreClass(market.gap_score)}" style="width: ${(market.gap_score / 10) * 100}%"></div>
+            </div>
+            <div class="score-value">${market.gap_score}/10</div>
+          </div>
+          <div class="score-chart">
+            <div class="score-label">Technology Readiness</div>
+            <div class="score-bar">
+              <div class="score-fill ${getScoreClass(technology.estimated_trl)}" style="width: ${(technology.estimated_trl / 9) * 100}%"></div>
+            </div>
+            <div class="score-value">TRL ${technology.estimated_trl}/9</div>
+          </div>
         </div>
         
         <div class="assessment-grid">
@@ -883,8 +1117,105 @@
     });
   
 
+    // Theme Toggle Functions
+    function initTheme() {
+      const savedTheme = localStorage.getItem('theme') || 'dark';
+      setTheme(savedTheme);
+    }
+    
+    function setTheme(theme) {
+      const body = document.body;
+      const themeIcon = document.getElementById('themeIcon');
+      const themeText = document.getElementById('themeText');
+      
+      if (theme === 'light') {
+        body.classList.add('light-theme');
+        themeIcon.textContent = '☀️';
+        themeText.textContent = 'Light';
+      } else {
+        body.classList.remove('light-theme');
+        themeIcon.textContent = '🌙';
+        themeText.textContent = 'Dark';
+      }
+      
+      localStorage.setItem('theme', theme);
+    }
+    
+    function toggleTheme() {
+      const currentTheme = document.body.classList.contains('light-theme') ? 'light' : 'dark';
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      setTheme(newTheme);
+    }
+    
+    // Export Functions
+    function exportToJSON() {
+      if (!currentAnalysisData) {
+        alert('No analysis data available for export');
+        return;
+      }
+      
+      const dataStr = JSON.stringify(currentAnalysisData, null, 2);
+      const dataBlob = new Blob([dataStr], {type: 'application/json'});
+      const url = URL.createObjectURL(dataBlob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `technology-assessment-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+    
+    function exportToPDF() {
+      if (!currentAnalysisData) {
+        alert('No analysis data available for export');
+        return;
+      }
+      
+      // Create a formatted text version for PDF
+      const data = currentAnalysisData;
+      const title = document.getElementById('title').value;
+      const abstract = document.getElementById('abstract').value;
+      
+      let content = `TECHNOLOGY ASSESSMENT REPORT\n`;
+      content += `Generated: ${new Date().toLocaleString()}\n\n`;
+      content += `TECHNOLOGY: ${title}\n\n`;
+      content += `ABSTRACT:\n${abstract}\n\n`;
+      content += `INVESTMENT RECOMMENDATION:\n${data.overall_assessment.investment_recommendation}\n\n`;
+      content += `MARKET POTENTIAL SCORE: ${data.overall_assessment.market_potential_score}/10\n`;
+      content += `RISK LEVEL: ${data.overall_assessment.risk_level}\n\n`;
+      content += `TECHNOLOGY READINESS LEVEL: TRL ${data.technology_assessment.estimated_trl}\n`;
+      content += `MARKET READINESS: ${data.technology_assessment.market_readiness}\n`;
+      content += `TIME TO MARKET: ${data.technology_assessment.time_to_market}\n\n`;
+      content += `MARKET GAP STATUS: ${data.market_analysis.gap_status}\n`;
+      content += `GAP SCORE: ${data.market_analysis.gap_score}/10\n\n`;
+      content += `COMMERCIAL INDICATORS:\n`;
+      content += `- Citation Velocity: ${data.commercial_indicators.citation_velocity}\n`;
+      content += `- Commercial Ratio: ${data.commercial_indicators.commercial_ratio}\n`;
+      content += `- Avg Family Size: ${data.commercial_indicators.avg_family_size}\n`;
+      content += `- Geographic Diversity: ${data.commercial_indicators.geographic_diversity}\n`;
+      
+      const dataBlob = new Blob([content], {type: 'text/plain'});
+      const url = URL.createObjectURL(dataBlob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `technology-assessment-${new Date().toISOString().split('T')[0]}.txt`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
     // Initialize app
     document.addEventListener('DOMContentLoaded', async function() {
+      // Initialize theme
+      initTheme();
+      
+      // Add theme toggle event listener
+      document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+      
       // Load configuration first
       await loadConfig();
       
