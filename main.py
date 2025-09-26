@@ -106,12 +106,57 @@ class NoveltyRequest(BaseModel):
 # Existing endpoint
 @app.post("/analyze")
 def analyze_technology(request: TechRequest):
-    result = analyze_research_potential(request.title, request.abstract, debug=False)
+    # Use debug mode in development environment
+    debug_mode = DEBUG_MODE and os.getenv("ENABLE_API_DEBUG", "false").lower() == "true"
+    
+    if debug_mode:
+        print(f"[DEBUG] Analyzing technology: {request.title[:50]}...")
+        print(f"[DEBUG] Abstract length: {len(request.abstract)} characters")
+    
+    result = analyze_research_potential(request.title, request.abstract, debug=debug_mode)
+    
+    if debug_mode:
+        print(f"[DEBUG] Analysis complete. Market Potential Score: {result.get('overall_assessment', {}).get('market_potential_score', 'N/A')}")
+        
+        # Log patent/publication counts
+        patents = result.get('patents_found', 0)
+        publications = result.get('publications_found', 0)
+        print(f"[DEBUG] Found {patents} patents, {publications} publications")
+    
     return result
 
 @app.get("/health")
 def health_check():
     return {"status": "healthy", "message": "Technology Assessment API is running"}
+
+@app.get("/debug/logic-mill-test")
+def test_logic_mill_connection():
+    """Test Logic Mill API connection with sample data"""
+    try:
+        from src.search_logic_mill import search_logic_mill
+        
+        # Test with simple query
+        test_title = "Machine Learning Algorithm"
+        test_abstract = "Novel machine learning approach for data classification and pattern recognition."
+        
+        results = search_logic_mill(test_title, test_abstract, debug=True, amount=5)
+        
+        return {
+            "status": "success",
+            "logic_mill_api": "connected",
+            "total_results": len(results),
+            "patents_found": len([r for r in results if r.get("index") == "patents"]),
+            "publications_found": len([r for r in results if r.get("index") == "publications"]),
+            "sample_result": results[0] if results else None,
+            "api_token_configured": bool(os.getenv("LOGIC_MILL_API_TOKEN"))
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "logic_mill_api": "failed",
+            "error": str(e),
+            "api_token_configured": bool(os.getenv("LOGIC_MILL_API_TOKEN"))
+        }
 
 @app.get("/config")
 def get_config():

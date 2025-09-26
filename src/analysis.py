@@ -460,10 +460,18 @@ def assess_market_need_gap(abstract, patents, publications):
 
 def analyze_research_potential(title, abstract, debug=False):
     """Run full analysis pipeline."""
+    if debug:
+        print(f"[DEBUG] Starting analysis for: {title[:50]}...")
+    
     results = search_logic_mill(title, abstract, debug=debug)
 
     patents = [r for r in results if r.get("index") == "patents"]
     publications = [r for r in results if r.get("index") == "publications"]
+    
+    if debug:
+        print(f"[DEBUG] Logic Mill API returned {len(results)} total results")
+        print(f"[DEBUG] - Patents: {len(patents)}")
+        print(f"[DEBUG] - Publications: {len(publications)}")
 
     market_gap = assess_market_need_gap(abstract, patents, publications)
     trl_assessment = assess_technology_readiness_level(abstract, patents)
@@ -517,7 +525,12 @@ def analyze_research_potential(title, abstract, debug=False):
         "competitive_landscape": competitive_landscape,
         "ip_strength_analysis": ip_strength,
         "regulatory_risk_analysis": regulatory_risk,
-        "resource_requirements": resource_requirements
+        "resource_requirements": resource_requirements,
+        # Debug information
+        "patents_found": len(patents),
+        "publications_found": len(publications),
+        "total_documents": len(results),
+        "logic_mill_api_used": True
     }
 
 

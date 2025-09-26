@@ -62,7 +62,7 @@ def search_logic_mill(
             id, score, index, title, url, PatspecterEmbedding
     """
     if indices is None:
-        indices =["publications"] #["patents", "publications"]
+        indices = ["patents", "publications"]  # Include both patents and publications
 
     variables = {
         "model": model,
@@ -74,34 +74,64 @@ def search_logic_mill(
         "indices": indices,
     }
 
+    if debug:
+        print(f"[DEBUG] Searching Logic Mill API with indices: {indices}")
+        print(f"[DEBUG] Amount: {amount}, Model: {model}")
+
     r = s.post(URL, headers=HEADERS, json={"query": QUERY, "variables": variables})
 
     if r.status_code != 200:
-        raise RuntimeError(f"Error {r.status_code}: {r.text}")
+        error_msg = f"Logic Mill API Error {r.status_code}: {r.text}"
+        if debug:
+            print(f"[DEBUG] {error_msg}")
+        raise RuntimeError(error_msg)
 
     response = r.json()
+    
+    if debug:
+        print(f"[DEBUG] Logic Mill API response status: {r.status_code}")
+        print(f"[DEBUG] Response keys: {response.keys() if response else 'None'}")
 
     # Extract documents
     results = response.get("data", {}).get("encodeDocumentAndSimilaritySearch", [])
     documents = []
+    patents_count = 0
+    publications_count = 0
+    
     for item in results:
         doc = item.get("document", {})
         if doc:
+            doc_index = item.get("index")
             documents.append({
                 "id": item.get("id"),
                 "score": item.get("score"),
-                "index": item.get("index"),
+                "index": doc_index,
                 "title": doc.get("title"),
                 "url": doc.get("url"),
                 "PatspecterEmbedding": doc.get("PatspecterEmbedding"),
+                "year": doc.get("year", 2020),  # Default year for calculations
+                "citations": doc.get("citations", 0),  # Default citations
             })
+            
+            if doc_index == "patents":
+                patents_count += 1
+            elif doc_index == "publications":
+                publications_count += 1
 
-    # Debug mode: save JSON output
     if debug:
+        print(f"[DEBUG] Found {len(documents)} total documents:")
+        print(f"[DEBUG] - Patents: {patents_count}")
+        print(f"[DEBUG] - Publications: {publications_count}")
+        
+        # Save JSON output
         filename = f"debug_response_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         with open(filename, "w", encoding="utf-8") as f:
             json.dump(documents, f, indent=2, ensure_ascii=False)
         print(f"[DEBUG] Extracted documents saved to {filename}")
+        
+        # Show sample documents
+        if documents:
+            print(f"[DEBUG] Sample document: {documents[0]}")
 
     return documents  # ✅ Return list of dicts
 
