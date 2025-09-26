@@ -659,99 +659,50 @@ def assess_technology_readiness_level(abstract, patents):
     }
 
 
-def extract_patent_details_from_logic_mill(patents):
-    """Extract detailed patent information including inventors and assignees."""
+def extract_real_patent_details_from_logic_mill(patents):
+    """Extract real patent details using only available metadata from Logic Mill - no fake data."""
     try:
-        import requests
-        import re
-        import time
-        
-        inventors = defaultdict(lambda: {
-            'patents': [],
-            'total_patents': 0,
-            'assignees': set()
-        })
-        
-        assignees = defaultdict(lambda: {
-            'patents': [],
-            'total_patents': 0,
-            'inventors': set()
-        })
-        
         patent_details = []
         
-        # Process patents from Logic Mill data
+        print(f"[DEBUG] Processing {len(patents)} patents from Logic Mill (real data only)...")
+        
+        # Process patents from Logic Mill data - use only what's available
         for patent in patents:
             patent_id = patent.get('id', '')
             patent_title = patent.get('title', 'Unknown Title')
             patent_url = patent.get('url', '')
             
-            # Extract patent number from title or ID
-            patent_number = extract_patent_number(patent_title, patent_id)
+            # Only include patents with meaningful data
+            if not patent_title or patent_title == 'Unknown Title' or len(patent_title) < 10:
+                continue
             
-            # Mock realistic inventor and assignee data based on title analysis
-            mock_inventors, mock_assignees = generate_realistic_patent_metadata(patent_title)
+            # Extract real patent number if present in title
+            patent_number = extract_patent_number_from_title(patent_title)
+            if not patent_number:
+                patent_number = f"Patent-{patent_id[-8:]}" if patent_id else "Unknown"
             
-            # Create patent detail entry
+            # Create patent detail entry with only real available data
             patent_detail = {
                 'id': patent_id,
                 'title': patent_title,
                 'patent_number': patent_number,
                 'url': patent_url,
-                'inventors': mock_inventors,
-                'assignees': mock_assignees,
-                'score': patent.get('score', 0)
+                'score': patent.get('score', 0),
+                'year': patent.get('year', 'Unknown'),
+                'citations': patent.get('citations', 0)
             }
             patent_details.append(patent_detail)
-            
-            # Track inventors
-            for inventor in mock_inventors:
-                inventors[inventor]['patents'].append(patent_detail)
-                inventors[inventor]['total_patents'] += 1
-                inventors[inventor]['assignees'].update(mock_assignees)
-            
-            # Track assignees
-            for assignee in mock_assignees:
-                assignees[assignee]['patents'].append(patent_detail)
-                assignees[assignee]['total_patents'] += 1
-                assignees[assignee]['inventors'].update(mock_inventors)
         
-        # Create top inventors list
-        top_inventors = []
-        for inventor_name, data in inventors.items():
-            top_inventors.append({
-                'name': inventor_name,
-                'patent_count': data['total_patents'],
-                'publication_count': 0,  # No publication data from patents
-                'collaboration_score': len(data['assignees']) / max(1, data['total_patents']),
-                'assignees': list(data['assignees'])[:3]  # Top 3 assignees
-            })
-        
-        # Sort by patent count
-        top_inventors.sort(key=lambda x: x['patent_count'], reverse=True)
-        
-        # Create top assignees list
-        top_assignees = []
-        for assignee_name, data in assignees.items():
-            top_assignees.append({
-                'name': assignee_name,
-                'patent_count': data['total_patents'],
-                'publication_count': 0,
-                'collaboration_score': len(data['inventors']),
-                'inventor_count': len(data['inventors'])
-            })
-        
-        # Sort by patent count
-        top_assignees.sort(key=lambda x: x['patent_count'], reverse=True)
+        print(f"[DEBUG] Found real data for {len(patent_details)} patents with meaningful information")
         
         return {
-            'top_inventors': top_inventors[:15],
-            'top_assignees': top_assignees[:15],
+            'top_inventors': [],  # No inventor data available from Logic Mill
+            'top_assignees': [],  # No assignee data available from Logic Mill
             'patent_details': sorted(patent_details, key=lambda x: x['score'], reverse=True)[:20]
         }
         
     except Exception as e:
-        print(f"[DEBUG] Error in extract_patent_details_from_logic_mill: {e}")
+        print(f"[DEBUG] Error in extract_real_patent_details: {e}")
         return {
             'top_inventors': [],
             'top_assignees': [],
@@ -759,16 +710,18 @@ def extract_patent_details_from_logic_mill(patents):
         }
 
 
-def extract_patent_number(title, patent_id):
-    """Extract or generate patent number from title or ID."""
+
+
+def extract_patent_number_from_title(title):
+    """Extract patent number from title using real patterns."""
     import re
     
-    # Look for patent numbers in title
+    # Look for real patent numbers in title
     patent_patterns = [
         r'US[\s]?(\d{1,2}[,.]?\d{3}[,.]?\d{3})',  # US10,123,456
         r'EP[\s]?(\d{7})',  # EP1234567
         r'WO[\s]?(\d{4}/\d{6})',  # WO2020/123456
-        r'(\d{7,8})',  # Generic 7-8 digit numbers
+        r'(\d{7,10})',  # Generic 7-10 digit numbers
     ]
     
     for pattern in patent_patterns:
@@ -776,79 +729,8 @@ def extract_patent_number(title, patent_id):
         if match:
             return f"US{match.group(1).replace(',', '').replace('.', '')}"
     
-    # Fallback: generate from ID
-    if patent_id:
-        # Extract numbers from ID
-        numbers = re.findall(r'\d+', patent_id)
-        if numbers:
-            num = numbers[0][-7:]  # Last 7 digits
-            return f"US{num.zfill(7)}"
-    
-    # Final fallback
-    import random
-    return f"US{random.randint(1000000, 9999999)}"
-
-
-def generate_realistic_patent_metadata(title):
-    """Generate realistic inventors and assignees based on patent title."""
-    import random
-    
-    # Technology-specific inventor names and companies
-    tech_profiles = {
-        'quantum': {
-            'inventors': ['Dr. Alice Quantum', 'Prof. Bob Entanglement', 'Dr. Carol Superposition', 'Dr. David Qubit'],
-            'companies': ['IBM Corp.', 'Google LLC', 'Microsoft Corp.', 'Rigetti Computing', 'IonQ Inc.']
-        },
-        'ai': {
-            'inventors': ['Dr. Maria Neural', 'Prof. James Learning', 'Dr. Sarah Algorithm', 'Dr. Kevin Deep'],
-            'companies': ['Google LLC', 'Microsoft Corp.', 'OpenAI Inc.', 'NVIDIA Corp.', 'Meta Platforms']
-        },
-        'bio': {
-            'inventors': ['Dr. Lisa Gene', 'Prof. Michael Protein', 'Dr. Anna Sequence', 'Dr. Robert Enzyme'],
-            'companies': ['Pfizer Inc.', 'Moderna Inc.', 'Genentech Inc.', 'Amgen Inc.', 'Gilead Sciences']
-        },
-        'energy': {
-            'inventors': ['Dr. Solar Panel', 'Prof. Wind Turbine', 'Dr. Battery Cell', 'Dr. Grid Smart'],
-            'companies': ['Tesla Inc.', 'General Electric', 'Siemens AG', 'First Solar Inc.', 'NextEra Energy']
-        },
-        'cyber': {
-            'inventors': ['Dr. Crypto Secure', 'Prof. Firewall Strong', 'Dr. Hash Function', 'Dr. Key Exchange'],
-            'companies': ['Cisco Systems', 'Palo Alto Networks', 'CrowdStrike Inc.', 'Fortinet Inc.', 'Check Point']
-        }
-    }
-    
-    # Determine technology domain from title
-    title_lower = title.lower()
-    domain = 'general'
-    
-    if any(word in title_lower for word in ['quantum', 'qubit', 'entangle']):
-        domain = 'quantum'
-    elif any(word in title_lower for word in ['ai', 'neural', 'machine learning', 'deep learning']):
-        domain = 'ai'
-    elif any(word in title_lower for word in ['bio', 'drug', 'protein', 'gene', 'medical']):
-        domain = 'bio'
-    elif any(word in title_lower for word in ['energy', 'solar', 'battery', 'power']):
-        domain = 'energy'
-    elif any(word in title_lower for word in ['security', 'crypto', 'encryption']):
-        domain = 'cyber'
-    
-    # Use domain-specific or general profiles
-    if domain in tech_profiles:
-        profile = tech_profiles[domain]
-    else:
-        profile = {
-            'inventors': ['Dr. John Smith', 'Prof. Jane Doe', 'Dr. Michael Johnson', 'Dr. Sarah Wilson'],
-            'companies': ['Technology Corp.', 'Innovation Inc.', 'Research LLC', 'Systems Ltd.']
-        }
-    
-    # Select 2-4 inventors and 1-2 assignees
-    num_inventors = random.randint(2, 4)
-    num_assignees = random.randint(1, 2)
-    
-    inventors = random.sample(profile['inventors'], min(num_inventors, len(profile['inventors'])))
-    assignees = random.sample(profile['companies'], min(num_assignees, len(profile['companies'])))
-    
-    return inventors, assignees
+    # Return None if no pattern found - we'll use title search instead
+    return None
 
 
 def extract_key_players_from_openalex(publications):
@@ -879,7 +761,7 @@ def extract_key_players_from_openalex(publications):
         print(f"[DEBUG] Found {len(openalex_ids)} OpenAlex publications to fetch metadata for")
         
         # Fetch detailed metadata from OpenAlex API
-        for i, work_url in enumerate(openalex_ids[:10]):  # Limit to first 10 for performance
+        for i, work_url in enumerate(openalex_ids[:15]):  # Increased to 15 for more data
             try:
                 # Extract work ID from URL
                 work_id = work_url.split('/')[-1]
@@ -1027,8 +909,8 @@ def extract_key_players(patents, publications):
     # Extract publication data from OpenAlex
     publication_data = extract_key_players_from_openalex(publications)
     
-    # Extract patent data from Logic Mill with realistic metadata
-    patent_data = extract_patent_details_from_logic_mill(patents)
+    # Extract real patent data using only Logic Mill metadata
+    patent_data = extract_real_patent_details_from_logic_mill(patents)
     
     # Merge authors and inventors
     combined_authors = publication_data.get('top_authors', [])

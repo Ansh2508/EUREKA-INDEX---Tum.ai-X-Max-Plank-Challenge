@@ -906,13 +906,13 @@
       font-size: 0.9em;
     }
 
-    .patent-assignee {
+    .patent-year {
       color: #6b7280;
       font-size: 0.8em;
       margin-bottom: 4px;
     }
 
-    body:not(.light-theme) .patent-assignee {
+    body:not(.light-theme) .patent-year {
       color: #9ca3af;
     }
 
@@ -2069,7 +2069,7 @@ Error: ${data.error || 'None'}`;
                     <div class="patent-detail-item">
                       <div class="patent-number"><strong>${patent.patent_number}</strong></div>
                       <div class="patent-title">${patent.title.length > 60 ? patent.title.substring(0, 60) + '...' : patent.title}</div>
-                      <div class="patent-assignee">${patent.assignees ? patent.assignees.join(' • ') : 'Unknown Assignee'}</div>
+                      <div class="patent-year">Year: ${patent.year || 'Unknown'} | Citations: ${patent.citations || 0}</div>
                       <div class="patent-score">Relevance: ${(patent.score * 100).toFixed(1)}%</div>
                     </div>
                   `).join('')}
