@@ -123,6 +123,12 @@ railway logs
 **"npm: command not found"**
 ➜ Gelöst durch `nixpacks.toml` (fügt Node.js hinzu)
 
+**"ModuleNotFoundError: No module named 'src.llms.groq'"**
+➜ Gelöst durch:
+  - Erstellung der fehlenden `groq.py` Datei
+  - Hinzufügen von `__init__.py` in allen Modulverzeichnissen
+  - Update des groq Pakets auf Version 0.11.0
+
 **Frontend wird nicht geladen**
 ➜ Überprüfen Sie, ob `backend/static/` nach dem Build existiert
 
