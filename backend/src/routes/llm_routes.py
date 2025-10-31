@@ -2,8 +2,10 @@ from fastapi import APIRouter
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from src.llms.groq import get_groq_response
-
 from src.llms.claude import get_claude_response
+from src.llms.huggingface import get_huggingface_response
+from src.llms.google_ai import get_google_ai_response, get_patent_analysis, get_technical_innovation_analysis, get_prior_art_search_strategy
+from src.llms.grok import get_grok_response
 import os
 
 router = APIRouter()
@@ -11,12 +13,25 @@ router = APIRouter()
 # Supported LLM providers
 LLM_PROVIDERS = {
     "groq": get_groq_response,
-    "claude": get_claude_response
+    "claude": get_claude_response,
+    "huggingface": get_huggingface_response,
+    "google_ai": get_google_ai_response,
+    "grok": get_grok_response
 }
 
 class LLMRequest(BaseModel):
-    provider: str  # "groq", "openrouter", "claude"
+    provider: str  # "groq", "openrouter", "claude", "google_ai"
     prompt: str
+
+class PatentAnalysisRequest(BaseModel):
+    patent_text: str
+    analysis_type: str = "novelty"  # novelty, claims, landscape, infringement
+
+class TechnicalAnalysisRequest(BaseModel):
+    technology_description: str
+
+class PriorArtSearchRequest(BaseModel):
+    invention_summary: str
 
 @router.get("/providers")
 def list_providers():
@@ -40,6 +55,39 @@ def ask_llm(request: LLMRequest):
         response = f"{provider.capitalize()} API error: {str(e)}"
     
     return {"response": response}
+
+@router.post("/patent-analysis")
+def analyze_patent(request: PatentAnalysisRequest):
+    """
+    Specialized patent analysis using enhanced Google AI
+    """
+    try:
+        response = get_patent_analysis(request.patent_text, request.analysis_type)
+        return {"response": response, "analysis_type": request.analysis_type}
+    except Exception as e:
+        return {"error": f"Patent analysis error: {str(e)}"}
+
+@router.post("/technical-analysis")
+def analyze_technology(request: TechnicalAnalysisRequest):
+    """
+    Comprehensive technical innovation analysis
+    """
+    try:
+        response = get_technical_innovation_analysis(request.technology_description)
+        return {"response": response}
+    except Exception as e:
+        return {"error": f"Technical analysis error: {str(e)}"}
+
+@router.post("/prior-art-search")
+def generate_search_strategy(request: PriorArtSearchRequest):
+    """
+    Generate comprehensive prior art search strategy
+    """
+    try:
+        response = get_prior_art_search_strategy(request.invention_summary)
+        return {"response": response}
+    except Exception as e:
+        return {"error": f"Search strategy error: {str(e)}"}
 
 @router.get("/")
 def llm_page():
