@@ -45,8 +45,8 @@ function Dashboard() {
                 <div className="metric-icon microscope">
                   <Microscope size={20} />
                 </div>
-                <div className="metric-trend positive">+12%</div>
               </div>
+              <div className="metric-trend positive">+12%</div>
               <div className="metric-content">
                 <div className="metric-value">24</div>
                 <div className="metric-label">Analyses Completed</div>
@@ -58,8 +58,8 @@ function Dashboard() {
                 <div className="metric-icon chart">
                   <BarChart3 size={20} />
                 </div>
-                <div className="metric-trend positive">+8%</div>
               </div>
+              <div className="metric-trend positive">+8%</div>
               <div className="metric-content">
                 <div className="metric-value">8.5</div>
                 <div className="metric-label">Average Market Score</div>
@@ -71,8 +71,8 @@ function Dashboard() {
                 <div className="metric-icon alert">
                   <Bell size={20} />
                 </div>
-                <div className="metric-status">Active</div>
               </div>
+              <div className="metric-status">Active</div>
               <div className="metric-content">
                 <div className="metric-value">12</div>
                 <div className="metric-label">Patent Alerts</div>
@@ -84,8 +84,8 @@ function Dashboard() {
                 <div className="metric-icon report">
                   <ClipboardList size={20} />
                 </div>
-                <div className="metric-time">Today</div>
               </div>
+              <div className="metric-time">Today</div>
               <div className="metric-content">
                 <div className="metric-value">6</div>
                 <div className="metric-label">Reports Generated</div>

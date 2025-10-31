@@ -26,7 +26,7 @@ function PatentAlerts() {
     fetchAlerts()
     fetchNotifications()
     fetchStats()
-    
+
     // Set up polling for real-time updates
     const interval = setInterval(() => {
       fetchNotifications()
@@ -54,10 +54,10 @@ function PatentAlerts() {
   const fetchNotifications = async () => {
     try {
       const backendNotifications = await alertService.getNotifications()
-      const transformedNotifications = backendNotifications.map(notification => 
+      const transformedNotifications = backendNotifications.map(notification =>
         alertService.transformNotification(notification)
       )
-      
+
       // Enrich notifications with alert names
       const enrichedNotifications = transformedNotifications.map(notification => {
         const alert = alerts.find(a => a.id === notification.alertId)
@@ -66,7 +66,7 @@ function PatentAlerts() {
           alertName: alert ? alert.name : `Alert ${notification.alertId}`
         }
       })
-      
+
       setNotifications(enrichedNotifications)
     } catch (error) {
       console.error('Error fetching notifications:', error)
@@ -100,10 +100,10 @@ function PatentAlerts() {
     try {
       const backendAlert = await alertService.createAlert(alertData)
       const transformedAlert = alertService.transformAlert(backendAlert)
-      
+
       setAlerts(prev => [transformedAlert, ...prev])
       setShowCreateModal(false)
-      
+
       // Refresh stats
       await fetchStats()
     } catch (error) {
@@ -117,11 +117,11 @@ function PatentAlerts() {
     try {
       const backendAlert = await alertService.updateAlert(alertId, updates)
       const transformedAlert = alertService.transformAlert(backendAlert)
-      
-      setAlerts(prev => prev.map(alert => 
+
+      setAlerts(prev => prev.map(alert =>
         alert.id === alertId ? transformedAlert : alert
       ))
-      
+
       // Update stats if status changed
       if (updates.status) {
         await fetchStats()
@@ -135,9 +135,9 @@ function PatentAlerts() {
   const handleDeleteAlert = async (alertId) => {
     try {
       await alertService.deleteAlert(alertId)
-      
+
       setAlerts(prev => prev.filter(alert => alert.id !== alertId))
-      
+
       // Refresh stats
       await fetchStats()
     } catch (error) {
@@ -149,13 +149,13 @@ function PatentAlerts() {
   const handleMarkNotificationRead = async (notificationId) => {
     try {
       await alertService.markNotificationRead(notificationId)
-      
+
       setNotifications(prev => prev.map(notification =>
-        notification.id === notificationId 
+        notification.id === notificationId
           ? { ...notification, read: true }
           : notification
       ))
-      
+
       // Refresh stats to update unread count
       await fetchStats()
     } catch (error) {
@@ -166,9 +166,9 @@ function PatentAlerts() {
 
   const filteredAlerts = alerts.filter(alert => {
     const matchesSearch = alert.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         alert.keywords.some(keyword => 
-                           keyword.toLowerCase().includes(searchTerm.toLowerCase())
-                         )
+      alert.keywords.some(keyword =>
+        keyword.toLowerCase().includes(searchTerm.toLowerCase())
+      )
     const matchesFilter = filterStatus === 'all' || alert.status === filterStatus
     return matchesSearch && matchesFilter
   })
@@ -188,107 +188,119 @@ function PatentAlerts() {
         <div className="alerts-header">
           <div className="header-content">
             <div className="header-title">
-              <Bell size={32} />
-              <div>
-                <h1>Patent Alerts</h1>
-                <p>Monitor new patents and stay ahead of the competition</p>
+              <div className="header-badge">
+                <Bell size={16} />
+                <span>Patent Intelligence System</span>
               </div>
+              <h1>Patent Alerts Dashboard</h1>
+              <p>Monitor new patents and stay ahead of the competition with intelligent alerts</p>
             </div>
-            <button 
-              className="btn btn-primary"
-              onClick={() => setShowCreateModal(true)}
-            >
-              <Plus size={20} />
-              Create Alert
-            </button>
+            <div className="header-actions">
+              <button
+                className="btn btn-primary"
+                onClick={() => setShowCreateModal(true)}
+              >
+                <Plus size={20} />
+                Create Alert
+              </button>
+              <button className="btn btn-secondary">
+                <Settings size={20} />
+                Settings
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Stats Dashboard */}
-        <div className="stats-grid">
-          <div className="stat-card">
-            <div className="stat-icon">
-              <Bell size={24} />
+        <div className="stats-section">
+          <div className="stats-grid">
+            <div className="stat-card">
+              <div className="stat-icon">
+                <Bell size={24} />
+              </div>
+              <div className="stat-content">
+                <div className="stat-value">{stats.totalAlerts}</div>
+                <div className="stat-label">Total Alerts</div>
+              </div>
             </div>
-            <div className="stat-content">
-              <div className="stat-value">{stats.totalAlerts}</div>
-              <div className="stat-label">Total Alerts</div>
+            <div className="stat-card">
+              <div className="stat-icon active">
+                <TrendingUp size={24} />
+              </div>
+              <div className="stat-content">
+                <div className="stat-value">{stats.activeAlerts}</div>
+                <div className="stat-label">Active Alerts</div>
+              </div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-icon notification">
+                <Bell size={24} />
+              </div>
+              <div className="stat-content">
+                <div className="stat-value">{stats.recentNotifications}</div>
+                <div className="stat-label">New Notifications</div>
+              </div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-icon trend">
+                <TrendingUp size={24} />
+              </div>
+              <div className="stat-content">
+                <div className="stat-value">+{stats.weeklyTrend}%</div>
+                <div className="stat-label">Weekly Growth</div>
+              </div>
             </div>
           </div>
-          <div className="stat-card">
-            <div className="stat-icon active">
-              <TrendingUp size={24} />
-            </div>
-            <div className="stat-content">
-              <div className="stat-value">{stats.activeAlerts}</div>
-              <div className="stat-label">Active Alerts</div>
-            </div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-icon notification">
-              <Bell size={24} />
-            </div>
-            <div className="stat-content">
-              <div className="stat-value">{stats.recentNotifications}</div>
-              <div className="stat-label">New Notifications</div>
-            </div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-icon trend">
-              <TrendingUp size={24} />
-            </div>
-            <div className="stat-content">
-              <div className="stat-value">+{stats.weeklyTrend}%</div>
-              <div className="stat-label">Weekly Growth</div>
-            </div>
-          </div>
+
         </div>
 
         {/* Main Content */}
-        <div className="alerts-content">
-          <div className="alerts-main">
-            {/* Search and Filter Controls */}
-            <div className="alerts-controls">
-              <div className="search-box">
-                <Search size={20} />
-                <input
-                  type="text"
-                  placeholder="Search alerts by name or keywords..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
+        <div className="main-content-section">
+          <div className="alerts-content">
+            <div className="alerts-main">
+              {/* Search and Filter Controls */}
+              <div className="alerts-controls">
+                <div className="search-box">
+                  <Search size={20} />
+                  <input
+                    type="text"
+                    placeholder="Search alerts by name or keywords..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+                <div className="filter-controls">
+                  <select
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value)}
+                    className="filter-select"
+                  >
+                    <option value="all">All Alerts</option>
+                    <option value="active">Active</option>
+                    <option value="paused">Paused</option>
+                  </select>
+                  <button className="btn btn-secondary">
+                    <Filter size={18} />
+                    More Filters
+                  </button>
+                </div>
               </div>
-              <div className="filter-controls">
-                <select
-                  value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value)}
-                  className="filter-select"
-                >
-                  <option value="all">All Alerts</option>
-                  <option value="active">Active</option>
-                  <option value="paused">Paused</option>
-                </select>
-                <button className="btn btn-secondary">
-                  <Filter size={18} />
-                  More Filters
-                </button>
-              </div>
+
+              {/* Alerts List */}
+              <AlertsList
+                alerts={filteredAlerts}
+                onUpdateAlert={handleUpdateAlert}
+                onDeleteAlert={handleDeleteAlert}
+              />
             </div>
 
-            {/* Alerts List */}
-            <AlertsList
-              alerts={filteredAlerts}
-              onUpdateAlert={handleUpdateAlert}
-              onDeleteAlert={handleDeleteAlert}
-            />
-          </div>
-
-          {/* Notifications Panel */}
-          <div className="alerts-sidebar">
-            <NotificationPanel
-              notifications={notifications}
-              onMarkAsRead={handleMarkNotificationRead}
-            />
+            {/* Notifications Panel */}
+            <div className="alerts-sidebar">
+              <NotificationPanel
+                notifications={notifications}
+                onMarkAsRead={handleMarkNotificationRead}
+              />
+            </div>
           </div>
         </div>
       </div>

@@ -114,10 +114,9 @@
   left: 100%;
 }
 
-.metric-header {
+.metric-icon-section {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  justify-content: center;
   margin-bottom: 16px;
 }
 
@@ -156,7 +155,9 @@
 .metric-content {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
+  text-align: center;
+  width: 100%;
 }
 
 .metric-trend {
@@ -167,6 +168,11 @@
   border-radius: 12px;
   background: rgba(16, 185, 129, 0.1);
   border: 1px solid rgba(16, 185, 129, 0.2);
+  text-align: center;
+  margin-bottom: 12px;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .metric-trend.positive {
@@ -181,6 +187,11 @@
   border-radius: 12px;
   background: rgba(100, 116, 139, 0.1);
   border: 1px solid rgba(100, 116, 139, 0.2);
+  text-align: center;
+  margin-bottom: 12px;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .metric-time {
@@ -191,6 +202,11 @@
   border-radius: 12px;
   background: rgba(248, 250, 252, 0.8);
   border: 1px solid rgba(226, 232, 240, 0.5);
+  text-align: center;
+  margin-bottom: 12px;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 
@@ -213,7 +229,7 @@
 .content-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
-  gap: 16px;
+  gap: 20px;
 }
 
 .content-card {
@@ -225,6 +241,9 @@
   transition: all 0.2s ease;
   position: relative;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  min-height: 320px;
 }
 
 .content-card:hover {
@@ -234,12 +253,13 @@
 }
 
 .card-header {
-  padding: 12px 16px;
+  padding: 16px 20px;
   border-bottom: 1px solid rgba(248, 250, 252, 0.8);
   background: rgba(253, 253, 253, 0.5);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .card-header h3 {
@@ -254,21 +274,30 @@
 }
 
 .card-body {
-  padding: 12px 16px;
+  padding: 16px 20px 20px 20px;
+  margin: 0;
+  flex: 1;
 }
 
 /* Specific styling for Recent Alerts card */
 .recent-alerts-card .card-body {
-  padding: 8px 16px 12px 16px;
+  padding: 16px 20px 20px 20px;
+  margin: 0;
+  flex: 1;
 }
 
 .list-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 0;
+  padding: 12px 0;
   border-bottom: 1px solid rgba(248, 250, 252, 0.8);
   transition: all 0.3s ease;
+}
+
+.list-item:first-child {
+  padding-top: 0;
+  margin-top: 0;
 }
 
 .list-item:last-child {
@@ -279,8 +308,10 @@
 .list-item:hover {
   background: rgba(248, 250, 252, 0.5);
   margin: 0 -20px;
-  padding-left: 24px;
-  padding-right: 24px;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 12px;
+  padding-bottom: 12px;
   border-radius: 8px;
 }
 
@@ -336,9 +367,14 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 0;
+  padding: 12px 0;
   border-bottom: 1px solid rgba(248, 250, 252, 0.8);
   transition: all 0.3s ease;
+}
+
+.trend-item:first-child {
+  padding-top: 0;
+  margin-top: 0;
 }
 
 .trend-item:last-child {
@@ -349,8 +385,10 @@
 .trend-item:hover {
   background: rgba(248, 250, 252, 0.5);
   margin: 0 -20px;
-  padding-left: 24px;
-  padding-right: 24px;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 12px;
+  padding-bottom: 12px;
   border-radius: 8px;
 }
 
@@ -398,10 +436,15 @@
 .alert-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 0;
+  gap: 12px;
+  padding: 12px 0;
   border-bottom: 1px solid rgba(248, 250, 252, 0.8);
   transition: all 0.3s ease;
+}
+
+.alert-item:first-child {
+  padding-top: 0;
+  margin-top: 0;
 }
 
 .alert-item:last-child {
@@ -411,16 +454,18 @@
 
 .alert-item:hover {
   background: rgba(248, 250, 252, 0.5);
-  margin: 0 -16px;
+  margin: 0 -20px;
   padding-left: 20px;
   padding-right: 20px;
+  padding-top: 12px;
+  padding-bottom: 12px;
   border-radius: 8px;
 }
 
 .alert-indicator {
-  width: 36px;
-  height: 36px;
-  border-radius: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -466,14 +511,14 @@
 .actions-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
+  gap: 12px;
 }
 
 .action-card {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px;
+  gap: 12px;
+  padding: 14px;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(226, 232, 240, 0.5);
@@ -762,7 +807,7 @@
   }
 
   .metric-card {
-    padding: 20px;
+    padding: 24px;
   }
 
   .metric-value {
@@ -774,11 +819,11 @@
   }
 
   .card-header {
-    padding: 18px 20px;
+    padding: 16px 20px;
   }
 
   .card-body {
-    padding: 18px 20px;
+    padding: 16px 20px 20px 20px;
   }
 
   .actions-grid {
@@ -846,7 +891,7 @@
   }
 
   .card-body {
-    padding: 16px 18px;
+    padding: 16px 20px 20px 20px;
   }
 
   .list-item,

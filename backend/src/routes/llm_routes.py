@@ -1,7 +1,6 @@
 from fastapi import APIRouter
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
-from src.llms.groq import get_groq_response
 from src.llms.claude import get_claude_response
 from src.llms.huggingface import get_huggingface_response
 from src.llms.google_ai import get_google_ai_response, get_patent_analysis, get_technical_innovation_analysis, get_prior_art_search_strategy
@@ -12,7 +11,6 @@ router = APIRouter()
 
 # Supported LLM providers
 LLM_PROVIDERS = {
-    "groq": get_groq_response,
     "claude": get_claude_response,
     "huggingface": get_huggingface_response,
     "google_ai": get_google_ai_response,
@@ -20,7 +18,7 @@ LLM_PROVIDERS = {
 }
 
 class LLMRequest(BaseModel):
-    provider: str  # "groq", "openrouter", "claude", "google_ai"
+    provider: str  # "claude", "huggingface", "google_ai", "grok"
     prompt: str
 
 class PatentAnalysisRequest(BaseModel):
