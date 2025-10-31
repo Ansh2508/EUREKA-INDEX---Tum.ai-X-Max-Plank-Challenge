@@ -76,17 +76,30 @@
 
 .features-section {
   background: white;
-  padding: 4rem 0;
+  padding: 4rem 2rem;
   border-radius: 20px 20px 0 0;
   margin-top: 2rem;
 }
 
-.section-title {
+.features-header {
   text-align: center;
+  margin-bottom: 3rem;
+}
+
+.section-title {
   font-size: 2.5rem;
   font-weight: 700;
   color: #1e293b;
-  margin-bottom: 3rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.section-subtitle {
+  font-size: 1.1rem;
+  color: #64748b;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
 }
 
 .features-grid {
@@ -94,6 +107,7 @@
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 2rem;
   margin-top: 2rem;
+  padding: 0 1rem;
 }
 
 .feature-card {
@@ -107,11 +121,32 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  position: relative;
+  overflow: hidden;
 }
 
 .feature-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.feature-card.primary-feature {
+  border: 2px solid #4f46e5;
+  background: linear-gradient(135deg, #f8faff 0%, #f1f5ff 100%);
+}
+
+.feature-card.primary-feature::before {
+  content: 'FEATURED';
+  position: absolute;
+  top: 1rem;
+  right: -2rem;
+  background: linear-gradient(45deg, #4f46e5, #7c3aed);
+  color: white;
+  padding: 0.25rem 2.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  transform: rotate(45deg);
+  letter-spacing: 0.5px;
 }
 
 .card-icon {
@@ -206,6 +241,14 @@
     padding: 0 1rem;
   }
 
+  .features-section {
+    padding: 3rem 1rem;
+  }
+
+  .features-grid {
+    padding: 0;
+  }
+
   .hero-section {
     padding: 3rem 0;
   }
@@ -239,9 +282,7 @@
     justify-content: center;
   }
 
-  .features-section {
-    padding: 3rem 0;
-  }
+
 
   .section-title {
     font-size: 2rem;

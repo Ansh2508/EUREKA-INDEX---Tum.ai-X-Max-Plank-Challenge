@@ -5,6 +5,8 @@ import Home from './pages/Home'
 import Dashboard from './pages/Dashboard'
 import Analysis from './pages/Analysis'
 import PatentAlerts from './pages/PatentAlerts'
+import NoveltyAssessment from './pages/NoveltyAssessment'
+import About from './pages/About'
 import './App.css'
 
 function AppContent() {
@@ -36,16 +38,16 @@ function AppContent() {
   return (
     <div className="app">
       {showSidebar && (
-        <Sidebar 
+        <Sidebar
           collapsed={sidebarCollapsed}
           mobileOpen={mobileMenuOpen}
           onCollapsedChange={setSidebarCollapsed}
           onMobileToggle={setMobileMenuOpen}
         />
       )}
-      
+
       {showSidebar && isMobile && (
-        <button 
+        <button
           className="mobile-menu-toggle"
           onClick={toggleMobileMenu}
           aria-label="Toggle menu"
@@ -59,7 +61,7 @@ function AppContent() {
       )}
 
       {mobileMenuOpen && <div className="mobile-overlay" onClick={() => setMobileMenuOpen(false)} />}
-      
+
       <div className={`app-content ${showSidebar && sidebarCollapsed ? 'sidebar-collapsed' : ''} ${!showSidebar ? 'no-sidebar' : ''}`}>
         <main className="main-content">
           <Routes>
@@ -68,8 +70,10 @@ function AppContent() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/patents" element={<div className="page-placeholder">Patents page coming soon...</div>} />
             <Route path="/alerts" element={<PatentAlerts />} />
+            <Route path="/novelty" element={<NoveltyAssessment />} />
             <Route path="/reports" element={<div className="page-placeholder">Reports page coming soon...</div>} />
             <Route path="/settings" element={<div className="page-placeholder">Settings page coming soon...</div>} />
+            <Route path="/about" element={<About />} />
           </Routes>
         </main>
 

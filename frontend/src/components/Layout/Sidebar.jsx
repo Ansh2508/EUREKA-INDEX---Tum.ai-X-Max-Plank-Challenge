@@ -1,15 +1,18 @@
 import { Link, useLocation } from 'react-router-dom'
-import { 
-  LayoutDashboard, 
-  Microscope, 
-  FileText, 
-  Bell, 
-  ClipboardList, 
+import {
+  LayoutDashboard,
+  Microscope,
+  FileText,
+  Bell,
+  ClipboardList,
   Settings,
   ChevronLeft,
   ChevronRight,
   Bot,
-  User
+  User,
+  Search,
+  Sparkles,
+  Info
 } from 'lucide-react'
 import './Sidebar.css'
 
@@ -19,6 +22,15 @@ function Sidebar({ collapsed = false, mobileOpen = false, onCollapsedChange, onM
   const toggleSidebar = () => {
     if (onCollapsedChange) {
       onCollapsedChange(!collapsed)
+    }
+  }
+
+  // Add subtle hover effect for better UX
+  const handleNavItemHover = (e) => {
+    if (!collapsed) return
+    const tooltip = e.currentTarget.getAttribute('title')
+    if (tooltip) {
+      e.currentTarget.style.setProperty('--tooltip-content', `"${tooltip}"`)
     }
   }
 
@@ -48,6 +60,12 @@ function Sidebar({ collapsed = false, mobileOpen = false, onCollapsedChange, onM
       description: 'Patent Alerts'
     },
     {
+      path: '/novelty',
+      icon: Search,
+      label: 'Novelty',
+      description: 'Novelty Assessment'
+    },
+    {
       path: '/reports',
       icon: ClipboardList,
       label: 'Reports',
@@ -58,6 +76,12 @@ function Sidebar({ collapsed = false, mobileOpen = false, onCollapsedChange, onM
       icon: Settings,
       label: 'Settings',
       description: 'App Settings'
+    },
+    {
+      path: '/about',
+      icon: Info,
+      label: 'About',
+      description: 'Project Information'
     }
   ]
 
@@ -74,7 +98,7 @@ function Sidebar({ collapsed = false, mobileOpen = false, onCollapsedChange, onM
           <img src="/favicon.svg" alt="EUREKA INDEX" className="logo-icon" />
           {!collapsed && <span className="logo-text">EUREKA INDEX</span>}
         </div>
-        <button 
+        <button
           className="sidebar-toggle"
           onClick={toggleSidebar}
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
@@ -89,11 +113,12 @@ function Sidebar({ collapsed = false, mobileOpen = false, onCollapsedChange, onM
             const IconComponent = item.icon
             return (
               <li key={item.path} className="nav-item">
-                <Link 
+                <Link
                   to={item.path}
                   className={`nav-link ${location.pathname === item.path ? 'active' : ''}`}
-                  title={collapsed ? item.label : ''}
+                  title={collapsed ? `${item.label} - ${item.description}` : ''}
                   onClick={handleLinkClick}
+                  onMouseEnter={handleNavItemHover}
                 >
                   <span className="nav-icon">
                     <IconComponent size={20} />
@@ -116,7 +141,7 @@ function Sidebar({ collapsed = false, mobileOpen = false, onCollapsedChange, onM
           <div className="sidebar-info">
             <div className="info-item">
               <span className="info-icon">
-                <Bot size={20} />
+                <Sparkles size={20} />
               </span>
               <div className="info-content">
                 <span className="info-label">AI-Powered</span>
@@ -125,7 +150,7 @@ function Sidebar({ collapsed = false, mobileOpen = false, onCollapsedChange, onM
             </div>
           </div>
         )}
-        
+
         <div className="sidebar-user">
           <div className="user-avatar">
             <span className="avatar-icon">

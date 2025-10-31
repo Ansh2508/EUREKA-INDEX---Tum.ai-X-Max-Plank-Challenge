@@ -1,0 +1,186 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - img "EUREKA INDEX" [ref=e7]
+        - generic [ref=e8]: EUREKA INDEX
+      - button "Collapse sidebar" [ref=e9] [cursor=pointer]:
+        - img [ref=e10]
+    - navigation [ref=e12]:
+      - list [ref=e13]:
+        - listitem [ref=e14]:
+          - link "Dashboard Analytics Dashboard" [ref=e15]:
+            - /url: /dashboard
+            - img [ref=e17]
+            - generic [ref=e22]:
+              - generic [ref=e23]: Dashboard
+              - generic [ref=e24]: Analytics Dashboard
+        - listitem [ref=e25]:
+          - link "Analysis Research Analysis" [ref=e26]:
+            - /url: /analysis
+            - img [ref=e28]
+            - generic [ref=e32]:
+              - generic [ref=e33]: Analysis
+              - generic [ref=e34]: Research Analysis
+        - listitem [ref=e35]:
+          - link "Patents Patent Search" [ref=e36]:
+            - /url: /patents
+            - img [ref=e38]
+            - generic [ref=e41]:
+              - generic [ref=e42]: Patents
+              - generic [ref=e43]: Patent Search
+        - listitem [ref=e44]:
+          - link "Alerts Patent Alerts" [ref=e45]:
+            - /url: /alerts
+            - img [ref=e47]
+            - generic [ref=e50]:
+              - generic [ref=e51]: Alerts
+              - generic [ref=e52]: Patent Alerts
+        - listitem [ref=e53]:
+          - link "Novelty Novelty Assessment" [ref=e54]:
+            - /url: /novelty
+            - img [ref=e56]
+            - generic [ref=e59]:
+              - generic [ref=e60]: Novelty
+              - generic [ref=e61]: Novelty Assessment
+        - listitem [ref=e62]:
+          - link "Reports Analysis Reports" [ref=e63]:
+            - /url: /reports
+            - img [ref=e65]
+            - generic [ref=e68]:
+              - generic [ref=e69]: Reports
+              - generic [ref=e70]: Analysis Reports
+        - listitem [ref=e71]:
+          - link "Settings App Settings" [ref=e72]:
+            - /url: /settings
+            - img [ref=e74]
+            - generic [ref=e77]:
+              - generic [ref=e78]: Settings
+              - generic [ref=e79]: App Settings
+    - generic [ref=e80]:
+      - generic [ref=e82]:
+        - img [ref=e84]
+        - generic [ref=e87]:
+          - generic [ref=e88]: AI-Powered
+          - generic [ref=e89]: Patent Intelligence
+      - generic [ref=e90]:
+        - img [ref=e93]
+        - generic [ref=e96]:
+          - generic [ref=e97]: Research User
+          - generic [ref=e98]: Analyst
+  - generic [ref=e99]:
+    - main [ref=e100]:
+      - generic [ref=e102]:
+        - generic [ref=e103]:
+          - heading "Analytics Dashboard" [level=1] [ref=e104]
+          - paragraph [ref=e105]: Comprehensive insights and analytics for technology transfer decisions
+        - generic [ref=e106]:
+          - generic [ref=e107]:
+            - generic [ref=e108]:
+              - img [ref=e110]
+              - generic [ref=e114]:
+                - generic [ref=e115]: "24"
+                - generic [ref=e116]: Analyses Completed
+            - generic [ref=e117]:
+              - img [ref=e119]
+              - generic [ref=e121]:
+                - generic [ref=e122]: "8.5"
+                - generic [ref=e123]: Avg Market Score
+            - generic [ref=e124]:
+              - img [ref=e126]
+              - generic [ref=e129]:
+                - generic [ref=e130]: "12"
+                - generic [ref=e131]: Active Alerts
+            - generic [ref=e132]:
+              - img [ref=e134]
+              - generic [ref=e137]:
+                - generic [ref=e138]: "6"
+                - generic [ref=e139]: Reports Generated
+          - generic [ref=e140]:
+            - generic [ref=e141]:
+              - generic [ref=e142]:
+                - heading "Recent Analyses" [level=3] [ref=e143]
+                - button "View All" [ref=e144] [cursor=pointer]
+              - generic [ref=e145]:
+                - generic [ref=e146]:
+                  - generic [ref=e147]:
+                    - generic [ref=e148]: Machine Learning Algorithm
+                    - generic [ref=e149]: 2 hours ago
+                  - generic [ref=e150]: "8.5"
+                - generic [ref=e151]:
+                  - generic [ref=e152]:
+                    - generic [ref=e153]: Quantum Computing Research
+                    - generic [ref=e154]: 1 day ago
+                  - generic [ref=e155]: "9.2"
+                - generic [ref=e156]:
+                  - generic [ref=e157]:
+                    - generic [ref=e158]: Biomedical Device Innovation
+                    - generic [ref=e159]: 3 days ago
+                  - generic [ref=e160]: "7.8"
+            - generic [ref=e161]:
+              - generic [ref=e162]:
+                - heading "Market Trends" [level=3] [ref=e163]
+                - button "Details" [ref=e164] [cursor=pointer]
+              - generic [ref=e165]:
+                - generic [ref=e166]:
+                  - generic [ref=e167]:
+                    - generic [ref=e168]: AI & Machine Learning
+                    - generic [ref=e169]: +15.3% CAGR
+                  - img [ref=e171]
+                - generic [ref=e174]:
+                  - generic [ref=e175]:
+                    - generic [ref=e176]: Quantum Technologies
+                    - generic [ref=e177]: +22.1% CAGR
+                  - img [ref=e179]
+                - generic [ref=e182]:
+                  - generic [ref=e183]:
+                    - generic [ref=e184]: Biotechnology
+                    - generic [ref=e185]: +12.8% CAGR
+                  - img [ref=e187]
+            - generic [ref=e190]:
+              - generic [ref=e191]:
+                - heading "Patent Alerts" [level=3] [ref=e192]
+                - button "Manage" [ref=e193] [cursor=pointer]
+              - generic [ref=e194]:
+                - generic [ref=e195]:
+                  - img [ref=e197]
+                  - generic [ref=e200]:
+                    - generic [ref=e201]: New patent in ML domain
+                    - generic [ref=e202]: Today
+                - generic [ref=e203]:
+                  - img [ref=e205]
+                  - generic [ref=e207]:
+                    - generic [ref=e208]: Similar research published
+                    - generic [ref=e209]: Yesterday
+                - generic [ref=e210]:
+                  - img [ref=e212]
+                  - generic [ref=e215]:
+                    - generic [ref=e216]: Patent application filed
+                    - generic [ref=e217]: 2 days ago
+            - generic [ref=e218]:
+              - heading "Quick Actions" [level=3] [ref=e220]
+              - generic [ref=e222]:
+                - link "New Analysis" [ref=e223] [cursor=pointer]:
+                  - /url: /analysis
+                  - img [ref=e225]
+                  - generic [ref=e229]: New Analysis
+                - link "Generate Report" [ref=e230] [cursor=pointer]:
+                  - /url: /reports
+                  - img [ref=e232]
+                  - generic [ref=e235]: Generate Report
+                - link "Setup Alerts" [ref=e236] [cursor=pointer]:
+                  - /url: /alerts
+                  - img [ref=e238]
+                  - generic [ref=e241]: Setup Alerts
+                - link "Search Patents" [ref=e242] [cursor=pointer]:
+                  - /url: /patents
+                  - img [ref=e244]
+                  - generic [ref=e247]: Search Patents
+    - contentinfo [ref=e248]:
+      - generic [ref=e249]:
+        - paragraph [ref=e250]: © 2024 EUREKA INDEX - Technology Transfer Analysis Platform
+        - paragraph [ref=e251]: AI-powered patent intelligence and research commercialization
+```

@@ -1,0 +1,116 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - img "EUREKA INDEX" [ref=e7]
+        - generic [ref=e8]: EUREKA INDEX
+      - button "Collapse sidebar" [ref=e9] [cursor=pointer]:
+        - img [ref=e10]
+    - navigation [ref=e12]:
+      - list [ref=e13]:
+        - listitem [ref=e14]:
+          - link "Dashboard Analytics Dashboard" [ref=e15]:
+            - /url: /dashboard
+            - img [ref=e17]
+            - generic [ref=e22]:
+              - generic [ref=e23]: Dashboard
+              - generic [ref=e24]: Analytics Dashboard
+        - listitem [ref=e25]:
+          - link "Analysis Research Analysis" [ref=e26]:
+            - /url: /analysis
+            - img [ref=e28]
+            - generic [ref=e32]:
+              - generic [ref=e33]: Analysis
+              - generic [ref=e34]: Research Analysis
+        - listitem [ref=e35]:
+          - link "Patents Patent Search" [ref=e36]:
+            - /url: /patents
+            - img [ref=e38]
+            - generic [ref=e41]:
+              - generic [ref=e42]: Patents
+              - generic [ref=e43]: Patent Search
+        - listitem [ref=e44]:
+          - link "Alerts Patent Alerts" [ref=e45]:
+            - /url: /alerts
+            - img [ref=e47]
+            - generic [ref=e50]:
+              - generic [ref=e51]: Alerts
+              - generic [ref=e52]: Patent Alerts
+        - listitem [ref=e53]:
+          - link "Novelty Novelty Assessment" [ref=e54]:
+            - /url: /novelty
+            - img [ref=e56]
+            - generic [ref=e59]:
+              - generic [ref=e60]: Novelty
+              - generic [ref=e61]: Novelty Assessment
+        - listitem [ref=e62]:
+          - link "Reports Analysis Reports" [ref=e63]:
+            - /url: /reports
+            - img [ref=e65]
+            - generic [ref=e68]:
+              - generic [ref=e69]: Reports
+              - generic [ref=e70]: Analysis Reports
+        - listitem [ref=e71]:
+          - link "Settings App Settings" [ref=e72]:
+            - /url: /settings
+            - img [ref=e74]
+            - generic [ref=e77]:
+              - generic [ref=e78]: Settings
+              - generic [ref=e79]: App Settings
+    - generic [ref=e80]:
+      - generic [ref=e82]:
+        - img [ref=e84]
+        - generic [ref=e87]:
+          - generic [ref=e88]: AI-Powered
+          - generic [ref=e89]: Patent Intelligence
+      - generic [ref=e90]:
+        - img [ref=e93]
+        - generic [ref=e96]:
+          - generic [ref=e97]: Research User
+          - generic [ref=e98]: Analyst
+  - generic [ref=e99]:
+    - main [ref=e100]:
+      - generic [ref=e102]:
+        - generic [ref=e104]:
+          - heading "Novelty Assessment" [level=1] [ref=e105]
+          - paragraph [ref=e106]: Evaluate the novelty and patentability of your research with comprehensive prior art analysis
+        - generic [ref=e109]:
+          - generic [ref=e110]:
+            - generic [ref=e111]: 🔍
+            - heading "Submit Research for Novelty Assessment" [level=2] [ref=e112]
+            - paragraph [ref=e113]: Evaluate the novelty and patentability of your research with comprehensive prior art analysis
+          - generic [ref=e114]:
+            - generic [ref=e115]:
+              - generic [ref=e116]:
+                - text: Research Title *
+                - generic [ref=e117]: A clear, descriptive title of your research
+              - textbox "Research Title * A clear, descriptive title of your research" [ref=e118]:
+                - /placeholder: e.g., Novel Machine Learning Algorithm for Medical Image Analysis
+              - generic [ref=e119]: 0/500 characters
+            - generic [ref=e120]:
+              - generic [ref=e121]:
+                - text: Research Abstract *
+                - generic [ref=e122]: Detailed description of your research, methodology, and findings
+              - textbox "Research Abstract * Detailed description of your research, methodology, and findings" [ref=e123]:
+                - /placeholder: Describe your research in detail including the problem you're solving, your approach, key findings, and potential applications. Be specific about the technical aspects and innovations.
+              - generic [ref=e124]: 0/5000 characters
+            - generic [ref=e125]:
+              - generic [ref=e126]:
+                - text: Research Claims *
+                - generic [ref=e127]: Specific claims about your invention or discovery
+              - generic [ref=e128]:
+                - generic [ref=e129]: "1."
+                - 'textbox "Claim 1: Describe a specific aspect of your invention..." [ref=e130]'
+              - button "➕Add Another Claim" [ref=e131] [cursor=pointer]
+              - generic [ref=e132]: 0 of 1 claims completed
+            - generic [ref=e133]:
+              - button "🗑️Clear Form" [disabled] [ref=e134]
+              - button "🔍Assess Novelty" [disabled] [ref=e135]
+    - contentinfo [ref=e136]:
+      - generic [ref=e137]:
+        - paragraph [ref=e138]: © 2024 EUREKA INDEX - Technology Transfer Analysis Platform
+        - paragraph [ref=e139]: AI-powered patent intelligence and research commercialization
+```

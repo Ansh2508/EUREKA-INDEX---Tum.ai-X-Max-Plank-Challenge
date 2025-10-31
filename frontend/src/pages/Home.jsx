@@ -1,13 +1,10 @@
-import { 
-  Microscope, 
-  BarChart3, 
-  Bot, 
-  Bell, 
-  ClipboardList, 
-  ArrowRight,
-  Zap,
-  Target,
-  TrendingUp
+import {
+  Microscope,
+  BarChart3,
+  Bot,
+  Bell,
+  ClipboardList,
+  ArrowRight
 } from 'lucide-react'
 import './Home.css'
 

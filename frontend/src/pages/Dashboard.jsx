@@ -1,16 +1,15 @@
-import { 
-  Microscope, 
-  TrendingUp, 
-  Bell, 
+import {
+  Microscope,
+  TrendingUp,
+  Bell,
   ClipboardList,
   FileText,
-  Settings,
   BarChart3,
   Activity,
-  Users,
-  Target,
   ArrowUpRight,
-  ArrowRight
+  Calendar,
+  Clock,
+  ChevronRight
 } from 'lucide-react'
 import './Dashboard.css'
 
@@ -19,182 +18,234 @@ function Dashboard() {
     <div className="dashboard-page">
       <div className="dashboard-container">
         <div className="dashboard-header">
-          <h1>Analytics Dashboard</h1>
-          <p>Comprehensive insights and analytics for technology transfer decisions</p>
+          <div className="header-content">
+            <h1>Dashboard</h1>
+            <p>Monitor your technology transfer analytics and insights</p>
+          </div>
+          <div className="header-actions">
+            <button className="btn btn-secondary">
+              <Calendar size={16} />
+              Last 30 days
+            </button>
+            <button className="btn btn-primary">
+              <Microscope size={16} />
+              New Analysis
+            </button>
+          </div>
         </div>
 
         <div className="dashboard-content">
-          <div className="stats-grid">
-            <div className="stat-card">
-              <div className="stat-icon">
-                <Microscope size={28} />
+          <div className="metrics-grid">
+            <div className="metric-card">
+              <div className="metric-header">
+                <div className="metric-icon microscope">
+                  <Microscope size={20} />
+                </div>
+                <div className="metric-trend positive">
+                  <ArrowUpRight size={16} />
+                  12%
+                </div>
               </div>
-              <div className="stat-content">
-                <div className="stat-value">24</div>
-                <div className="stat-label">Analyses Completed</div>
-              </div>
+              <div className="metric-value">24</div>
+              <div className="metric-label">Analyses Completed</div>
             </div>
-            <div className="stat-card">
-              <div className="stat-icon">
-                <BarChart3 size={28} />
+
+            <div className="metric-card">
+              <div className="metric-header">
+                <div className="metric-icon chart">
+                  <BarChart3 size={20} />
+                </div>
+                <div className="metric-trend positive">
+                  <ArrowUpRight size={16} />
+                  8%
+                </div>
               </div>
-              <div className="stat-content">
-                <div className="stat-value">8.5</div>
-                <div className="stat-label">Avg Market Score</div>
-              </div>
+              <div className="metric-value">8.5</div>
+              <div className="metric-label">Average Market Score</div>
             </div>
-            <div className="stat-card">
-              <div className="stat-icon">
-                <Bell size={28} />
+
+            <div className="metric-card">
+              <div className="metric-header">
+                <div className="metric-icon alert">
+                  <Bell size={20} />
+                </div>
+                <div className="metric-status">
+                  <div className="status-dot active"></div>
+                  Active
+                </div>
               </div>
-              <div className="stat-content">
-                <div className="stat-value">12</div>
-                <div className="stat-label">Active Alerts</div>
-              </div>
+              <div className="metric-value">12</div>
+              <div className="metric-label">Patent Alerts</div>
             </div>
-            <div className="stat-card">
-              <div className="stat-icon">
-                <ClipboardList size={28} />
+
+            <div className="metric-card">
+              <div className="metric-header">
+                <div className="metric-icon report">
+                  <ClipboardList size={20} />
+                </div>
+                <div className="metric-time">
+                  <Clock size={14} />
+                  Today
+                </div>
               </div>
-              <div className="stat-content">
-                <div className="stat-value">6</div>
-                <div className="stat-label">Reports Generated</div>
-              </div>
+              <div className="metric-value">6</div>
+              <div className="metric-label">Reports Generated</div>
             </div>
           </div>
 
-          <div className="dashboard-grid">
-            <div className="dashboard-card">
+          <div className="content-grid">
+            <div className="content-card">
               <div className="card-header">
                 <h3>Recent Analyses</h3>
-                <button className="btn btn-text">View All</button>
+                <button className="btn-link">
+                  View All
+                  <ChevronRight size={16} />
+                </button>
               </div>
-              <div className="card-content">
-                <div className="analysis-item">
-                  <div className="analysis-info">
-                    <div className="analysis-title">Machine Learning Algorithm</div>
-                    <div className="analysis-date">2 hours ago</div>
+              <div className="card-body">
+                <div className="list-item">
+                  <div className="item-content">
+                    <div className="item-title">Machine Learning Algorithm</div>
+                    <div className="item-subtitle">2 hours ago</div>
                   </div>
-                  <div className="analysis-score">8.5</div>
+                  <div className="score-badge high">8.5</div>
                 </div>
-                <div className="analysis-item">
-                  <div className="analysis-info">
-                    <div className="analysis-title">Quantum Computing Research</div>
-                    <div className="analysis-date">1 day ago</div>
+                <div className="list-item">
+                  <div className="item-content">
+                    <div className="item-title">Quantum Computing Research</div>
+                    <div className="item-subtitle">1 day ago</div>
                   </div>
-                  <div className="analysis-score">9.2</div>
+                  <div className="score-badge excellent">9.2</div>
                 </div>
-                <div className="analysis-item">
-                  <div className="analysis-info">
-                    <div className="analysis-title">Biomedical Device Innovation</div>
-                    <div className="analysis-date">3 days ago</div>
+                <div className="list-item">
+                  <div className="item-content">
+                    <div className="item-title">Biomedical Device Innovation</div>
+                    <div className="item-subtitle">3 days ago</div>
                   </div>
-                  <div className="analysis-score">7.8</div>
+                  <div className="score-badge good">7.8</div>
                 </div>
               </div>
             </div>
 
-            <div className="dashboard-card">
+            <div className="content-card">
               <div className="card-header">
                 <h3>Market Trends</h3>
-                <button className="btn btn-text">Details</button>
+                <button className="btn-link">
+                  Details
+                  <ChevronRight size={16} />
+                </button>
               </div>
-              <div className="card-content">
+              <div className="card-body">
                 <div className="trend-item">
-                  <div className="trend-info">
+                  <div className="trend-content">
                     <div className="trend-title">AI & Machine Learning</div>
-                    <div className="trend-growth">+15.3% CAGR</div>
+                    <div className="trend-growth positive">+15.3% CAGR</div>
                   </div>
-                  <div className="trend-indicator up">
-                    <TrendingUp size={20} />
+                  <div className="trend-chart">
+                    <TrendingUp size={18} />
                   </div>
                 </div>
                 <div className="trend-item">
-                  <div className="trend-info">
+                  <div className="trend-content">
                     <div className="trend-title">Quantum Technologies</div>
-                    <div className="trend-growth">+22.1% CAGR</div>
+                    <div className="trend-growth positive">+22.1% CAGR</div>
                   </div>
-                  <div className="trend-indicator up">
-                    <TrendingUp size={20} />
+                  <div className="trend-chart">
+                    <TrendingUp size={18} />
                   </div>
                 </div>
                 <div className="trend-item">
-                  <div className="trend-info">
+                  <div className="trend-content">
                     <div className="trend-title">Biotechnology</div>
-                    <div className="trend-growth">+12.8% CAGR</div>
+                    <div className="trend-growth positive">+12.8% CAGR</div>
                   </div>
-                  <div className="trend-indicator up">
-                    <TrendingUp size={20} />
+                  <div className="trend-chart">
+                    <TrendingUp size={18} />
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="dashboard-card">
+            <div className="content-card">
               <div className="card-header">
-                <h3>Patent Alerts</h3>
-                <button className="btn btn-text">Manage</button>
+                <h3>Recent Alerts</h3>
+                <button className="btn-link">
+                  Manage
+                  <ChevronRight size={16} />
+                </button>
               </div>
-              <div className="card-content">
+              <div className="card-body">
                 <div className="alert-item">
-                  <div className="alert-icon">
-                    <Bell size={18} />
+                  <div className="alert-indicator new">
+                    <Bell size={16} />
                   </div>
-                  <div className="alert-info">
+                  <div className="alert-content">
                     <div className="alert-title">New patent in ML domain</div>
-                    <div className="alert-date">Today</div>
+                    <div className="alert-time">Today</div>
                   </div>
                 </div>
                 <div className="alert-item">
-                  <div className="alert-icon">
-                    <Activity size={18} />
+                  <div className="alert-indicator activity">
+                    <Activity size={16} />
                   </div>
-                  <div className="alert-info">
+                  <div className="alert-content">
                     <div className="alert-title">Similar research published</div>
-                    <div className="alert-date">Yesterday</div>
+                    <div className="alert-time">Yesterday</div>
                   </div>
                 </div>
                 <div className="alert-item">
-                  <div className="alert-icon">
-                    <FileText size={18} />
+                  <div className="alert-indicator document">
+                    <FileText size={16} />
                   </div>
-                  <div className="alert-info">
+                  <div className="alert-content">
                     <div className="alert-title">Patent application filed</div>
-                    <div className="alert-date">2 days ago</div>
+                    <div className="alert-time">2 days ago</div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="dashboard-card">
+            <div className="content-card">
               <div className="card-header">
                 <h3>Quick Actions</h3>
               </div>
-              <div className="card-content">
+              <div className="card-body">
                 <div className="actions-grid">
-                  <a href="/analysis" className="action-item">
-                    <div className="action-icon">
-                      <Microscope size={24} />
+                  <a href="/analysis" className="action-card">
+                    <div className="action-icon microscope">
+                      <Microscope size={20} />
                     </div>
-                    <div className="action-label">New Analysis</div>
+                    <div className="action-text">
+                      <div className="action-title">New Analysis</div>
+                      <div className="action-description">Start technology assessment</div>
+                    </div>
                   </a>
-                  <a href="/reports" className="action-item">
-                    <div className="action-icon">
-                      <ClipboardList size={24} />
+                  <a href="/reports" className="action-card">
+                    <div className="action-icon report">
+                      <ClipboardList size={20} />
                     </div>
-                    <div className="action-label">Generate Report</div>
+                    <div className="action-text">
+                      <div className="action-title">Generate Report</div>
+                      <div className="action-description">Create detailed insights</div>
+                    </div>
                   </a>
-                  <a href="/alerts" className="action-item">
-                    <div className="action-icon">
-                      <Bell size={24} />
+                  <a href="/alerts" className="action-card">
+                    <div className="action-icon alert">
+                      <Bell size={20} />
                     </div>
-                    <div className="action-label">Setup Alerts</div>
+                    <div className="action-text">
+                      <div className="action-title">Setup Alerts</div>
+                      <div className="action-description">Monitor patent activity</div>
+                    </div>
                   </a>
-                  <a href="/patents" className="action-item">
-                    <div className="action-icon">
-                      <FileText size={24} />
+                  <a href="/patents" className="action-card">
+                    <div className="action-icon document">
+                      <FileText size={20} />
                     </div>
-                    <div className="action-label">Search Patents</div>
+                    <div className="action-text">
+                      <div className="action-title">Search Patents</div>
+                      <div className="action-description">Explore patent database</div>
+                    </div>
                   </a>
                 </div>
               </div>
