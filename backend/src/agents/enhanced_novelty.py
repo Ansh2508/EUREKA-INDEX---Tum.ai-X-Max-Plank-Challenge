@@ -14,578 +14,6 @@ from src.services.openalex import fetch_publication_metadata
 from src.services.espacenet import fetch_patent_metadata
 
 @dataclass
-class AlertResult:
-    id: str
-    title: str
-    similarity_score: float
-    document_type: str  # 'patent' or 'publication'
-    publication_date: str
-    authors: List[str]
-    institutions: List[str]
-    abstract: str
-    url: str
-    alert_reason: str
-
-class SemanticPatentAlerts:
-    def __init__(self):
-        self.model = SentenceTransformer('all-MiniLM-L6-v2')
-        self.similarity_threshold = 0.75
-        self.logger = logging.getLogger(__name__)
-        
-    async def detect_similar_patents(
-        self, 
-        research_abstract: str, 
-        research_title: str,
-        similarity_threshold: float = 0.75,
-        lookback_days: int = 30
-    ) -> List[AlertResult]:
-        """
-        Detect patents semantically similar to research results using embeddings
-        """
-        # Get embeddings for the input research
-        query_embedding = self.model.encode([f"{research_title}. {research_abstract}"])
-        
-        # Search for similar documents
-        similar_docs = search_similar_patents_publications(
-            f"{research_title}. {research_abstract}"
-        )
-        
-        alerts = []
-        cutoff_date = datetime.now() - timedelta(days=lookback_days)
-        
-        for doc in similar_docs:
-            try:
-                # Calculate semantic similarity
-                doc_text = f"{doc.get('title', '')}. {doc.get('abstract', '')}"
-                doc_embedding = self.model.encode([doc_text])
-                
-                similarity = cosine_similarity(query_embedding, doc_embedding)[0][0]
-                
-                if similarity >= similarity_threshold:
-                    # Check if document is recent enough
-                    pub_date = self._parse_date(doc.get('publication_date'))
-                    if pub_date and pub_date >= cutoff_date:
-                        alert = AlertResult(
-                            id=doc.get('id'),
-                            title=doc.get('title', ''),
-                            similarity_score=float(similarity),
-                            document_type=doc.get('type', 'unknown'),
-                            publication_date=doc.get('publication_date', ''),
-                            authors=doc.get('authors', []),
-                            institutions=doc.get('institutions', []),
-                            abstract=doc.get('abstract', ''),
-                            url=doc.get('url', ''),
-                            alert_reason=f"High semantic similarity ({similarity:.3f}) to research"
-                        )
-                        alerts.append(alert)
-                        
-            except Exception as e:
-                self.logger.error(f"Error processing document {doc.get('id')}: {e}")
-                continue
-                
-        return sorted(alerts, key=lambda x: x.similarity_score, reverse=True)
-    
-    async def monitor_competitive_landscape(
-        self,
-        research_domain: str,
-        competitor_entities: List[str],
-        alert_threshold: float = 0.8
-    ) -> List[AlertResult]:
-        """
-        Monitor competitive landscape for new patents from competitors
-        """
-        alerts = []
-        
-        for entity in competitor_entities:
-            try:
-                # Search for recent patents from this entity
-                entity_patents = await self._search_entity_patents(entity)
-                
-                for patent in entity_patents:
-                    # Calculate relevance to research domain
-                    relevance = await self._calculate_domain_relevance(
-                        patent, research_domain
-                    )
-                    
-                    if relevance >= alert_threshold:
-                        alert = AlertResult(
-                            id=patent.get('id'),
-                            title=patent.get('title'),
-                            similarity_score=relevance,
-                            document_type='patent',
-                            publication_date=patent.get('publication_date'),
-                            authors=patent.get('inventors', []),
-                            institutions=[entity],
-                            abstract=patent.get('abstract', ''),
-                            url=patent.get('url', ''),
-                            alert_reason=f"Competitive patent from {entity}"
-                        )
-                        alerts.append(alert)
-                        
-            except Exception as e:
-                self.logger.error(f"Error monitoring {entity}: {e}")
-                continue
-                
-        return alerts
-    
-    def _parse_date(self, date_str: str) -> Optional[datetime]:
-        """Parse various date formats"""
-        if not date_str:
-            return None
-            
-        try:
-            # Try common formats
-            for fmt in ['%Y-%m-%d', '%Y-%m-%dT%H:%M:%S', '%Y']:
-                try:
-                    return datetime.strptime(date_str, fmt)
-                except ValueError:
-                    continue
-        except Exception:
-            pass
-            
-        return None
-    
-    async def _search_entity_patents(self, entity: str) -> List[Dict]:
-        """Search for patents from a specific entity"""
-        # This would integrate with patent databases
-        # For now, return mock data structure
-        return []
-    
-    async def _calculate_domain_relevance(
-        self, 
-        patent: Dict, 
-        domain: str
-    ) -> float:
-        """Calculate how relevant a patent is to a research domain"""
-        patent_text = f"{patent.get('title', '')}. {patent.get('abstract', '')}"
-        
-        patent_embedding = self.model.encode([patent_text])
-        domain_embedding = self.model.encode([domain])
-        
-        return cosine_similarity(patent_embedding, domain_embedding)[0][0]
-
-from typing import List, Dict, Any, Tuple
-from collections import defaultdict, Counter
-import networkx as nx
-from dataclasses import dataclass
-import pandas as pd
-
-from src.services.openalex import fetch_publication_metadata
-from src.search_logic_mill import search_logic_mill
-
-@dataclass
-class EntityProfile:
-    name: str
-    entity_type: str  # 'author', 'institution', 'company'
-    publication_count: int
-    patent_count: int
-    collaboration_score: float
-    recent_activity: int
-    key_topics: List[str]
-    geographic_location: str
-    contact_info: Dict[str, str]
-
-class CompetitorCollaboratorDiscovery:
-    def __init__(self):
-        self.collaboration_graph = nx.Graph()
-        
-    async def identify_key_players(
-        self, 
-        research_title: str, 
-        research_abstract: str,
-        domain_focus: str = None
-    ) -> Dict[str, List[EntityProfile]]:
-        """
-        Identify top authors, inventors, and institutions in the domain
-        """
-        # Get related publications and patents
-        similar_docs = search_logic_mill(
-            research_title, 
-            research_abstract, 
-            amount=100,
-            indices=["patents", "publications"]
-        )
-        
-        # Analyze authors and institutions
-        authors = defaultdict(lambda: {
-            'publications': [], 'patents': [], 'institutions': set(),
-            'topics': [], 'collaborations': set()
-        })
-        
-        institutions = defaultdict(lambda: {
-            'publications': [], 'patents': [], 'authors': set(),
-            'topics': [], 'locations': set()
-        })
-        
-        for doc in similar_docs:
-            doc_authors = doc.get('authors', [])
-            doc_institutions = doc.get('institutions', [])
-            doc_topics = doc.get('topics', [])
-            doc_type = doc.get('index', 'unknown')
-            
-            # Process authors
-            for author in doc_authors:
-                author_name = author if isinstance(author, str) else author.get('display_name', '')
-                if author_name:
-                    if doc_type == 'publications':
-                        authors[author_name]['publications'].append(doc)
-                    else:
-                        authors[author_name]['patents'].append(doc)
-                    
-                    authors[author_name]['topics'].extend(doc_topics)
-                    authors[author_name]['institutions'].update(doc_institutions)
-                    
-                    # Track collaborations
-                    for other_author in doc_authors:
-                        other_name = other_author if isinstance(other_author, str) else other_author.get('display_name', '')
-                        if other_name != author_name:
-                            authors[author_name]['collaborations'].add(other_name)
-            
-            # Process institutions
-            for institution in doc_institutions:
-                inst_name = institution if isinstance(institution, str) else institution.get('display_name', '')
-                if inst_name:
-                    if doc_type == 'publications':
-                        institutions[inst_name]['publications'].append(doc)
-                    else:
-                        institutions[inst_name]['patents'].append(doc)
-                    
-                    institutions[inst_name]['topics'].extend(doc_topics)
-                    institutions[inst_name]['authors'].update(doc_authors)
-        
-        # Create entity profiles
-        top_authors = self._create_author_profiles(authors)
-        top_institutions = self._create_institution_profiles(institutions)
-        
-        return {
-            'top_authors': top_authors,
-            'top_institutions': top_institutions,
-            'collaboration_clusters': self._identify_collaboration_clusters(authors)
-        }
-    
-    def _create_author_profiles(self, authors_data: Dict) -> List[EntityProfile]:
-        """Create profiles for top authors"""
-        profiles = []
-        
-        for author_name, data in authors_data.items():
-            pub_count = len(data['publications'])
-            patent_count = len(data['patents'])
-            
-            if pub_count + patent_count < 2:  # Filter out low-activity authors
-                continue
-                
-            # Calculate collaboration score
-            collaboration_score = len(data['collaborations']) / max(1, pub_count + patent_count)
-            
-            # Get most common topics
-            topic_counts = Counter(data['topics'])
-            key_topics = [topic for topic, count in topic_counts.most_common(5)]
-            
-            # Calculate recent activity (last 2 years)
-            recent_activity = self._count_recent_activity(
-                data['publications'] + data['patents']
-            )
-            
-            profile = EntityProfile(
-                name=author_name,
-                entity_type='author',
-                publication_count=pub_count,
-                patent_count=patent_count,
-                collaboration_score=collaboration_score,
-                recent_activity=recent_activity,
-                key_topics=key_topics,
-                geographic_location='Unknown',  # Would need additional API calls
-                contact_info={}
-            )
-            profiles.append(profile)
-        
-        return sorted(profiles, key=lambda x: x.publication_count + x.patent_count, reverse=True)[:50]
-    
-    def _create_institution_profiles(self, institutions_data: Dict) -> List[EntityProfile]:
-        """Create profiles for top institutions"""
-        profiles = []
-        
-        for inst_name, data in institutions_data.items():
-            pub_count = len(data['publications'])
-            patent_count = len(data['patents'])
-            
-            if pub_count + patent_count < 3:  # Filter out low-activity institutions
-                continue
-            
-            # Calculate collaboration score based on author diversity
-            collaboration_score = len(data['authors']) / max(1, pub_count + patent_count)
-            
-            # Get most common topics
-            topic_counts = Counter(data['topics'])
-            key_topics = [topic for topic, count in topic_counts.most_common(5)]
-            
-            # Calculate recent activity
-            recent_activity = self._count_recent_activity(
-                data['publications'] + data['patents']
-            )
-            
-            profile = EntityProfile(
-                name=inst_name,
-                entity_type='institution',
-                publication_count=pub_count,
-                patent_count=patent_count,
-                collaboration_score=collaboration_score,
-                recent_activity=recent_activity,
-                key_topics=key_topics,
-                geographic_location='Unknown',
-                contact_info={}
-            )
-            profiles.append(profile)
-        
-        return sorted(profiles, key=lambda x: x.publication_count + x.patent_count, reverse=True)[:30]
-    
-    def _identify_collaboration_clusters(self, authors_data: Dict) -> List[Dict]:
-        """Identify clusters of collaborating researchers"""
-        # Build collaboration graph
-        G = nx.Graph()
-        
-        for author, data in authors_data.items():
-            for collaborator in data['collaborations']:
-                if collaborator in authors_data:  # Only include authors we have data for
-                    G.add_edge(author, collaborator)
-        
-        # Find communities/clusters
-        clusters = []
-        try:
-            communities = nx.community.greedy_modularity_communities(G)
-            
-            for i, community in enumerate(communities):
-                if len(community) >= 3:  # Only include substantial clusters
-                    cluster_info = {
-                        'cluster_id': i,
-                        'members': list(community),
-                        'size': len(community),
-                        'internal_connections': G.subgraph(community).number_of_edges(),
-                        'key_topics': self._get_cluster_topics(community, authors_data)
-                    }
-                    clusters.append(cluster_info)
-                    
-        except Exception as e:
-            print(f"Error in community detection: {e}")
-        
-        return sorted(clusters, key=lambda x: x['size'], reverse=True)[:10]
-    
-    def _count_recent_activity(self, documents: List[Dict]) -> int:
-        """Count recent publications/patents (last 2 years)"""
-        from datetime import datetime, timedelta
-        
-        cutoff_date = datetime.now() - timedelta(days=730)  # 2 years
-        recent_count = 0
-        
-        for doc in documents:
-            pub_date_str = doc.get('publication_date', '')
-            if pub_date_str:
-                try:
-                    pub_date = datetime.strptime(pub_date_str[:4], '%Y')
-                    if pub_date >= cutoff_date:
-                        recent_count += 1
-                except:
-                    continue
-                    
-        return recent_count
-    
-    def _get_cluster_topics(self, community: set, authors_data: Dict) -> List[str]:
-        """Get most common topics for a collaboration cluster"""
-        all_topics = []
-        for author in community:
-            if author in authors_data:
-                all_topics.extend(authors_data[author]['topics'])
-        
-        topic_counts = Counter(all_topics)
-        return [topic for topic, count in topic_counts.most_common(5)]
-
-from typing import List, Dict, Any, Optional
-from dataclasses import dataclass
-from datetime import datetime, timedelta
-import json
-
-@dataclass
-class LicensingOpportunity:
-    entity_name: str
-    entity_type: str  # 'company', 'university', 'research_institute'
-    opportunity_type: str  # 'licensing_in', 'licensing_out', 'collaboration'
-    relevance_score: float
-    patent_portfolio: List[Dict]
-    technology_gaps: List[str]
-    contact_information: Dict[str, str]
-    market_position: str
-    licensing_history: List[Dict]
-    estimated_value: Optional[str]
-
-class LicensingOpportunityMapper:
-    def __init__(self):
-        self.opportunity_threshold = 0.7
-        
-    async def identify_licensing_opportunities(
-        self,
-        focal_research_group: str,
-        research_domain: str,
-        patent_portfolio: List[Dict],
-        publication_portfolio: List[Dict]
-    ) -> List[LicensingOpportunity]:
-        """
-        Flag entities that may need licenses from the focal research group
-        """
-        opportunities = []
-        
-        # Analyze patent landscape to find potential licensees
-        potential_licensees = await self._find_potential_licensees(
-            focal_research_group, patent_portfolio, research_domain
-        )
-        
-        # Analyze technology gaps that could be filled by licensing
-        gap_opportunities = await self._identify_technology_gaps(
-            research_domain, patent_portfolio, publication_portfolio
-        )
-        
-        # Combine and rank opportunities
-        all_opportunities = potential_licensees + gap_opportunities
-        
-        return sorted(all_opportunities, key=lambda x: x.relevance_score, reverse=True)
-    
-    async def _find_potential_licensees(
-        self,
-        focal_group: str,
-        patents: List[Dict],
-        domain: str
-    ) -> List[LicensingOpportunity]:
-        """Find entities that might need licenses for focal group's patents"""
-        opportunities = []
-        
-        # Analyze patent citations and related work
-        for patent in patents:
-            citing_patents = await self._get_citing_patents(patent['id'])
-            
-            for citing_patent in citing_patents:
-                owner = citing_patent.get('assignee', '')
-                if owner and owner != focal_group:
-                    # Check if this represents a licensing opportunity
-                    relevance = await self._calculate_licensing_relevance(
-                        patent, citing_patent, domain
-                    )
-                    
-                    if relevance >= self.opportunity_threshold:
-                        opportunity = LicensingOpportunity(
-                            entity_name=owner,
-                            entity_type=self._classify_entity_type(owner),
-                            opportunity_type='licensing_out',
-                            relevance_score=relevance,
-                            patent_portfolio=[citing_patent],
-                            technology_gaps=[],
-                            contact_information={},
-                            market_position='Unknown',
-                            licensing_history=[],
-                            estimated_value=self._estimate_licensing_value(patent, citing_patent)
-                        )
-                        opportunities.append(opportunity)
-        
-        return opportunities
-    
-    async def _identify_technology_gaps(
-        self,
-        domain: str,
-        patents: List[Dict],
-        publications: List[Dict]
-    ) -> List[LicensingOpportunity]:
-        """Identify technology gaps that represent licensing opportunities"""
-        opportunities = []
-        
-        # Analyze research publications to find commercialization gaps
-        for pub in publications:
-            # Check if research has been commercialized
-            commercialization_potential = await self._assess_commercialization_potential(pub)
-            
-            if commercialization_potential['score'] > 0.8:
-                # Look for companies working in similar areas
-                related_companies = await self._find_companies_in_domain(
-                    pub.get('topics', [])
-                )
-                
-                for company in related_companies:
-                    opportunity = LicensingOpportunity(
-                        entity_name=company['name'],
-                        entity_type='company',
-                        opportunity_type='licensing_out',
-                        relevance_score=commercialization_potential['score'],
-                        patent_portfolio=[],
-                        technology_gaps=commercialization_potential['gaps'],
-                        contact_information=company.get('contact', {}),
-                        market_position=company.get('market_position', 'Unknown'),
-                        licensing_history=[],
-                        estimated_value=commercialization_potential['estimated_value']
-                    )
-                    opportunities.append(opportunity)
-        
-        return opportunities
-    
-    async def _get_citing_patents(self, patent_id: str) -> List[Dict]:
-        """Get patents that cite the given patent"""
-        # This would integrate with patent databases
-        # For now, return mock structure
-        return []
-    
-    async def _calculate_licensing_relevance(
-        self,
-        base_patent: Dict,
-        citing_patent: Dict,
-        domain: str
-    ) -> float:
-        """Calculate how relevant a licensing opportunity is"""
-        # Analyze patent similarity, market overlap, etc.
-        # For now, return a mock score
-        return 0.75
-    
-    def _classify_entity_type(self, entity_name: str) -> str:
-        """Classify entity type based on name patterns"""
-        entity_lower = entity_name.lower()
-        
-        if any(term in entity_lower for term in ['university', 'college', 'institute']):
-            return 'university'
-        elif any(term in entity_lower for term in ['inc', 'corp', 'ltd', 'llc', 'company']):
-            return 'company'
-        else:
-            return 'research_institute'
-    
-    def _estimate_licensing_value(self, base_patent: Dict, citing_patent: Dict) -> str:
-        """Estimate potential licensing value"""
-        # This would use market data, patent strength analysis, etc.
-        return "Medium ($100K-$1M)"
-    
-    async def _assess_commercialization_potential(self, publication: Dict) -> Dict:
-        """Assess how ready research is for commercialization"""
-        # Analyze TRL indicators, market readiness, etc.
-        return {
-            'score': 0.85,
-            'gaps': ['Manufacturing scale-up', 'Regulatory approval'],
-            'estimated_value': 'High ($1M+)'
-        }
-    
-    async def _find_companies_in_domain(self, topics: List[str]) -> List[Dict]:
-        """Find companies working in similar technology domains"""
-        # This would integrate with company databases
-        return [
-            {
-                'name': 'TechCorp Inc.',
-                'market_position': 'Market Leader',
-                'contact': {'email': 'licensing@techcorp.com'}
-            }
-        ]
-
-from typing import List, Dict, Any, Tuple
-from dataclasses import dataclass
-import json
-from datetime import datetime
-from sentence_transformers import SentenceTransformer
-from sklearn.metrics.pairwise import cosine_similarity
-import numpy as np
-import re
-
-@dataclass
 class NoveltyAssessment:
     overall_novelty_score: float
     novelty_category: str  # 'Highly Novel', 'Moderately Novel', 'Incremental', 'Not Novel'
@@ -734,30 +162,19 @@ class EnhancedNoveltyAssessment:
     ) -> float:
         """Calculate overall novelty score"""
         if not patent_similarities and not publication_similarities:
-            return 1.0
+            return 1.0  # Completely novel if no similar documents found
         
         # Get highest similarity scores
         max_patent_sim = max([p['similarity_score'] for p in patent_similarities], default=0)
         max_pub_sim = max([p['similarity_score'] for p in publication_similarities], default=0)
         
-        # Weight patents more heavily than publications for novelty
+        # Weight patents more heavily than publications for novelty assessment
         weighted_similarity = (max_patent_sim * 0.7) + (max_pub_sim * 0.3)
         
-        # Convert to novelty score (inverse of similarity)
+        # Convert similarity to novelty (inverse relationship)
         novelty_score = 1.0 - weighted_similarity
         
         return max(0.0, min(1.0, novelty_score))
-    
-    def _categorize_novelty(self, novelty_score: float) -> str:
-        """Categorize novelty level"""
-        if novelty_score >= 0.8:
-            return "Highly Novel"
-        elif novelty_score >= 0.6:
-            return "Moderately Novel"
-        elif novelty_score >= 0.3:
-            return "Incremental Innovation"
-        else:
-            return "Limited Novelty"
     
     async def _identify_key_differences(
         self,
@@ -767,55 +184,40 @@ class EnhancedNoveltyAssessment:
         """Identify key differences between research and similar documents"""
         differences = []
         
-        # Extract key technical terms from research
-        research_terms = self._extract_technical_terms(research_text)
+        # Extract key terms from research
+        research_terms = self._extract_key_terms(research_text)
         
-        for doc in similar_documents[:5]:  # Analyze top 5 similar documents
-            if doc['document_type'] == 'patent':
-                doc_text = f"{doc.get('title', '')} {doc.get('abstract', '')}"
-            else:
-                doc_text = f"{doc.get('title', '')} {doc.get('abstract', '')}"
+        for doc in similar_documents[:5]:  # Analyze top 5 most similar
+            doc_text = f"{doc.get('title', '')}. {doc.get('abstract', '')}"
+            doc_terms = self._extract_key_terms(doc_text)
             
-            doc_terms = self._extract_technical_terms(doc_text)
-            
-            # Find unique terms in research
+            # Find terms unique to research
             unique_terms = research_terms - doc_terms
             if unique_terms:
-                differences.append(f"Novel technical aspects: {', '.join(list(unique_terms)[:3])}")
+                differences.append(f"Novel aspects vs {doc.get('title', 'document')}: {', '.join(list(unique_terms)[:5])}")
         
-        return differences[:10]  # Return top 10 differences
+        return differences[:10]
     
-    def _extract_technical_terms(self, text: str) -> set:
-        """Extract technical terms from text"""
-        # Simple technical term extraction (would be enhanced with NLP)
-        technical_patterns = [
-            r'\b[A-Z][a-z]*(?:[A-Z][a-z]*)+\b',  # CamelCase terms
-            r'\b\w+(?:-\w+)+\b',  # Hyphenated terms
-            r'\b\w*(?:tion|sion|ment|ness|ity)\b',  # Technical suffixes
-        ]
-        
-        terms = set()
-        for pattern in technical_patterns:
-            matches = re.findall(pattern, text)
-            terms.update([m.lower() for m in matches if len(m) > 3])
-        
-        return terms
+    def _extract_key_terms(self, text: str) -> set:
+        """Extract key technical terms from text"""
+        # Simple term extraction - could be enhanced with NLP
+        words = re.findall(r'\b[a-zA-Z]{4,}\b', text.lower())
+        # Filter out common words
+        common_words = {'that', 'this', 'with', 'from', 'they', 'have', 'been', 'were', 'said', 'each', 'which', 'their', 'time', 'will', 'about', 'would', 'there', 'could', 'other', 'more', 'very', 'what', 'know', 'just', 'first', 'into', 'over', 'think', 'also', 'your', 'work', 'life', 'only', 'can', 'still', 'should', 'after', 'being', 'now', 'made', 'before', 'here', 'through', 'when', 'where', 'much', 'some', 'these', 'many', 'then', 'them', 'well', 'were'}
+        return set(word for word in words if word not in common_words and len(word) > 4)
     
     def _analyze_text_overlap(self, text1: str, text2: str) -> Dict[str, Any]:
-        """Analyze overlap between two texts"""
-        words1 = set(text1.lower().split())
-        words2 = set(text2.lower().split())
+        """Analyze textual overlap between two documents"""
+        terms1 = self._extract_key_terms(text1)
+        terms2 = self._extract_key_terms(text2)
         
-        overlap = words1.intersection(words2)
-        union = words1.union(words2)
-        
-        jaccard_similarity = len(overlap) / len(union) if union else 0
+        overlap = terms1.intersection(terms2)
+        overlap_ratio = len(overlap) / max(len(terms1), 1)
         
         return {
-            'jaccard_similarity': jaccard_similarity,
-            'common_words': len(overlap),
-            'unique_words_text1': len(words1 - words2),
-            'unique_words_text2': len(words2 - words1)
+            'overlapping_terms': list(overlap)[:10],
+            'overlap_ratio': overlap_ratio,
+            'unique_to_research': list(terms1 - terms2)[:10]
         }
     
     def _assess_patentability(
@@ -825,60 +227,36 @@ class EnhancedNoveltyAssessment:
         novelty_score: float
     ) -> Dict[str, Any]:
         """Assess patentability indicators"""
-        # Analyze patent claims structure
-        claim_analysis = self._analyze_claims_structure(claims)
-        
-        # Check for prior art issues
-        prior_art_issues = []
-        for patent in patent_similarities[:5]:
-            if patent['similarity_score'] > 0.8:
-                prior_art_issues.append({
-                    'patent_id': patent['id'],
-                    'issue_type': 'High similarity',
-                    'similarity_score': patent['similarity_score']
-                })
-        
         return {
             'novelty_score': novelty_score,
-            'claim_strength': claim_analysis['strength'],
-            'claim_count': len(claims),
-            'prior_art_issues': prior_art_issues,
-            'patentability_likelihood': self._calculate_patentability_likelihood(
-                novelty_score, claim_analysis, prior_art_issues
-            )
+            'has_technical_merit': len(claims) > 0,
+            'prior_art_conflicts': len([p for p in patent_similarities if p['similarity_score'] > 0.8]),
+            'patentability_likelihood': 'High' if novelty_score > 0.7 else 'Medium' if novelty_score > 0.4 else 'Low',
+            'recommended_claim_focus': self._suggest_claim_focus(claims, patent_similarities)
         }
     
-    def _analyze_claims_structure(self, claims: List[str]) -> Dict[str, Any]:
-        """Analyze structure and strength of patent claims"""
-        if not claims:
-            return {'strength': 'Unknown', 'analysis': 'No claims provided'}
+    def _suggest_claim_focus(self, claims: List[str], similar_patents: List[Dict]) -> List[str]:
+        """Suggest areas to focus claims on based on prior art"""
+        suggestions = []
         
-        # Simple claim analysis
-        independent_claims = [c for c in claims if c.strip().startswith('1.') or 'comprising' in c.lower()]
-        dependent_claims = len(claims) - len(independent_claims)
-        
-        strength = 'Strong' if len(independent_claims) >= 1 and dependent_claims >= 5 else 'Moderate'
-        
-        return {
-            'strength': strength,
-            'independent_claims': len(independent_claims),
-            'dependent_claims': dependent_claims,
-            'total_claims': len(claims)
-        }
-    
-    def _calculate_patentability_likelihood(
-        self,
-        novelty_score: float,
-        claim_analysis: Dict,
-        prior_art_issues: List[Dict]
-    ) -> str:
-        """Calculate likelihood of patent approval"""
-        if novelty_score > 0.8 and not prior_art_issues:
-            return "High"
-        elif novelty_score > 0.6 and len(prior_art_issues) < 2:
-            return "Moderate"
+        if not similar_patents:
+            suggestions.append("Focus on core technical innovation")
         else:
-            return "Low"
+            suggestions.append("Emphasize novel technical aspects not covered in prior art")
+            suggestions.append("Consider narrower claims to avoid prior art conflicts")
+        
+        return suggestions
+    
+    def _categorize_novelty(self, score: float) -> str:
+        """Categorize novelty score into human-readable categories"""
+        if score >= 0.8:
+            return 'Highly Novel'
+        elif score >= 0.6:
+            return 'Moderately Novel'
+        elif score >= 0.3:
+            return 'Incremental'
+        else:
+            return 'Not Novel'
     
     def _analyze_prior_art(
         self,
@@ -891,30 +269,28 @@ class EnhancedNoveltyAssessment:
             'total_similar_publications': len(publication_similarities),
             'highest_patent_similarity': max([p['similarity_score'] for p in patent_similarities], default=0),
             'highest_publication_similarity': max([p['similarity_score'] for p in publication_similarities], default=0),
-            'prior_art_density': len(patent_similarities) + len(publication_similarities),
-            'key_prior_art': patent_similarities[:3] + publication_similarities[:3]
+            'key_prior_art': (patent_similarities + publication_similarities)[:5]
         }
     
     def _generate_recommendations(
         self,
         novelty_score: float,
-        patentability: Dict,
+        patentability: Dict[str, Any],
         similar_patents: List[Dict]
     ) -> List[str]:
-        """Generate recommendations based on novelty assessment"""
+        """Generate actionable recommendations"""
         recommendations = []
         
-        if novelty_score > 0.8:
+        if novelty_score > 0.7:
             recommendations.append("Strong novelty detected - proceed with patent application")
-        elif novelty_score > 0.6:
-            recommendations.append("Moderate novelty - consider strengthening claims")
+        elif novelty_score > 0.4:
+            recommendations.append("Moderate novelty - consider focusing on specific novel aspects")
         else:
-            recommendations.append("Limited novelty - significant differentiation needed")
+            recommendations.append("Low novelty - significant prior art exists, reconsider patenting strategy")
         
-        if patentability['prior_art_issues']:
-            recommendations.append("Address prior art issues before filing")
+        if patentability['prior_art_conflicts'] > 0:
+            recommendations.append("Review similar patents for potential claim conflicts")
         
-        if similar_patents:
-            recommendations.append("Conduct detailed prior art search focusing on top similar patents")
+        recommendations.append("Conduct professional prior art search before filing")
         
         return recommendations

@@ -1,220 +1,209 @@
-import { useState } from 'react'
+import { 
+  Microscope, 
+  TrendingUp, 
+  Bell, 
+  ClipboardList,
+  FileText,
+  Settings,
+  BarChart3,
+  Activity,
+  Users,
+  Target,
+  ArrowUpRight,
+  ArrowRight
+} from 'lucide-react'
 import './Dashboard.css'
 
 function Dashboard() {
-  const [file, setFile] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const [results, setResults] = useState(null)
-  const [error, setError] = useState(null)
-
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0])
-    setError(null)
-  }
-
-  const handleAnalyze = async () => {
-    if (!file) {
-      setError('Please select a JSON file')
-      return
-    }
-
-    setLoading(true)
-    setError(null)
-    setResults(null)
-
-    try {
-      const reader = new FileReader()
-      reader.onload = async (e) => {
-        try {
-          const payload = JSON.parse(e.target.result)
-          
-          const response = await fetch('http://localhost:8000/results/intelligence_analysis', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(payload),
-          })
-
-          if (!response.ok) {
-            throw new Error('Analysis failed')
-          }
-
-          const data = await response.json()
-          setResults(data)
-        } catch (err) {
-          setError(err.message)
-        } finally {
-          setLoading(false)
-        }
-      }
-      reader.readAsText(file)
-    } catch (err) {
-      setError(err.message)
-      setLoading(false)
-    }
-  }
-
   return (
     <div className="dashboard-page">
       <div className="dashboard-container">
-        <h1>Patent Intelligence Dashboard</h1>
-        <p className="subtitle">
-          Upload publication and patent data for comprehensive intelligence analysis
-        </p>
-
-        <div className="upload-section">
-          <div className="file-input-wrapper">
-            <input
-              type="file"
-              id="dataFile"
-              accept=".json"
-              onChange={handleFileChange}
-              className="file-input"
-            />
-            <label htmlFor="dataFile" className="file-label">
-              {file ? file.name : 'Choose JSON file'}
-            </label>
-          </div>
-          <button
-            onClick={handleAnalyze}
-            className="btn btn-primary"
-            disabled={loading || !file}
-          >
-            {loading ? 'Analyzing...' : 'Analyze Data'}
-          </button>
+        <div className="dashboard-header">
+          <h1>Analytics Dashboard</h1>
+          <p>Comprehensive insights and analytics for technology transfer decisions</p>
         </div>
 
-        {error && (
-          <div className="error-message">
-            <strong>Error:</strong> {error}
+        <div className="dashboard-content">
+          <div className="stats-grid">
+            <div className="stat-card">
+              <div className="stat-icon">
+                <Microscope size={28} />
+              </div>
+              <div className="stat-content">
+                <div className="stat-value">24</div>
+                <div className="stat-label">Analyses Completed</div>
+              </div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-icon">
+                <BarChart3 size={28} />
+              </div>
+              <div className="stat-content">
+                <div className="stat-value">8.5</div>
+                <div className="stat-label">Avg Market Score</div>
+              </div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-icon">
+                <Bell size={28} />
+              </div>
+              <div className="stat-content">
+                <div className="stat-value">12</div>
+                <div className="stat-label">Active Alerts</div>
+              </div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-icon">
+                <ClipboardList size={28} />
+              </div>
+              <div className="stat-content">
+                <div className="stat-value">6</div>
+                <div className="stat-label">Reports Generated</div>
+              </div>
+            </div>
           </div>
-        )}
 
-        {results && (
-          <div className="dashboard-results">
-            <section className="result-section">
-              <h2>Key Players</h2>
-              <div className="tables-grid">
-                <div className="table-container">
-                  <h3>Top Authors</h3>
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Author</th>
-                        <th>Publications</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {results.top_authors?.map((author, index) => (
-                        <tr key={index}>
-                          <td>{author[0]}</td>
-                          <td>{author[1]}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+          <div className="dashboard-grid">
+            <div className="dashboard-card">
+              <div className="card-header">
+                <h3>Recent Analyses</h3>
+                <button className="btn btn-text">View All</button>
+              </div>
+              <div className="card-content">
+                <div className="analysis-item">
+                  <div className="analysis-info">
+                    <div className="analysis-title">Machine Learning Algorithm</div>
+                    <div className="analysis-date">2 hours ago</div>
+                  </div>
+                  <div className="analysis-score">8.5</div>
                 </div>
-
-                <div className="table-container">
-                  <h3>Top Institutions</h3>
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Institution</th>
-                        <th>Publications</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {results.top_institutions?.map((inst, index) => (
-                        <tr key={index}>
-                          <td>{inst[0]}</td>
-                          <td>{inst[1]}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                <div className="analysis-item">
+                  <div className="analysis-info">
+                    <div className="analysis-title">Quantum Computing Research</div>
+                    <div className="analysis-date">1 day ago</div>
+                  </div>
+                  <div className="analysis-score">9.2</div>
+                </div>
+                <div className="analysis-item">
+                  <div className="analysis-info">
+                    <div className="analysis-title">Biomedical Device Innovation</div>
+                    <div className="analysis-date">3 days ago</div>
+                  </div>
+                  <div className="analysis-score">7.8</div>
                 </div>
               </div>
-            </section>
+            </div>
 
-            <section className="result-section">
-              <h2>Emerging Trends</h2>
-              <div className="table-container">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Topic</th>
-                      <th>Count</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {Object.entries(results.topic_counts || {}).map(([topic, count], index) => (
-                      <tr key={index}>
-                        <td>{topic}</td>
-                        <td>{count}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+            <div className="dashboard-card">
+              <div className="card-header">
+                <h3>Market Trends</h3>
+                <button className="btn btn-text">Details</button>
               </div>
-              <div className="underexplored">
-                <h3>Underexplored Topics</h3>
-                <p>{results.underexplored_topics?.join(', ')}</p>
+              <div className="card-content">
+                <div className="trend-item">
+                  <div className="trend-info">
+                    <div className="trend-title">AI & Machine Learning</div>
+                    <div className="trend-growth">+15.3% CAGR</div>
+                  </div>
+                  <div className="trend-indicator up">
+                    <TrendingUp size={20} />
+                  </div>
+                </div>
+                <div className="trend-item">
+                  <div className="trend-info">
+                    <div className="trend-title">Quantum Technologies</div>
+                    <div className="trend-growth">+22.1% CAGR</div>
+                  </div>
+                  <div className="trend-indicator up">
+                    <TrendingUp size={20} />
+                  </div>
+                </div>
+                <div className="trend-item">
+                  <div className="trend-info">
+                    <div className="trend-title">Biotechnology</div>
+                    <div className="trend-growth">+12.8% CAGR</div>
+                  </div>
+                  <div className="trend-indicator up">
+                    <TrendingUp size={20} />
+                  </div>
+                </div>
               </div>
-            </section>
+            </div>
 
-            <section className="result-section">
-              <h2>Research-Patent Matches</h2>
-              <div className="table-container">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Publication</th>
-                      <th>Patent</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {results.research_patent_matches?.map((match, index) => (
-                      <tr key={index}>
-                        <td>{match[0]}</td>
-                        <td>{match[1]}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+            <div className="dashboard-card">
+              <div className="card-header">
+                <h3>Patent Alerts</h3>
+                <button className="btn btn-text">Manage</button>
               </div>
-            </section>
+              <div className="card-content">
+                <div className="alert-item">
+                  <div className="alert-icon">
+                    <Bell size={18} />
+                  </div>
+                  <div className="alert-info">
+                    <div className="alert-title">New patent in ML domain</div>
+                    <div className="alert-date">Today</div>
+                  </div>
+                </div>
+                <div className="alert-item">
+                  <div className="alert-icon">
+                    <Activity size={18} />
+                  </div>
+                  <div className="alert-info">
+                    <div className="alert-title">Similar research published</div>
+                    <div className="alert-date">Yesterday</div>
+                  </div>
+                </div>
+                <div className="alert-item">
+                  <div className="alert-icon">
+                    <FileText size={18} />
+                  </div>
+                  <div className="alert-info">
+                    <div className="alert-title">Patent application filed</div>
+                    <div className="alert-date">2 days ago</div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-            <section className="result-section">
-              <h2>Priority Opportunities</h2>
-              <div className="table-container">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Publication</th>
-                      <th>Topic</th>
-                      <th>Citations</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {results.priority_opportunities?.map((opp, index) => (
-                      <tr key={index}>
-                        <td>{opp[0]}</td>
-                        <td>{opp[1]}</td>
-                        <td>{opp[2]}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+            <div className="dashboard-card">
+              <div className="card-header">
+                <h3>Quick Actions</h3>
               </div>
-            </section>
+              <div className="card-content">
+                <div className="actions-grid">
+                  <a href="/analysis" className="action-item">
+                    <div className="action-icon">
+                      <Microscope size={24} />
+                    </div>
+                    <div className="action-label">New Analysis</div>
+                  </a>
+                  <a href="/reports" className="action-item">
+                    <div className="action-icon">
+                      <ClipboardList size={24} />
+                    </div>
+                    <div className="action-label">Generate Report</div>
+                  </a>
+                  <a href="/alerts" className="action-item">
+                    <div className="action-icon">
+                      <Bell size={24} />
+                    </div>
+                    <div className="action-label">Setup Alerts</div>
+                  </a>
+                  <a href="/patents" className="action-item">
+                    <div className="action-icon">
+                      <FileText size={24} />
+                    </div>
+                    <div className="action-label">Search Patents</div>
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   )
 }
 
 export default Dashboard
-

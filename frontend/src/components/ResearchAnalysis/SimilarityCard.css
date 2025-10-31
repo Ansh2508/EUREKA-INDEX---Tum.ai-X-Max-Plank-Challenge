@@ -1,0 +1,248 @@
+/* Similarity Card Styles */
+
+.similarity-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.similarity-card:hover {
+    border-color: #4f46e5;
+    box-shadow: 0 8px 25px rgba(79, 70, 229, 0.15);
+    transform: translateY(-2px);
+}
+
+.similarity-card.patent {
+    border-left: 4px solid #3b82f6;
+}
+
+.similarity-card.publication {
+    border-left: 4px solid #10b981;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.card-type {
+    background: #f1f5f9;
+    color: #475569;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.similarity-card.patent .card-type {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.similarity-card.publication .card-type {
+    background: #d1fae5;
+    color: #047857;
+}
+
+.similarity-score {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-align: center;
+    min-width: 60px;
+}
+
+.card-content {
+    margin-bottom: 1rem;
+}
+
+.card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0 0 1rem 0;
+    line-height: 1.4;
+}
+
+.card-title a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.card-title a:hover {
+    color: #4f46e5;
+}
+
+.card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: #64748b;
+    font-size: 0.75rem;
+    background: #f8fafc;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    border: 1px solid #e2e8f0;
+}
+
+.card-abstract {
+    color: #4b5563;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin: 0 0 1rem 0;
+}
+
+.similarity-indicator {
+    margin-bottom: 1rem;
+}
+
+.indicator-label {
+    color: #6b7280;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+}
+
+.indicator-bar {
+    width: 100%;
+    height: 6px;
+    background: #e5e7eb;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.indicator-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+.card-footer {
+    border-top: 1px solid #f1f5f9;
+    padding-top: 1rem;
+}
+
+.footer-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.view-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #4f46e5;
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.view-link:hover {
+    color: #4338ca;
+}
+
+.link-icon {
+    font-size: 0.875rem;
+}
+
+.action-btn {
+    background: none;
+    border: none;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    font-size: 1rem;
+}
+
+.action-btn:hover {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.action-btn:active {
+    transform: scale(0.95);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .similarity-card {
+        padding: 1rem;
+    }
+
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .card-meta {
+        gap: 0.5rem;
+    }
+
+    .meta-item {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.4rem;
+    }
+
+    .footer-actions {
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: stretch;
+    }
+
+    .view-link {
+        justify-content: center;
+    }
+
+    .action-btn {
+        align-self: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .similarity-card {
+        padding: 0.75rem;
+    }
+
+    .card-title {
+        font-size: 1rem;
+    }
+
+    .card-abstract {
+        font-size: 0.8rem;
+    }
+
+    .similarity-score {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.8rem;
+        min-width: 50px;
+    }
+
+    .card-type {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.6rem;
+    }
+}

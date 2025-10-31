@@ -1,165 +1,272 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import AnalysisForm from '../components/ResearchAnalysis/AnalysisForm'
+import ResultsDisplay from '../components/ResearchAnalysis/ResultsDisplay'
+import LoadingSpinner from '../components/UI/LoadingSpinner'
 import './Analysis.css'
 
 function Analysis() {
-  const [title, setTitle] = useState('')
-  const [abstract, setAbstract] = useState('')
   const [loading, setLoading] = useState(false)
   const [results, setResults] = useState(null)
   const [error, setError] = useState(null)
+  const [analysisHistory, setAnalysisHistory] = useState([])
+  const [showHistory, setShowHistory] = useState(false)
+  const [analysisProgress, setAnalysisProgress] = useState(0)
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  // Load analysis history from localStorage on component mount
+  useEffect(() => {
+    const savedHistory = localStorage.getItem('analysisHistory')
+    if (savedHistory) {
+      try {
+        setAnalysisHistory(JSON.parse(savedHistory))
+      } catch (err) {
+        console.error('Failed to load analysis history:', err)
+      }
+    }
+  }, [])
+
+  // Save analysis to history
+  const saveToHistory = (formData, results) => {
+    const analysisEntry = {
+      id: Date.now(),
+      timestamp: new Date().toISOString(),
+      title: formData.title,
+      abstract: formData.abstract.substring(0, 200) + '...',
+      results: results
+    }
+    
+    const newHistory = [analysisEntry, ...analysisHistory.slice(0, 9)] // Keep last 10
+    setAnalysisHistory(newHistory)
+    localStorage.setItem('analysisHistory', JSON.stringify(newHistory))
+  }
+
+  const handleSubmit = async (formData) => {
     setLoading(true)
     setError(null)
     setResults(null)
+    setAnalysisProgress(0)
+
+    // Simulate progress updates for better UX
+    const progressInterval = setInterval(() => {
+      setAnalysisProgress(prev => {
+        if (prev >= 90) return prev
+        return prev + Math.random() * 15
+      })
+    }, 1000)
 
     try {
-      const response = await fetch('http://localhost:8000/analyze', {
+      // Save form data for retry functionality
+      localStorage.setItem('lastAnalysisRequest', JSON.stringify(formData))
+      
+      // Submit analysis request
+      const response = await fetch('/api/research/analyze', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ title, abstract }),
+        body: JSON.stringify(formData),
       })
 
       if (!response.ok) {
-        throw new Error('Analysis failed')
+        const errorData = await response.json().catch(() => ({}))
+        const errorMessage = errorData.detail?.errors 
+          ? errorData.detail.errors.join(', ')
+          : errorData.detail || `Analysis failed (${response.status})`
+        throw new Error(errorMessage)
       }
 
-      const data = await response.json()
-      setResults(data)
+      const analysisResponse = await response.json()
+      const analysisId = analysisResponse.id
+
+      // Poll for results
+      let attempts = 0
+      const maxAttempts = 30 // 30 seconds max
+      
+      const pollResults = async () => {
+        try {
+          const resultResponse = await fetch(`/api/research/results/${analysisId}`)
+          
+          if (!resultResponse.ok) {
+            throw new Error(`Failed to get results (${resultResponse.status})`)
+          }
+          
+          const resultData = await resultResponse.json()
+          
+          if (resultData.status === 'completed' && resultData.results) {
+            setAnalysisProgress(100)
+            setTimeout(() => {
+              setResults(resultData.results)
+              saveToHistory(formData, resultData.results)
+              clearInterval(progressInterval)
+              setLoading(false)
+            }, 500)
+            return
+          } else if (resultData.status === 'failed') {
+            throw new Error(resultData.results?.error || 'Analysis failed')
+          } else if (resultData.status === 'processing' || resultData.status === 'pending') {
+            // Continue polling
+            attempts++
+            if (attempts < maxAttempts) {
+              setTimeout(pollResults, 1000)
+            } else {
+              throw new Error('Analysis timeout - please try again')
+            }
+          }
+        } catch (pollError) {
+          console.error('Polling error:', pollError)
+          setError(pollError.message || 'Failed to get analysis results')
+          clearInterval(progressInterval)
+          setLoading(false)
+        }
+      }
+
+      // Start polling after a short delay
+      setTimeout(pollResults, 1000)
+      
     } catch (err) {
-      setError(err.message)
-    } finally {
+      console.error('Analysis error:', err)
+      setError(err.message || 'An unexpected error occurred during analysis')
+      clearInterval(progressInterval)
       setLoading(false)
     }
+  }
+
+  const handleHistorySelect = (historyItem) => {
+    setResults(historyItem.results)
+    setShowHistory(false)
+    setError(null)
+  }
+
+  const clearHistory = () => {
+    setAnalysisHistory([])
+    localStorage.removeItem('analysisHistory')
   }
 
   return (
     <div className="analysis-page">
       <div className="analysis-container">
-        <h1>Technology Transfer Analysis</h1>
-        <p className="subtitle">
-          Enter your research details to get comprehensive patent and market analysis
-        </p>
-
-        <form onSubmit={handleSubmit} className="analysis-form">
-          <div className="form-group">
-            <label htmlFor="title">Research Title *</label>
-            <input
-              type="text"
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter your research title"
-              required
-              minLength={5}
-              maxLength={500}
-            />
+        <div className="page-header">
+          <div className="header-content">
+            <h1>Research Analysis</h1>
+            <p className="subtitle">
+              Submit your research details to discover similar patents and assess market potential
+            </p>
           </div>
+          
+          {analysisHistory.length > 0 && (
+            <div className="header-actions">
+              <button 
+                className="btn btn-secondary"
+                onClick={() => setShowHistory(!showHistory)}
+              >
+                {showHistory ? 'Hide History' : `View History (${analysisHistory.length})`}
+              </button>
+            </div>
+          )}
+        </div>
 
-          <div className="form-group">
-            <label htmlFor="abstract">Research Abstract *</label>
-            <textarea
-              id="abstract"
-              value={abstract}
-              onChange={(e) => setAbstract(e.target.value)}
-              placeholder="Enter your research abstract (minimum 20 characters)"
-              required
-              minLength={20}
-              maxLength={5000}
-              rows={8}
-            />
-          </div>
-
-          <button 
-            type="submit" 
-            className="btn btn-primary btn-large"
-            disabled={loading}
-          >
-            {loading ? 'Analyzing...' : 'Analyze Research'}
-          </button>
-        </form>
-
-        {error && (
-          <div className="error-message">
-            <strong>Error:</strong> {error}
+        {showHistory && (
+          <div className="analysis-history">
+            <div className="history-header">
+              <h3>Recent Analyses</h3>
+              <button className="btn btn-text" onClick={clearHistory}>
+                Clear All
+              </button>
+            </div>
+            <div className="history-list">
+              {analysisHistory.map((item) => (
+                <div 
+                  key={item.id} 
+                  className="history-item"
+                  onClick={() => handleHistorySelect(item)}
+                >
+                  <div className="history-title">{item.title}</div>
+                  <div className="history-abstract">{item.abstract}</div>
+                  <div className="history-date">
+                    {new Date(item.timestamp).toLocaleDateString()}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
-        {results && (
-          <div className="results">
-            <h2>Analysis Results</h2>
-            
-            <div className="result-section">
-              <h3>Technology Readiness Level (TRL)</h3>
-              <div className="trl-score">
-                <span className="score">{results.trl_score}</span>
-                <span className="label">/ 9</span>
-              </div>
-              <p>{results.trl_description}</p>
-            </div>
-
-            <div className="result-section">
-              <h3>Novelty Assessment</h3>
-              <div className="novelty-score">
-                Score: {results.novelty_score}/10
-              </div>
-              <p>{results.novelty_assessment}</p>
-            </div>
-
-            <div className="result-section">
-              <h3>Market Potential</h3>
-              <div className="market-metrics">
-                <div className="metric">
-                  <span className="metric-label">TAM</span>
-                  <span className="metric-value">{results.market_size?.tam || 'N/A'}</span>
-                </div>
-                <div className="metric">
-                  <span className="metric-label">SAM</span>
-                  <span className="metric-value">{results.market_size?.sam || 'N/A'}</span>
-                </div>
-                <div className="metric">
-                  <span className="metric-label">SOM</span>
-                  <span className="metric-value">{results.market_size?.som || 'N/A'}</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="result-section">
-              <h3>IP Strength</h3>
-              <p>Score: {results.ip_strength_score}/10</p>
-              <p>{results.ip_strength_assessment}</p>
-            </div>
-
-            <div className="result-section">
-              <h3>Recommendations</h3>
-              <ul>
-                {results.recommendations?.map((rec, index) => (
-                  <li key={index}>{rec}</li>
-                ))}
-              </ul>
-            </div>
-
-            {results.similar_patents && results.similar_patents.length > 0 && (
-              <div className="result-section">
-                <h3>Similar Patents</h3>
-                <div className="patents-list">
-                  {results.similar_patents.slice(0, 5).map((patent, index) => (
-                    <div key={index} className="patent-card">
-                      <h4>{patent.title}</h4>
-                      <p className="patent-meta">
-                        {patent.assignee} | {patent.publication_date}
-                      </p>
-                      <p className="patent-abstract">{patent.abstract?.substring(0, 200)}...</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+        <div className="analysis-content">
+          <div className="form-section">
+            <AnalysisForm onSubmit={handleSubmit} loading={loading} />
           </div>
-        )}
+
+          {error && (
+            <div className="error-section">
+              <div className="error-message">
+                <div className="error-icon">!</div>
+                <div className="error-content">
+                  <strong>Analysis Failed</strong>
+                  <p>{error}</p>
+                  <div className="error-actions">
+                    <button 
+                      className="btn btn-primary btn-small"
+                      onClick={() => {
+                        setError(null)
+                        // Retry with last form data if available
+                        const lastFormData = JSON.parse(localStorage.getItem('lastAnalysisRequest') || '{}')
+                        if (lastFormData.title && lastFormData.abstract) {
+                          handleSubmit(lastFormData)
+                        }
+                      }}
+                    >
+                      Retry Analysis
+                    </button>
+                    <button 
+                      className="btn btn-text"
+                      onClick={() => setError(null)}
+                    >
+                      Dismiss
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {loading && (
+            <div className="loading-section">
+              <LoadingSpinner 
+                size="large" 
+                message="Analyzing your research against patent databases..." 
+                progress={analysisProgress}
+              />
+              <div className="loading-steps">
+                <div className={`step ${analysisProgress > 0 ? 'active' : ''} ${analysisProgress > 25 ? 'completed' : ''}`}>
+                  Searching patent databases
+                </div>
+                <div className={`step ${analysisProgress > 25 ? 'active' : ''} ${analysisProgress > 50 ? 'completed' : ''}`}>
+                  Calculating similarity scores
+                </div>
+                <div className={`step ${analysisProgress > 50 ? 'active' : ''} ${analysisProgress > 75 ? 'completed' : ''}`}>
+                  Analyzing market potential
+                </div>
+                <div className={`step ${analysisProgress > 75 ? 'active' : ''} ${analysisProgress >= 100 ? 'completed' : ''}`}>
+                  Generating report
+                </div>
+              </div>
+              <div className="progress-bar">
+                <div 
+                  className="progress-fill" 
+                  style={{ width: `${analysisProgress}%` }}
+                ></div>
+              </div>
+              <div className="progress-text">
+                {Math.round(analysisProgress)}% Complete
+              </div>
+            </div>
+          )}
+
+          {results && !loading && (
+            <div className="results-section">
+              <ResultsDisplay results={results} />
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )

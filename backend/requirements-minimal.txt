@@ -10,4 +10,17 @@ groq==0.8.0
 python-multipart==0.0.6
 python-dateutil==2.8.2
 httpx==0.25.2
-requests==2.31.0
+
+# ML dependencies for semantic analysis and novelty assessment
+sentence-transformers==2.2.2
+scikit-learn==1.3.2
+networkx==3.2.1
+pandas==2.1.4
+numpy==1.24.4
+matplotlib==3.8.2
+
+# Testing dependencies
+pytest==7.4.3
+pytest-cov==4.1.0
+pytest-asyncio==0.21.1
+httpx==0.25.2

@@ -7,6 +7,7 @@ from typing import List, Optional
 import asyncio
 import os
 from dotenv import load_dotenv
+import numpy as np
 
 # Import existing modules
 from src.routes import llm_routes, openalex, related_works
@@ -25,6 +26,20 @@ except ImportError as e:
 
 load_dotenv()
 
+def _convert_numpy_types(obj):
+    """Convert numpy types to native Python types for JSON serialization."""
+    if isinstance(obj, np.integer):
+        return int(obj)
+    elif isinstance(obj, np.floating):
+        return float(obj)
+    elif isinstance(obj, np.ndarray):
+        return obj.tolist()
+    elif isinstance(obj, dict):
+        return {key: _convert_numpy_types(value) for key, value in obj.items()}
+    elif isinstance(obj, list):
+        return [_convert_numpy_types(item) for item in obj]
+    return obj
+
 # Environment configuration
 NODE_ENV = os.getenv("NODE_ENV", "development").lower()
 IS_PRODUCTION = NODE_ENV == "production"
@@ -41,6 +56,32 @@ app = FastAPI(
     redoc_url=None if IS_PRODUCTION else "/redoc"
 )
 
+# Startup event to initialize background services
+@app.on_event("startup")
+async def startup_event():
+    """Initialize background services on startup"""
+    try:
+        from src.services.alert_scheduler import start_alert_scheduler
+        start_alert_scheduler()
+        if DEBUG_MODE:
+            print("Alert scheduler started successfully")
+    except Exception as e:
+        if DEBUG_MODE:
+            print(f"Warning: Could not start alert scheduler: {e}")
+
+# Shutdown event to cleanup background services
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Cleanup background services on shutdown"""
+    try:
+        from src.services.alert_scheduler import stop_alert_scheduler
+        stop_alert_scheduler()
+        if DEBUG_MODE:
+            print("Alert scheduler stopped successfully")
+    except Exception as e:
+        if DEBUG_MODE:
+            print(f"Warning: Error stopping alert scheduler: {e}")
+
 # Import routes with error handling for deployment
 try:
     from src.routes import llm_routes
@@ -56,6 +97,46 @@ try:
 except ImportError as e:
     if DEBUG_MODE:
         print(f"Warning: Could not import additional routes: {e}")
+
+# Import new Research Analysis routes
+try:
+    from src.routes.research_analysis import router as research_router
+    app.include_router(research_router)
+    if DEBUG_MODE:
+        print("Research Analysis routes registered successfully")
+except ImportError as e:
+    if DEBUG_MODE:
+        print(f"Warning: Could not import Research Analysis routes: {e}")
+
+# Import Patent Alerts routes
+try:
+    from src.routes.alerts import router as alerts_router
+    app.include_router(alerts_router)
+    if DEBUG_MODE:
+        print("Patent Alerts routes registered successfully")
+except ImportError as e:
+    if DEBUG_MODE:
+        print(f"Warning: Could not import Patent Alerts routes: {e}")
+
+# Import Patent Intelligence routes (fixed)
+try:
+    from src.routes.patent_intelligence import router as patent_intel_router
+    app.include_router(patent_intel_router)
+    if DEBUG_MODE:
+        print("Patent Intelligence routes registered successfully")
+except ImportError as e:
+    if DEBUG_MODE:
+        print(f"Warning: Could not import Patent Intelligence routes: {e}")
+
+# Import Novelty Assessment routes
+try:
+    from src.routes.novelty_assessment import router as novelty_router
+    app.include_router(novelty_router)
+    if DEBUG_MODE:
+        print("Novelty Assessment routes registered successfully")
+except ImportError as e:
+    if DEBUG_MODE:
+        print(f"Warning: Could not import Novelty Assessment routes: {e}")
 
 # Serve the static folder
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -96,12 +177,7 @@ class LicensingRequest(BaseModel):
     patent_portfolio: List[dict] = []
     publication_portfolio: List[dict] = []
 
-class NoveltyRequest(BaseModel):
-    research_title: str
-    research_abstract: str
-    claims: List[str] = []
-    existing_patents: List[dict] = []
-    existing_publications: List[dict] = []
+# NoveltyRequest model moved to src/routes/novelty_assessment.py
 
 # Existing endpoint
 @app.post("/analyze")
@@ -113,7 +189,15 @@ def analyze_technology(request: TechRequest):
         print(f"[DEBUG] Analyzing technology: {request.title[:50]}...")
         print(f"[DEBUG] Abstract length: {len(request.abstract)} characters")
     
-    result = analyze_research_potential(request.title, request.abstract, debug=debug_mode)
+    # Use the research analysis service for consistent numpy handling
+    try:
+        from src.services.research_analysis_service import ResearchAnalysisService
+        service = ResearchAnalysisService()
+        result = service.analyze_research(request.title, request.abstract, debug=debug_mode)
+    except ImportError:
+        # Fallback to direct call with numpy conversion
+        result = analyze_research_potential(request.title, request.abstract, debug=debug_mode)
+        result = _convert_numpy_types(result)
     
     if debug_mode:
         print(f"[DEBUG] Analysis complete. Market Potential Score: {result.get('overall_assessment', {}).get('market_potential_score', 'N/A')}")
@@ -416,71 +500,7 @@ async def find_licensing_opportunities(request: LicensingRequest):
             "note": f"Using fallback data due to: {str(e)}"
         }
 
-@app.post("/novelty-assessment")
-async def assess_novelty(request: NoveltyRequest):
-    """
-    Compare claims against existing patents using real AI agents
-    """
-    try:
-        assessment = await novelty_assessor.assess_novelty(
-            research_title=request.research_title,
-            research_abstract=request.research_abstract,
-            claims=request.claims,
-            existing_patents=request.existing_patents,
-            existing_publications=request.existing_publications
-        )
-        
-        return {
-            "research_title": request.research_title,
-            "assessment": assessment.__dict__,
-            "summary": {
-                "novelty_level": assessment.novelty_category,
-                "patentability_likelihood": assessment.patentability_indicators.get('patentability_likelihood', 'Unknown'),
-                "key_concerns": len(assessment.patentability_indicators.get('prior_art_issues', [])),
-                "recommendations_count": len(assessment.recommendations)
-            }
-        }
-    except Exception as e:
-        # Fallback to mock data
-        return {
-            "research_title": request.research_title,
-            "assessment": {
-                "overall_novelty_score": 0.75,
-                "novelty_category": "Moderately Novel",
-                "similar_patents": [],
-                "similar_publications": [],
-                "key_differences": [
-                    "Novel technical aspects: quantum algorithms, optimization techniques",
-                    "Unique approach to data processing compared to existing solutions"
-                ],
-                "patentability_indicators": {
-                    "novelty_score": 0.75,
-                    "claim_strength": "Strong",
-                    "claim_count": len(request.claims),
-                    "prior_art_issues": [],
-                    "patentability_likelihood": "Moderate"
-                },
-                "prior_art_analysis": {
-                    "total_similar_patents": 5,
-                    "total_similar_publications": 8,
-                    "highest_patent_similarity": 0.65,
-                    "highest_publication_similarity": 0.72,
-                    "prior_art_density": 13,
-                    "key_prior_art": []
-                },
-                "recommendations": [
-                    "Moderate novelty - consider strengthening claims",
-                    "Conduct detailed prior art search focusing on top similar patents"
-                ]
-            },
-            "summary": {
-                "novelty_level": "Moderately Novel",
-                "patentability_likelihood": "Moderate",
-                "key_concerns": 0,
-                "recommendations_count": 2
-            },
-            "note": f"Using fallback data due to: {str(e)}"
-        }
+# Novelty assessment routes moved to src/routes/novelty_assessment.py
 
 @app.post("/comprehensive-analysis")
 async def comprehensive_analysis(request: TechRequest):
@@ -489,8 +509,11 @@ async def comprehensive_analysis(request: TechRequest):
     """
     try:
         # Run all analyses in parallel
-        tasks = [
-            analyze_research_potential(request.title, request.abstract, debug=False),
+        # Run sync analysis first, then async analyses in parallel
+        basic_analysis = analyze_research_potential(request.title, request.abstract, debug=False)
+        basic_analysis = _convert_numpy_types(basic_analysis)
+        
+        async_tasks = [
             semantic_alerts.detect_similar_patents(
                 research_abstract=request.abstract,
                 research_title=request.title
@@ -507,11 +530,11 @@ async def comprehensive_analysis(request: TechRequest):
             )
         ]
         
-        # Wait for all analyses to complete
-        basic_analysis = tasks[0]
-        alerts = await tasks[1]
-        key_players = await tasks[2]
-        licensing_opps = await tasks[3]
+        # Wait for all async analyses to complete
+        async_results = await asyncio.gather(*async_tasks)
+        alerts = async_results[0]
+        key_players = async_results[1]
+        licensing_opps = async_results[2]
         
         return {
             "research_title": request.title,
@@ -536,6 +559,7 @@ async def comprehensive_analysis(request: TechRequest):
     except Exception as e:
         # Fallback to basic analysis only
         basic_analysis = analyze_research_potential(request.title, request.abstract, debug=False)
+        basic_analysis = _convert_numpy_types(basic_analysis)
         return {
             "research_title": request.title,
             "timestamp": "2024-01-01T00:00:00Z",
@@ -564,6 +588,7 @@ async def generate_ai_report(request: TechRequest):
         
         # First get the basic analysis
         analysis_data = analyze_research_potential(request.title, request.abstract, debug=False)
+        analysis_data = _convert_numpy_types(analysis_data)
         
         # Generate AI report with current market information
         report_generator = AIReportGenerator()

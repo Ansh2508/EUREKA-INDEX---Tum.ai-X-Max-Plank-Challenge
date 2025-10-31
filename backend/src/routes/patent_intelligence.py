@@ -10,8 +10,9 @@ from src.agents.competitor_discovery import CompetitorCollaboratorDiscovery
 from src.agents.licensing_opportunities import LicensingOpportunityMapper
 from src.agents.enhanced_novelty import EnhancedNoveltyAssessment
 from src.services.alexa_integration import AlexaDataIntegration
+from src.services.alert_service import AlertService
 
-router = APIRouter()
+router = APIRouter(prefix="/api/patent-intelligence", tags=["patent-intelligence"])
 logger = logging.getLogger(__name__)
 
 # Initialize services
@@ -20,6 +21,7 @@ competitor_discovery = CompetitorCollaboratorDiscovery()
 licensing_mapper = LicensingOpportunityMapper()
 novelty_assessor = EnhancedNoveltyAssessment()
 alexa_integration = AlexaDataIntegration()
+alert_service = AlertService()
 
 class PatentIntelligenceRequest(BaseModel):
     research_title: str
