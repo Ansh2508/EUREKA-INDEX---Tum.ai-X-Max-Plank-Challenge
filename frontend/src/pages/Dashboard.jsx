@@ -13,8 +13,7 @@ import {
   Brain,
   Zap
 } from 'lucide-react'
-import AIInsightsPanel from '../components/Dashboard/AIInsightsPanel'
-import QuickAnalysis from '../components/Dashboard/QuickAnalysis'
+
 import './Dashboard.css'
 
 function Dashboard() {
@@ -98,15 +97,7 @@ function Dashboard() {
           </div>
 
           <div className="content-grid">
-            {/* AI Insights Panel - Full Width */}
-            <div className="content-card ai-insights-card">
-              <AIInsightsPanel />
-            </div>
 
-            {/* Quick Analysis Panel */}
-            <div className="content-card quick-analysis-card">
-              <QuickAnalysis />
-            </div>
 
             <div className="content-card">
               <div className="card-header">
