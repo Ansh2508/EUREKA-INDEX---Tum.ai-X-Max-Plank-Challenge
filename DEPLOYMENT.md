@@ -1,29 +1,33 @@
 # Railway Deployment Anleitung
 
 ## Überblick
-Dieses Projekt ist jetzt für das Deployment auf Railway konfiguriert.
+Dieses Projekt ist für das Deployment auf Railway mit Railpack/Nixpacks konfiguriert.
 
 ## Konfigurierte Dateien
 
-### 1. `railway.toml` (Root)
+### 1. `requirements.txt` (Root)
+Verweist auf die Backend-Requirements, damit Railway Python als Hauptsprache erkennt.
+
+### 2. `nixpacks.toml` (Root)
+Fügt Node.js zur Build-Umgebung hinzu:
+- Python 3.11 (automatisch erkannt)
+- Node.js 20 + npm (manuell hinzugefügt für Frontend-Build)
+
+### 3. `build.sh` (Root)
+Build-Script für das gesamte Projekt:
+- Installiert Frontend-Dependencies (npm)
+- Baut das Frontend (Vite)
+- Kopiert die statischen Dateien ins Backend (`backend/static/`)
+
+### 4. `railway.toml` (Root)
 Definiert die Railway-Deployment-Konfiguration:
 - Builder: Nixpacks
+- Build-Befehl: `./build.sh`
 - Start-Befehl: `cd backend && python -m uvicorn main:app --host 0.0.0.0 --port $PORT`
 - Health-Check: `/health` Endpunkt
 - Auto-Restart bei Fehlern
 
-### 2. `nixpacks.toml` (Root)
-Definiert den Build-Prozess:
-- **Setup**: Python 3.11 + Node.js 20
-- **Install**: Backend-Dependencies (Python) + Frontend-Dependencies (npm)
-- **Build**: Frontend bauen und statische Dateien in `backend/static/` kopieren
-- **Start**: Backend-Server starten
-
-### 3. `package.json` (Root)
-- **start** Script: Startet das Backend
-- **build** Script: Baut das Frontend und kopiert die Dateien
-
-### 4. `.railwayignore`
+### 5. `.railwayignore`
 Schließt unnötige Dateien vom Deployment aus (Tests, Dokumentation, etc.)
 
 ## Deployment-Schritte
@@ -102,14 +106,26 @@ https://railway.app/project/your-project-id/service/your-service-id
 ## Lokales Testen des Production-Builds
 
 ```bash
-# Frontend bauen
-npm run build
+# Build-Script ausführen
+chmod +x build.sh
+./build.sh
 
 # Backend starten
-npm start
+cd backend
+python -m uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
 Dann öffnen Sie: `http://localhost:8000`
+
+## Wie das Deployment funktioniert
+
+1. **Spracherkennung**: Railway erkennt Python als Hauptsprache (wegen `requirements.txt` im Root)
+2. **Zusätzliche Tools**: `nixpacks.toml` fügt Node.js hinzu
+3. **Dependency-Installation**: Railway installiert automatisch:
+   - Python-Packages aus `requirements.txt`
+   - Node.js-Packages aus `frontend/package.json` (via build.sh)
+4. **Build-Phase**: `build.sh` baut das Frontend und kopiert die Dateien
+5. **Start**: Backend-Server startet und serviert das Frontend
 
 ## Support
 
