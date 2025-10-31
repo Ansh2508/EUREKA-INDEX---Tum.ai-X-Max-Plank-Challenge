@@ -1,0 +1,35 @@
+# Documentation
+docs/
+*.md
+!backend/README.md
+
+# Frontend source (we only need the built static files)
+frontend/src/
+frontend/node_modules/
+frontend/test-results/
+frontend/playwright-report/
+frontend/e2e/
+
+# Tests
+backend/tests/
+*.spec.js
+*.test.js
+*.test.py
+pytest.ini
+
+# Development files
+.env.local
+.env.development
+*.log
+.DS_Store
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
