@@ -1,6 +1,6 @@
 """
-Research Analysis Service - Refactored from analysis.py
-Provides core research analysis functionality for the Research Analysis feature.
+Research Analysis Service - Enhanced with LogicMill and Google AI Integration
+Provides comprehensive research analysis functionality combining multiple AI services.
 """
 
 from typing import Dict, List, Any, Optional
@@ -9,6 +9,19 @@ from src.analysis import analyze_research_potential
 import logging
 import json
 import numpy as np
+
+# Import Google AI functions with error handling
+try:
+    from src.llms.google_ai import (
+        get_patent_analysis, 
+        get_technical_innovation_analysis, 
+        get_prior_art_search_strategy,
+        get_google_ai_response
+    )
+    GOOGLE_AI_AVAILABLE = True
+except ImportError as e:
+    GOOGLE_AI_AVAILABLE = False
+    logging.warning(f"Google AI not available: {e}")
 
 logger = logging.getLogger(__name__)
 

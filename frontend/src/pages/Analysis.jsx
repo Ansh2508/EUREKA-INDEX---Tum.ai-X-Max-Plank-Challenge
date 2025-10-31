@@ -58,7 +58,7 @@ function Analysis() {
       localStorage.setItem('lastAnalysisRequest', JSON.stringify(formData))
 
       // Submit analysis request
-      const response = await fetch('/api/research/analyze', {
+      const response = await fetch('/analyze', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -74,53 +74,18 @@ function Analysis() {
         throw new Error(errorMessage)
       }
 
-      const analysisResponse = await response.json()
-      const analysisId = analysisResponse.id
+      // Get results directly (no polling needed for /analyze endpoint)
+      const analysisResults = await response.json()
 
-      // Poll for results
-      let attempts = 0
-      const maxAttempts = 30 // 30 seconds max
+      // Simulate progress completion
+      setAnalysisProgress(100)
 
-      const pollResults = async () => {
-        try {
-          const resultResponse = await fetch(`/api/research/results/${analysisId}`)
-
-          if (!resultResponse.ok) {
-            throw new Error(`Failed to get results (${resultResponse.status})`)
-          }
-
-          const resultData = await resultResponse.json()
-
-          if (resultData.status === 'completed' && resultData.results) {
-            setAnalysisProgress(100)
-            setTimeout(() => {
-              setResults(resultData.results)
-              saveToHistory(formData, resultData.results)
-              clearInterval(progressInterval)
-              setLoading(false)
-            }, 500)
-            return
-          } else if (resultData.status === 'failed') {
-            throw new Error(resultData.results?.error || 'Analysis failed')
-          } else if (resultData.status === 'processing' || resultData.status === 'pending') {
-            // Continue polling
-            attempts++
-            if (attempts < maxAttempts) {
-              setTimeout(pollResults, 1000)
-            } else {
-              throw new Error('Analysis timeout - please try again')
-            }
-          }
-        } catch (pollError) {
-          console.error('Polling error:', pollError)
-          setError(pollError.message || 'Failed to get analysis results')
-          clearInterval(progressInterval)
-          setLoading(false)
-        }
-      }
-
-      // Start polling after a short delay
-      setTimeout(pollResults, 1000)
+      setTimeout(() => {
+        setResults(analysisResults)
+        saveToHistory(formData, analysisResults)
+        clearInterval(progressInterval)
+        setLoading(false)
+      }, 500)
 
     } catch (err) {
       console.error('Analysis error:', err)

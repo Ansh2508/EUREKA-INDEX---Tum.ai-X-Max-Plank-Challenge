@@ -9,8 +9,13 @@ import os
 from dotenv import load_dotenv
 import numpy as np
 
-# Import existing modules
-from src.routes import llm_routes, openalex, related_works
+# Import existing modules with error handling
+try:
+    from src.routes import llm_routes, openalex, related_works
+    ROUTES_AVAILABLE = True
+except ImportError as e:
+    print(f"Warning: Some routes not available: {e}")
+    ROUTES_AVAILABLE = False
 
 # Import enhanced agents with error handling
 try:
@@ -83,20 +88,19 @@ async def shutdown_event():
             print(f"Warning: Error stopping alert scheduler: {e}")
 
 # Import routes with error handling for deployment
-try:
-    from src.routes import llm_routes
-    app.include_router(llm_routes.router, prefix="/llm")
-except ImportError as e:
+if ROUTES_AVAILABLE:
+    try:
+        app.include_router(llm_routes.router, prefix="/llm")
+        app.include_router(openalex.router, prefix="/openalex")
+        app.include_router(related_works.router)
+        if DEBUG_MODE:
+            print("Basic routes registered successfully")
+    except Exception as e:
+        if DEBUG_MODE:
+            print(f"Warning: Could not register some basic routes: {e}")
+else:
     if DEBUG_MODE:
-        print(f"Warning: Could not import some routes: {e}")
-
-try:
-    from src.routes import openalex, related_works
-    app.include_router(openalex.router, prefix="/openalex")
-    app.include_router(related_works.router)
-except ImportError as e:
-    if DEBUG_MODE:
-        print(f"Warning: Could not import additional routes: {e}")
+        print("Basic routes not available due to import errors")
 
 # Import new Research Analysis routes
 try:
@@ -189,25 +193,65 @@ def analyze_technology(request: TechRequest):
         print(f"[DEBUG] Analyzing technology: {request.title[:50]}...")
         print(f"[DEBUG] Abstract length: {len(request.abstract)} characters")
     
-    # Use the research analysis service for consistent numpy handling
+    # Use enhanced analysis with LogicMill API and Google AI
     try:
-        from src.services.research_analysis_service import ResearchAnalysisService
-        service = ResearchAnalysisService()
-        result = service.analyze_research(request.title, request.abstract, debug=debug_mode)
-    except ImportError:
-        # Fallback to direct call with numpy conversion
-        result = analyze_research_potential(request.title, request.abstract, debug=debug_mode)
-        result = _convert_numpy_types(result)
-    
-    if debug_mode:
-        print(f"[DEBUG] Analysis complete. Market Potential Score: {result.get('overall_assessment', {}).get('market_potential_score', 'N/A')}")
+        from src.enhanced_analysis import enhanced_research_analysis, convert_numpy_types
         
-        # Log patent/publication counts
-        patents = result.get('patents_found', 0)
-        publications = result.get('publications_found', 0)
-        print(f"[DEBUG] Found {patents} patents, {publications} publications")
-    
-    return result
+        result = enhanced_research_analysis(request.title, request.abstract, debug=debug_mode)
+        result = convert_numpy_types(result)
+        
+        if debug_mode:
+            market_potential = result.get("basic_analysis", {}).get("overall_assessment", {}).get("market_potential_score", "N/A")
+            print(f"[DEBUG] Enhanced analysis complete. Market Potential Score: {market_potential}")
+            
+            # Log similarity search results
+            similarity_data = result.get("similarity_search", {})
+            patents = similarity_data.get("patents_found", 0)
+            publications = similarity_data.get("publications_found", 0)
+            print(f"[DEBUG] LogicMill API found {patents} patents, {publications} publications")
+            
+            # Log AI insights availability
+            ai_insights = result.get("ai_insights", {})
+            ai_available = len([k for k, v in ai_insights.items() if v and "Error:" not in str(v)])
+            print(f"[DEBUG] Google AI insights: {ai_available}/4 available")
+        
+        return result
+        
+    except Exception as e:
+        if debug_mode:
+            print(f"[DEBUG] Enhanced analysis error: {str(e)}")
+        
+        # Fallback to basic analysis
+        try:
+            result = analyze_research_potential(request.title, request.abstract, debug=debug_mode)
+            result = _convert_numpy_types(result)
+            result["fallback_mode"] = True
+            result["error"] = f"Enhanced analysis failed: {str(e)}"
+            return result
+        except Exception as fallback_error:
+            if debug_mode:
+                print(f"[DEBUG] Fallback analysis also failed: {str(fallback_error)}")
+            
+            # Return minimal error response
+            return {
+                "error": f"All analysis methods failed: {str(fallback_error)}",
+                "overall_assessment": {
+                    "market_potential_score": 0,
+                    "assessment_summary": "Analysis temporarily unavailable"
+                },
+                "trl_assessment": {
+                    "trl_score": 0,
+                    "trl_category": "Unknown"
+                },
+                "market_analysis": {
+                    "tam_billion_usd": 0,
+                    "sam_billion_usd": 0,
+                    "som_billion_usd": 0
+                },
+                "recommendations": ["Analysis temporarily unavailable", "Please try again later"],
+                "similar_patents": [],
+                "similar_publications": []
+            }
 
 @app.get("/health")
 def health_check():

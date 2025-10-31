@@ -574,3 +574,367 @@
         padding: 12px;
     }
 }
+
+/* Enha
+nced Analysis Styles */
+.executive-summary {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.summary-text p {
+    margin-bottom: 1rem;
+    line-height: 1.6;
+    color: #374151;
+}
+
+.key-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.metric-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.metric-item .metric-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 0.25rem;
+}
+
+.metric-item .metric-label {
+    font-size: 0.875rem;
+    color: #6b7280;
+    text-align: center;
+}
+
+.ai-insights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.insight-section {
+    background: #f9fafb;
+    border-radius: 8px;
+    padding: 1.25rem;
+    border-left: 4px solid #3b82f6;
+}
+
+.insight-section h4 {
+    margin: 0 0 1rem 0;
+    color: #1f2937;
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.insight-content p {
+    margin-bottom: 0.75rem;
+    line-height: 1.5;
+    color: #4b5563;
+    font-size: 0.9rem;
+}
+
+.similarity-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    border-radius: 12px;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1e40af;
+    margin-bottom: 0.25rem;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: #64748b;
+    font-weight: 500;
+}
+
+/* Responsive adjustments for enhanced features */
+@media (max-width: 768px) {
+    .key-metrics-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .ai-insights-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .similarity-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+    }
+}
+
+/*
+ Enhanced Analysis Specific Styles */
+.executive-summary-card {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border: 2px solid #3b82f6;
+}
+
+.ai-summary {
+    margin-bottom: 1.5rem;
+}
+
+.summary-paragraph {
+    margin-bottom: 1rem;
+    line-height: 1.6;
+    color: #374151;
+    font-size: 0.95rem;
+}
+
+.summary-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.summary-metric {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.summary-metric .metric-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 0.25rem;
+}
+
+.summary-metric .metric-label {
+    font-size: 0.875rem;
+    color: #6b7280;
+    text-align: center;
+}
+
+/* LogicMill Similarity Results */
+.similarity-results-card {
+    border-left: 4px solid #10b981;
+}
+
+.similarity-overview {
+    margin-bottom: 1.5rem;
+}
+
+.similarity-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.stat-card {
+    text-align: center;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    border-radius: 12px;
+    border: 1px solid #bfdbfe;
+}
+
+.stat-card.patents {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border-color: #f59e0b;
+}
+
+.stat-card.publications {
+    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+    border-color: #10b981;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #1e40af;
+    margin-bottom: 0.25rem;
+}
+
+.stat-card.patents .stat-number {
+    color: #d97706;
+}
+
+.stat-card.publications .stat-number {
+    color: #047857;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.search-method {
+    padding: 1rem;
+    background: #f1f5f9;
+    border-radius: 8px;
+    border-left: 3px solid #3b82f6;
+}
+
+.method-label {
+    font-weight: 600;
+    color: #475569;
+    margin-right: 0.5rem;
+}
+
+.method-value {
+    color: #1e293b;
+    font-style: italic;
+}
+
+/* AI Insights */
+.ai-insights-card {
+    border-left: 4px solid #8b5cf6;
+}
+
+.insights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.insight-panel {
+    background: #fafafa;
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid #e5e7eb;
+    transition: all 0.2s ease;
+}
+
+.insight-panel:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.insight-panel h4 {
+    margin: 0 0 1rem 0;
+    color: #1f2937;
+    font-size: 1.1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.insight-content p {
+    margin-bottom: 0.75rem;
+    line-height: 1.5;
+    color: #4b5563;
+    font-size: 0.9rem;
+}
+
+.insight-content p:last-child {
+    margin-bottom: 0;
+}
+
+/* Enhanced Recommendations */
+.recommendation-item.enhanced {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border: 1px solid #0ea5e9;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+}
+
+.recommendation-item.enhanced:hover {
+    background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+    border-color: #0284c7;
+    transform: translateX(4px);
+}
+
+.recommendation-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: #0ea5e9;
+    color: white;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 0.875rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.card-subtitle {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin-top: 0.25rem;
+    font-style: italic;
+}
+
+/* Responsive adjustments for enhanced features */
+@media (max-width: 768px) {
+    .summary-metrics {
+        grid-template-columns: 1fr;
+    }
+
+    .similarity-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .insights-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stat-number {
+        font-size: 1.5rem;
+    }
+
+    .insight-panel {
+        padding: 1rem;
+    }
+
+    .recommendation-item.enhanced {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .similarity-stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stat-card {
+        padding: 1rem;
+    }
+}

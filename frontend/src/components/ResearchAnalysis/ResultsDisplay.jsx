@@ -16,17 +16,43 @@ function ResultsDisplay({ results, loading }) {
     return null
   }
 
+  // Handle both enhanced and basic analysis formats
+  const isEnhanced = results.basic_analysis || results.similarity_search || results.ai_insights
+
+  let analysisData, similarityData, aiInsights, executiveSummary, recommendationsList
+
+  if (isEnhanced) {
+    // Enhanced format with LogicMill and Google AI
+    analysisData = results.basic_analysis || {}
+    similarityData = results.similarity_search || {}
+    aiInsights = results.ai_insights || {}
+    executiveSummary = results.executive_summary || {}
+    recommendationsList = results.recommendations || []
+  } else {
+    // Basic format fallback
+    analysisData = results
+    similarityData = {
+      patents_found: results.similar_patents?.length || 0,
+      publications_found: results.similar_publications?.length || 0,
+      top_patents: results.similar_patents || [],
+      top_publications: results.similar_publications || []
+    }
+    aiInsights = {}
+    executiveSummary = {}
+    recommendationsList = results.recommendations || []
+  }
+
   const {
     overall_assessment,
     trl_assessment,
     market_analysis,
     ip_assessment,
     competitive_landscape,
-    regulatory_assessment,
-    recommendations,
-    similar_patents = [],
-    similar_publications = []
-  } = results
+    regulatory_assessment
+  } = analysisData
+
+  const similar_patents = similarityData.top_patents || results.similar_patents || []
+  const similar_publications = similarityData.top_publications || results.similar_publications || []
 
   return (
     <div className="modern-results-display">
@@ -108,6 +134,147 @@ function ResultsDisplay({ results, loading }) {
           </div>
         </div>
       </div>
+
+      {/* Enhanced Analysis Sections */}
+      {isEnhanced && (
+        <>
+          {/* Executive Summary */}
+          {executiveSummary && Object.keys(executiveSummary).length > 0 && (
+            <div className="content-card full-width executive-summary-card">
+              <div className="card-header">
+                <h3>
+                  <Target size={20} />
+                  Executive Summary
+                </h3>
+              </div>
+              <div className="card-body">
+                {executiveSummary.ai_generated_summary && (
+                  <div className="ai-summary">
+                    {executiveSummary.ai_generated_summary.split('\n\n').map((paragraph, index) => (
+                      <p key={index} className="summary-paragraph">{paragraph}</p>
+                    ))}
+                  </div>
+                )}
+
+                <div className="summary-metrics">
+                  <div className="summary-metric">
+                    <span className="metric-label">Opportunity Score</span>
+                    <span className="metric-value">{executiveSummary.opportunity_score || 'N/A'}/10</span>
+                  </div>
+                  <div className="summary-metric">
+                    <span className="metric-label">Risk Level</span>
+                    <span className="metric-value">{executiveSummary.risk_assessment || 'N/A'}</span>
+                  </div>
+                  <div className="summary-metric">
+                    <span className="metric-label">Competitive Density</span>
+                    <span className="metric-value">{executiveSummary.competitive_density || 'N/A'}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* LogicMill Similarity Search Results */}
+          {similarityData && similarityData.total_documents > 0 && (
+            <div className="content-card full-width similarity-results-card">
+              <div className="card-header">
+                <h3>
+                  <BarChart3 size={20} />
+                  LogicMill Patent & Publication Search
+                </h3>
+              </div>
+              <div className="card-body">
+                <div className="similarity-overview">
+                  <div className="similarity-stats-grid">
+                    <div className="stat-card">
+                      <div className="stat-number">{similarityData.total_documents}</div>
+                      <div className="stat-label">Total Documents</div>
+                    </div>
+                    <div className="stat-card patents">
+                      <div className="stat-number">{similarityData.patents_found}</div>
+                      <div className="stat-label">Patents Found</div>
+                    </div>
+                    <div className="stat-card publications">
+                      <div className="stat-number">{similarityData.publications_found}</div>
+                      <div className="stat-label">Publications Found</div>
+                    </div>
+                    {similarityData.similarity_distribution && (
+                      <div className="stat-card">
+                        <div className="stat-number">{similarityData.similarity_distribution.average_similarity}</div>
+                        <div className="stat-label">Avg Similarity</div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="search-method">
+                    <span className="method-label">Search Method:</span>
+                    <span className="method-value">{similarityData.search_method || 'LogicMill API with Patspecter embeddings'}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* AI Insights from Google AI */}
+          {aiInsights && Object.keys(aiInsights).length > 0 && (
+            <div className="content-card full-width ai-insights-card">
+              <div className="card-header">
+                <h3>
+                  <Lightbulb size={20} />
+                  Google AI Insights & Analysis
+                </h3>
+              </div>
+              <div className="card-body">
+                <div className="insights-grid">
+                  {aiInsights.novelty_assessment && !aiInsights.novelty_assessment.includes('Error:') && (
+                    <div className="insight-panel">
+                      <h4>🔍 Novelty Assessment</h4>
+                      <div className="insight-content">
+                        {aiInsights.novelty_assessment.split('\n').slice(0, 4).map((line, index) => (
+                          line.trim() && <p key={index}>{line.trim()}</p>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {aiInsights.patent_landscape_analysis && !aiInsights.patent_landscape_analysis.includes('Error:') && (
+                    <div className="insight-panel">
+                      <h4>🗺️ Patent Landscape</h4>
+                      <div className="insight-content">
+                        {aiInsights.patent_landscape_analysis.split('\n').slice(0, 4).map((line, index) => (
+                          line.trim() && <p key={index}>{line.trim()}</p>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {aiInsights.technical_analysis && !aiInsights.technical_analysis.includes('Error:') && (
+                    <div className="insight-panel">
+                      <h4>⚙️ Technical Analysis</h4>
+                      <div className="insight-content">
+                        {aiInsights.technical_analysis.split('\n').slice(0, 4).map((line, index) => (
+                          line.trim() && <p key={index}>{line.trim()}</p>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {aiInsights.innovation_potential && !aiInsights.innovation_potential.includes('Error:') && (
+                    <div className="insight-panel">
+                      <h4>💡 Innovation Potential</h4>
+                      <div className="insight-content">
+                        {aiInsights.innovation_potential.split('\n').slice(0, 4).map((line, index) => (
+                          line.trim() && <p key={index}>{line.trim()}</p>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </>
+      )}
 
       <div className="content-grid">
         {/* TRL Assessment */}
@@ -252,20 +419,25 @@ function ResultsDisplay({ results, loading }) {
           </div>
         )}
 
-        {/* Recommendations */}
-        {recommendations && recommendations.length > 0 && (
+        {/* Enhanced Recommendations */}
+        {recommendationsList && recommendationsList.length > 0 && (
           <div className="content-card">
             <div className="card-header">
               <h3>
                 <Lightbulb size={20} />
-                Recommendations
+                {isEnhanced ? 'AI-Generated Recommendations' : 'Recommendations'}
               </h3>
+              {isEnhanced && (
+                <div className="card-subtitle">
+                  Based on LogicMill patent search and Google AI analysis
+                </div>
+              )}
             </div>
             <div className="card-body">
               <div className="recommendations-list">
-                {recommendations.map((rec, index) => (
-                  <div key={index} className="recommendation-item">
-                    <div className="recommendation-bullet" />
+                {recommendationsList.map((rec, index) => (
+                  <div key={index} className="recommendation-item enhanced">
+                    <div className="recommendation-number">{index + 1}</div>
                     <span className="recommendation-text">{rec}</span>
                   </div>
                 ))}

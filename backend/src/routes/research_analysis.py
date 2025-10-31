@@ -7,9 +7,16 @@ from fastapi import APIRouter, HTTPException, BackgroundTasks
 from pydantic import BaseModel, Field
 from typing import List, Dict, Any, Optional
 from src.services.research_analysis_service import ResearchAnalysisService
-from src.llms.google_ai import get_patent_analysis, get_technical_innovation_analysis, get_prior_art_search_strategy
 import uuid
 import logging
+
+# Import Google AI functions with error handling
+try:
+    from src.llms.google_ai import get_patent_analysis, get_technical_innovation_analysis, get_prior_art_search_strategy
+    GOOGLE_AI_AVAILABLE = True
+except ImportError as e:
+    GOOGLE_AI_AVAILABLE = False
+    print(f"Warning: Google AI functions not available: {e}")
 
 logger = logging.getLogger(__name__)
 
@@ -194,13 +201,16 @@ async def get_ai_insights(request: AIInsightsRequest):
         research_text = f"Title: {request.title}\n\nAbstract: {request.abstract}"
         
         # Get AI insights based on analysis type
-        if request.analysis_type == "technical":
-            insights = get_technical_innovation_analysis(research_text)
-        elif request.analysis_type == "prior_art":
-            insights = get_prior_art_search_strategy(f"Invention Summary: {research_text}")
+        if not GOOGLE_AI_AVAILABLE:
+            insights = f"AI insights temporarily unavailable. Analysis type: {request.analysis_type}\n\nResearch: {research_text[:200]}...\n\nPlease check Google AI API configuration."
         else:
-            # Default to patent analysis for novelty, claims, landscape, infringement
-            insights = get_patent_analysis(research_text, request.analysis_type)
+            if request.analysis_type == "technical":
+                insights = get_technical_innovation_analysis(research_text)
+            elif request.analysis_type == "prior_art":
+                insights = get_prior_art_search_strategy(f"Invention Summary: {research_text}")
+            else:
+                # Default to patent analysis for novelty, claims, landscape, infringement
+                insights = get_patent_analysis(research_text, request.analysis_type)
         
         return {
             "analysis_type": request.analysis_type,
@@ -247,9 +257,14 @@ async def comprehensive_analysis(request: ResearchAnalysisRequest):
         research_text = f"Title: {request.title}\n\nAbstract: {request.abstract}"
         
         # Get multiple types of AI analysis
-        novelty_analysis = get_patent_analysis(research_text, "novelty")
-        technical_analysis = get_technical_innovation_analysis(research_text)
-        prior_art_strategy = get_prior_art_search_strategy(f"Invention Summary: {research_text}")
+        if GOOGLE_AI_AVAILABLE:
+            novelty_analysis = get_patent_analysis(research_text, "novelty")
+            technical_analysis = get_technical_innovation_analysis(research_text)
+            prior_art_strategy = get_prior_art_search_strategy(f"Invention Summary: {research_text}")
+        else:
+            novelty_analysis = "Google AI analysis temporarily unavailable. Please check API configuration."
+            technical_analysis = "Google AI analysis temporarily unavailable. Please check API configuration."
+            prior_art_strategy = "Google AI analysis temporarily unavailable. Please check API configuration."
         
         # Combine results
         comprehensive_results = {
@@ -283,6 +298,48 @@ async def comprehensive_analysis(request: ResearchAnalysisRequest):
         raise
     except Exception as e:
         logger.error(f"Error in comprehensive analysis: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+@router.post("/enhanced-analysis")
+async def enhanced_research_analysis(request: ResearchAnalysisRequest):
+    """
+    Enhanced research analysis using LogicMill API and Google AI for comprehensive reporting.
+    """
+    try:
+        # Validate input
+        validation = research_service.validate_research_input(
+            request.title, 
+            request.abstract
+        )
+        
+        if not validation["valid"]:
+            raise HTTPException(
+                status_code=400, 
+                detail={"errors": validation["errors"]}
+            )
+        
+        # Generate comprehensive report
+        comprehensive_report = research_service.generate_comprehensive_report(
+            title=request.title,
+            abstract=request.abstract,
+            debug=False
+        )
+        
+        return {
+            "success": True,
+            "analysis_type": "enhanced_comprehensive",
+            "report": comprehensive_report,
+            "data_sources": {
+                "logic_mill_api": "Patent and publication similarity search",
+                "google_ai_api": "AI-powered insights and analysis",
+                "market_analysis": "Comprehensive market and competitive intelligence"
+            }
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error in enhanced research analysis: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
 async def perform_analysis(analysis_id: str, title: str, abstract: str):
