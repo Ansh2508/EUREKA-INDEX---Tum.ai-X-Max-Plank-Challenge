@@ -1,9 +1,9 @@
 /* About Page Styles */
 
 .about-page {
-    background: #f8fafc;
+    background: transparent;
     min-height: calc(100vh - 120px);
-    padding: 32px;
+    padding: 2rem;
 }
 
 .about-container {

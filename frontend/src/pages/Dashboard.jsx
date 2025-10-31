@@ -11,7 +11,9 @@ import {
   Clock,
   ChevronRight,
   Brain,
-  Zap
+  Zap,
+  Plus,
+  Filter
 } from 'lucide-react'
 
 import './Dashboard.css'
@@ -23,15 +25,14 @@ function Dashboard() {
         <div className="dashboard-header">
           <div className="header-content">
             <h1>Dashboard</h1>
-            <p>Monitor your technology transfer analytics and insights</p>
           </div>
           <div className="header-actions">
-            <button className="btn btn-secondary">
-              <Calendar size={16} />
-              Last 30 days
+            <button className="modern-btn filter-btn">
+              <Filter size={18} />
+              Filter
             </button>
-            <button className="btn btn-primary">
-              <Microscope size={16} />
+            <button className="modern-btn primary-btn">
+              <Plus size={18} />
               New Analysis
             </button>
           </div>
@@ -40,59 +41,55 @@ function Dashboard() {
         <div className="dashboard-content">
           <div className="metrics-grid">
             <div className="metric-card">
-              <div className="metric-header">
+              <div className="metric-icon-section">
                 <div className="metric-icon microscope">
                   <Microscope size={20} />
                 </div>
-                <div className="metric-trend positive">
-                  <ArrowUpRight size={16} />
-                  12%
-                </div>
+                <div className="metric-trend positive">+12%</div>
               </div>
-              <div className="metric-value">24</div>
-              <div className="metric-label">Analyses Completed</div>
+              <div className="metric-content">
+                <div className="metric-value">24</div>
+                <div className="metric-label">Analyses Completed</div>
+              </div>
             </div>
 
             <div className="metric-card">
-              <div className="metric-header">
+              <div className="metric-icon-section">
                 <div className="metric-icon chart">
                   <BarChart3 size={20} />
                 </div>
-                <div className="metric-trend positive">
-                  <ArrowUpRight size={16} />
-                  8%
-                </div>
+                <div className="metric-trend positive">+8%</div>
               </div>
-              <div className="metric-value">8.5</div>
-              <div className="metric-label">Average Market Score</div>
+              <div className="metric-content">
+                <div className="metric-value">8.5</div>
+                <div className="metric-label">Average Market Score</div>
+              </div>
             </div>
 
             <div className="metric-card">
-              <div className="metric-header">
+              <div className="metric-icon-section">
                 <div className="metric-icon alert">
                   <Bell size={20} />
                 </div>
-                <div className="metric-status">
-                  <div className="status-dot active"></div>
-                  Active
-                </div>
+                <div className="metric-status">Active</div>
               </div>
-              <div className="metric-value">12</div>
-              <div className="metric-label">Patent Alerts</div>
+              <div className="metric-content">
+                <div className="metric-value">12</div>
+                <div className="metric-label">Patent Alerts</div>
+              </div>
             </div>
 
             <div className="metric-card">
-              <div className="metric-header">
+              <div className="metric-icon-section">
                 <div className="metric-icon report">
                   <ClipboardList size={20} />
                 </div>
-                <div className="metric-time">
-                  <Clock size={14} />
-                  Today
-                </div>
+                <div className="metric-time">Today</div>
               </div>
-              <div className="metric-value">6</div>
-              <div className="metric-label">Reports Generated</div>
+              <div className="metric-content">
+                <div className="metric-value">6</div>
+                <div className="metric-label">Reports Generated</div>
+              </div>
             </div>
           </div>
 
@@ -104,7 +101,7 @@ function Dashboard() {
                 <h3>Recent Analyses</h3>
                 <button className="btn-link">
                   View All
-                  <ChevronRight size={16} />
+                  <ChevronRight size={14} />
                 </button>
               </div>
               <div className="card-body">
@@ -147,7 +144,7 @@ function Dashboard() {
                     <div className="trend-growth positive">+15.3% CAGR</div>
                   </div>
                   <div className="trend-chart">
-                    <TrendingUp size={18} />
+                    <TrendingUp size={14} />
                   </div>
                 </div>
                 <div className="trend-item">
@@ -156,7 +153,7 @@ function Dashboard() {
                     <div className="trend-growth positive">+22.1% CAGR</div>
                   </div>
                   <div className="trend-chart">
-                    <TrendingUp size={18} />
+                    <TrendingUp size={14} />
                   </div>
                 </div>
                 <div className="trend-item">
@@ -165,13 +162,13 @@ function Dashboard() {
                     <div className="trend-growth positive">+12.8% CAGR</div>
                   </div>
                   <div className="trend-chart">
-                    <TrendingUp size={18} />
+                    <TrendingUp size={14} />
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="content-card">
+            <div className="content-card recent-alerts-card">
               <div className="card-header">
                 <h3>Recent Alerts</h3>
                 <button className="btn-link">

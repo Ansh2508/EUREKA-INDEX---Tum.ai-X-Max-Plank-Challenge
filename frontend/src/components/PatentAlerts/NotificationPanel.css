@@ -7,7 +7,7 @@
 
 /* Panel Header */
 .panel-header {
-    padding: 1.5rem;
+    padding: 1rem;
     border-bottom: 1px solid #e2e8f0;
     display: flex;
     justify-content: space-between;
@@ -68,7 +68,7 @@
 
 /* Panel Controls */
 .panel-controls {
-    padding: 1rem 1.5rem;
+    padding: 0.75rem 1rem;
     border-bottom: 1px solid #f1f5f9;
     background: #f8fafc;
 }
@@ -124,7 +124,7 @@
 }
 
 .notification-item {
-    padding: 1rem 1.5rem;
+    padding: 0.75rem 1rem;
     border-bottom: 1px solid #f1f5f9;
     transition: background-color 0.2s ease;
     cursor: pointer;
@@ -147,7 +147,7 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
 }
 
 .alert-info {
@@ -192,7 +192,7 @@
 }
 
 .notification-content {
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
 }
 
 .patent-title {
@@ -271,7 +271,7 @@
 
 /* Empty State */
 .empty-notifications {
-    padding: 3rem 1.5rem;
+    padding: 2rem 1rem;
     text-align: center;
     color: #64748b;
 }
@@ -288,7 +288,7 @@
 
 /* Panel Footer */
 .panel-footer {
-    padding: 1rem 1.5rem;
+    padding: 0.75rem 1rem;
     border-top: 1px solid #e2e8f0;
     background: #f8fafc;
 }

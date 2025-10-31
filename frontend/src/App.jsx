@@ -79,7 +79,7 @@ function AppContent() {
 
         <footer className="footer">
           <div className="footer-content">
-            <p>&copy; 2024 EUREKA INDEX - Technology Transfer Analysis Platform</p>
+            <p>&copy; 2025 EUREKA INDEX - Technology Transfer Analysis Platform</p>
             <p>AI-powered patent intelligence and research commercialization</p>
           </div>
         </footer>

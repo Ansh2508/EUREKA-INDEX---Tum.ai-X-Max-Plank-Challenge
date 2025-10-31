@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { FileText, Sparkles, RotateCcw } from 'lucide-react'
 import './AnalysisForm.css'
 
 function AnalysisForm({ onSubmit, loading }) {
@@ -11,7 +12,7 @@ function AnalysisForm({ onSubmit, loading }) {
   // Real-time validation
   useEffect(() => {
     const newErrors = {}
-    
+
     if (touched.title) {
       if (!title.trim()) {
         newErrors.title = 'Title is required'
@@ -21,7 +22,7 @@ function AnalysisForm({ onSubmit, loading }) {
         newErrors.title = 'Title must be less than 500 characters'
       }
     }
-    
+
     if (touched.abstract) {
       if (!abstract.trim()) {
         newErrors.abstract = 'Abstract is required'
@@ -31,9 +32,9 @@ function AnalysisForm({ onSubmit, loading }) {
         newErrors.abstract = 'Abstract must be less than 5000 characters'
       }
     }
-    
+
     setErrors(newErrors)
-    
+
     // Check if form is valid for submission
     const hasRequiredFields = title.trim() && abstract.trim()
     const hasNoErrors = Object.keys(newErrors).length === 0
@@ -47,10 +48,10 @@ function AnalysisForm({ onSubmit, loading }) {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    
+
     // Mark all fields as touched for validation display
     setTouched({ title: true, abstract: true })
-    
+
     if (isFormValid) {
       onSubmit({ title: title.trim(), abstract: abstract.trim() })
     }
@@ -71,18 +72,13 @@ function AnalysisForm({ onSubmit, loading }) {
   }
 
   return (
-    <div className="analysis-form-container">
-      <div className="form-header">
-        <div className="header-icon">🔬</div>
-        <h2>Submit Research for Analysis</h2>
-        <p>Provide your research details to discover similar patents and assess commercialization potential</p>
-      </div>
-
-      <form onSubmit={handleSubmit} className="analysis-form">
-        <div className="form-group">
-          <label htmlFor="title" className="form-label">
-            Research Title *
-            <span className="label-hint">A clear, descriptive title of your research</span>
+    <form onSubmit={handleSubmit} className="modern-analysis-form">
+      <div className="form-fields">
+        <div className="field-group">
+          <label htmlFor="title" className="field-label">
+            <FileText size={16} />
+            Research Title
+            <span className="required">*</span>
           </label>
           <input
             type="text"
@@ -90,104 +86,100 @@ function AnalysisForm({ onSubmit, loading }) {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             onBlur={() => handleBlur('title')}
-            placeholder="e.g., Novel Machine Learning Algorithm for Medical Image Analysis"
-            className={`form-input ${errors.title ? 'error' : ''} ${title && !errors.title ? 'valid' : ''}`}
+            placeholder="Enter a clear, descriptive title of your research"
+            className={`field-input ${errors.title ? 'error' : ''} ${title && !errors.title ? 'valid' : ''}`}
             disabled={loading}
           />
-          {errors.title && <span className="error-text">⚠️ {errors.title}</span>}
-          <div 
-            className="char-count"
-            style={{ color: getCharCountColor(title.length, 500) }}
-          >
-            {title.length}/500 characters
+          {errors.title && (
+            <div className="field-error">
+              {errors.title}
+            </div>
+          )}
+          <div className="field-meta">
+            <span className={`char-count ${title.length > 450 ? 'warning' : ''} ${title.length > 500 ? 'error' : ''}`}>
+              {title.length}/500
+            </span>
           </div>
         </div>
 
-        <div className="form-group">
-          <label htmlFor="abstract" className="form-label">
-            Research Abstract *
-            <span className="label-hint">Detailed description of your research, methodology, and findings</span>
+        <div className="field-group">
+          <label htmlFor="abstract" className="field-label">
+            <Sparkles size={16} />
+            Research Abstract
+            <span className="required">*</span>
           </label>
           <textarea
             id="abstract"
             value={abstract}
             onChange={(e) => setAbstract(e.target.value)}
             onBlur={() => handleBlur('abstract')}
-            placeholder="Describe your research in detail including the problem you're solving, your approach, key findings, and potential applications. Be specific about the technical aspects and innovations."
-            rows={10}
-            className={`form-textarea ${errors.abstract ? 'error' : ''} ${abstract && !errors.abstract ? 'valid' : ''}`}
+            placeholder="Provide a detailed description of your research including methodology, key findings, and potential applications. Be specific about technical innovations and the problems you're solving."
+            rows={8}
+            className={`field-textarea ${errors.abstract ? 'error' : ''} ${abstract && !errors.abstract ? 'valid' : ''}`}
             disabled={loading}
           />
-          {errors.abstract && <span className="error-text">⚠️ {errors.abstract}</span>}
-          <div 
-            className="char-count"
-            style={{ color: getCharCountColor(abstract.length, 5000) }}
-          >
-            {abstract.length}/5000 characters
+          {errors.abstract && (
+            <div className="field-error">
+              {errors.abstract}
+            </div>
+          )}
+          <div className="field-meta">
+            <span className={`char-count ${abstract.length > 4500 ? 'warning' : ''} ${abstract.length > 5000 ? 'error' : ''}`}>
+              {abstract.length}/5000
+            </span>
+            <span className="word-count">
+              {abstract.trim() ? abstract.trim().split(/\s+/).length : 0} words
+            </span>
           </div>
         </div>
+      </div>
 
-        <div className="form-actions">
-          <button 
-            type="button"
-            className="btn btn-secondary"
-            onClick={handleClear}
-            disabled={loading || (!title && !abstract)}
-          >
-            <span className="btn-icon">🗑️</span>
-            Clear Form
-          </button>
-          
-          <button 
-            type="submit" 
-            className={`btn btn-primary btn-large ${!isFormValid ? 'disabled' : ''}`}
-            disabled={loading || !isFormValid}
-          >
-            {loading ? (
-              <>
-                <span className="btn-spinner"></span>
-                Analyzing...
-              </>
-            ) : (
-              <>
-                <span className="btn-icon">🔍</span>
-                Analyze Research
-              </>
-            )}
-          </button>
-        </div>
+      <div className="form-actions">
+        <button
+          type="button"
+          className="modern-btn secondary-btn"
+          onClick={handleClear}
+          disabled={loading || (!title && !abstract)}
+        >
+          <RotateCcw size={16} />
+          Clear
+        </button>
 
-        {isFormValid && !loading && (
-          <div className="form-preview">
-            <h4>📋 Analysis Preview</h4>
-            <div className="preview-content">
-              <div className="preview-item">
-                <strong>Title:</strong> {title}
-              </div>
-              <div className="preview-item">
-                <strong>Abstract:</strong> {abstract.substring(0, 150)}...
-              </div>
-              <div className="preview-stats">
-                <span>📊 {title.split(' ').length} words in title</span>
-                <span>📝 {abstract.split(' ').length} words in abstract</span>
-              </div>
+        <button
+          type="submit"
+          className="modern-btn primary-btn"
+          disabled={loading || !isFormValid}
+        >
+          {loading ? (
+            <>
+              <div className="spinner" />
+              Analyzing...
+            </>
+          ) : (
+            <>
+              <Sparkles size={16} />
+              Start Analysis
+            </>
+          )}
+        </button>
+      </div>
+
+      {isFormValid && !loading && (
+        <div className="form-summary">
+          <div className="summary-header">
+            <h4>Ready to Analyze</h4>
+            <div className="summary-stats">
+              <span className="stat">
+                {title.split(' ').length} title words
+              </span>
+              <span className="stat">
+                {abstract.split(' ').length} abstract words
+              </span>
             </div>
           </div>
-        )}
-
-        {!loading && (title || abstract) && (
-          <div className="form-tips">
-            <h4>💡 Tips for better results:</h4>
-            <ul>
-              <li>Include specific technical terms and methodologies</li>
-              <li>Mention the problem domain and potential applications</li>
-              <li>Describe what makes your approach novel or innovative</li>
-              <li>Include any preliminary results or validation data</li>
-            </ul>
-          </div>
-        )}
-      </form>
-    </div>
+        </div>
+      )}
+    </form>
   )
 }
 
