@@ -1,0 +1,22 @@
+{
+    "name": "eureka-index",
+    "version": "1.0.0",
+    "description": "AI-Powered Technology Transfer Analysis Platform",
+    "scripts": {
+        "build": "cd frontend && npm install && npm run build",
+        "dev": "cd frontend && npm run dev",
+        "preview": "cd frontend && npm run preview"
+    },
+    "keywords": [
+        "technology-transfer",
+        "patent-analysis",
+        "ai",
+        "react",
+        "fastapi"
+    ],
+    "author": "EUREKA INDEX Team",
+    "license": "MIT",
+    "engines": {
+        "node": ">=18.0.0"
+    }
+}
