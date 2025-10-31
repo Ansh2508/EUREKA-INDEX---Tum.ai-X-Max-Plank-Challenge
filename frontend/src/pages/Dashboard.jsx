@@ -9,8 +9,12 @@ import {
   ArrowUpRight,
   Calendar,
   Clock,
-  ChevronRight
+  ChevronRight,
+  Brain,
+  Zap
 } from 'lucide-react'
+import AIInsightsPanel from '../components/Dashboard/AIInsightsPanel'
+import QuickAnalysis from '../components/Dashboard/QuickAnalysis'
 import './Dashboard.css'
 
 function Dashboard() {
@@ -94,6 +98,16 @@ function Dashboard() {
           </div>
 
           <div className="content-grid">
+            {/* AI Insights Panel - Full Width */}
+            <div className="content-card ai-insights-card">
+              <AIInsightsPanel />
+            </div>
+
+            {/* Quick Analysis Panel */}
+            <div className="content-card quick-analysis-card">
+              <QuickAnalysis />
+            </div>
+
             <div className="content-card">
               <div className="card-header">
                 <h3>Recent Analyses</h3>
@@ -106,21 +120,21 @@ function Dashboard() {
                 <div className="list-item">
                   <div className="item-content">
                     <div className="item-title">Machine Learning Algorithm</div>
-                    <div className="item-subtitle">2 hours ago</div>
+                    <div className="item-subtitle">2 hours ago • AI Enhanced</div>
                   </div>
                   <div className="score-badge high">8.5</div>
                 </div>
                 <div className="list-item">
                   <div className="item-content">
                     <div className="item-title">Quantum Computing Research</div>
-                    <div className="item-subtitle">1 day ago</div>
+                    <div className="item-subtitle">1 day ago • AI Enhanced</div>
                   </div>
                   <div className="score-badge excellent">9.2</div>
                 </div>
                 <div className="list-item">
                   <div className="item-content">
                     <div className="item-title">Biomedical Device Innovation</div>
-                    <div className="item-subtitle">3 days ago</div>
+                    <div className="item-subtitle">3 days ago • AI Enhanced</div>
                   </div>
                   <div className="score-badge good">7.8</div>
                 </div>
